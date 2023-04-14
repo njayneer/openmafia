@@ -1,0 +1,91 @@
+tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+
+.tab-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tab-nav li {
+  display: inline-block;
+  margin-right: 5px;
+  min-width: 10%;
+}
+
+.tab-nav > li:last-child {
+  margin-right: 0;
+}
+
+.tab-nav li a {
+  display: block;
+  padding: 10px;
+  background-color: #eee;
+  color: #333;
+  text-decoration: none;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.tab-nav li.active a {
+  border: 1px solid #ddd;
+  border-bottom: none;
+  position: relative;
+  z-index: 1;
+  background-color: #fcfcfc;
+}
+
+.tab-nav > li.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.tab-content {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  border-top-left-radius: 0px;
+  background-color: #fcfcfc;
+}
+
+.tab-content > div {
+  display: none;
+}
+
+.tab-content > div.active {
+  display: block;
+}
+
+.tab-nav > li {
+
+  margin-bottom: -1px;
+}
+
+.tab-nav > li.active {
+  border-bottom: none;
+  margin-bottom: -1px;
+}
+
+.content-box {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.tab-content .content-box:last-of-type {
+    margin-bottom: 0px;
+}
+
+.form-control {
+    width: auto;
+}
+
+.form-horizontal .form-group {
+    margin-right: 0px;
+    margin-left: 0px;
+}

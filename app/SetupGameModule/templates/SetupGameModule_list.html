@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{%endblock%}
+
+{%block title%}Setup game{%endblock%}
+
+{%block main_content%}
+    {% if games|length > 0 %}
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Nazwa</th>
+          <th scope="col">Status</th>
+          <th scope="col">Właściciel</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for game in games %}
+        {% if game.status.name == 'in_progress'%}
+        {% set link = '../' + game.id|string + '/lobby' %}
+        {% else %}
+        {% set link = '../' + game.id|string + '/game_configuration' %}
+        {% endif %}
+        <tr onclick="document.location = '{{ link }}';">
+         <th scope="row">{{ game.id }}</th>
+            <td>{{ game.name }}</td>
+            <td>{{ game.status.name }}</td>
+            <td>{{ game.owner.name }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    Brak gier do wyświetlenia.
+    {% endif %}
+{%endblock%}

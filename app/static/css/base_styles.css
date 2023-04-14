@@ -1,0 +1,49 @@
+.alert {
+  padding: 10px 15px; /* wewnętrzny padding dla miejsca na treść alertu */
+  margin-bottom: 10px; /* margines od elementów poniżej */
+  border: 1px solid transparent; /* domyślnie brak obramowania */
+  border-radius: 4px; /* zaokrąglenie rogów */
+  text-align: center; /* wyśrodkowanie tekstu */
+  display: flex; /* ustawienie flexboxa */
+  justify-content: center; /* wyśrodkowanie tekstu w pionie */
+  align-items: center; /* wyśrodkowanie tekstu w poziomie */
+  position: relative;
+}
+
+/* Style dla alertu typu sukces */
+.alert-success {
+  color: #155724; /* kolor tekstu */
+  background-color: #d4edda; /* kolor tła */
+  border-color: #c3e6cb; /* kolor obramowania */
+}
+
+/* Style dla alertu typu ostrzeżenie */
+.alert-warning {
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+}
+
+/* Style dla alertu typu błąd */
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.close {
+  position: absolute; /* ustawienie pozycji dla przycisku "x" */
+  top: 0;
+  right: 0;
+  padding: 5px 10px !important;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease; /* płynna animacja */
+}
+
+.close:hover {
+  color: #ff0000; /* zmiana koloru po najechaniu myszą */
+}

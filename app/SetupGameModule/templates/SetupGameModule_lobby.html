@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/scripts.js') }}"></script>
+{%endblock%}
+
+{%block title%}{{ game.name }} - lobby{%endblock%}
+{%block main_content%}
+
+<h2>Witaj <b>{{ data['you'].name }}</b> w grze {{ game.name }}</h2>
+<div class="tabs">
+  <ul class="tab-nav">
+    <li class="active"><a href="#lobby">Lobby</a></li>
+    <li><a href="#city">Miasto</a></li>
+    <li><a href="#roles">Rola</a></li>
+    <li class="disabled"><a href="#mafia">Mafia</a></li>
+    <li class="disabled"><a href="#graveyard">Cmentarz</a></li>
+  </ul>
+  <div class="tab-content">
+    <div id="lobby" class="active">
+        <div class="content-box">
+          <h4>Doba {{ game.day_no }}, {{ game.phases[game.phase - 1].phase_name }}</h4>
+          Koniec fazy dnia: {{ data['day_end'] }}<br />
+          Koniec fazy nocy: {{ data['night_end'] }}<br />
+        </div>
+        <div class="content-box">
+          <h4>Lista żyjących mieszkańców:</h4>
+          <ul>
+          {% if data['alive_players']|length > 0 %}
+            {% for player in data['alive_players']  %}
+                <li>{{ player.name }}</li>
+            {% endfor %}
+          {% else %}
+            Wszyscy zginęli!
+          {% endif %}
+          </ul>
+        </div>
+        <div class="content-box">
+          <h4>Lista martwych mieszkańców:</h4>
+          <ul>
+          {% if data['dead_players']|length > 0 %}
+            {% for player in data['dead_players']  %}
+                <li>{{ player.name }} -
+                  {% for role in player.roles %}
+                  {{ role.role.visible_name }}
+                  {% if loop.index < player.roles|length %}, {% endif %}
+                  {% endfor %}
+                </li>
+            {% endfor %}
+          {% else %}
+            Wszyscy żyją!
+          {% endif %}
+          </ul>
+        </div>
+    </div>
+    <div id="city">
+      <div class="content-box">
+        <h4>Głosowanie miasta:</h4>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Kto</th>
+              <th scope="col">Głos na</th>
+              <th scope="col">Godzina</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for citizen_vote in data['citizen_votes'] %}
+          <tr>
+            <td>{{ citizen_vote.source_player.name }}</td>
+            <td>{{ citizen_vote.target_player.name }}</td>
+            <td>{{ citizen_vote.timestamp }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="roles">
+        {% for r in data['you'].roles %}
+        <div class="content-box">
+          <h4>Twoja rola: {{ r.role.visible_name }}</h4>
+          {{ r.role.description }}<br />
+          {% include "roles/" + r.role.name + ".html" %}
+        </div>
+        {% endfor %}
+    </div>
+    <div id="mafia">
+      <div class="content-box">
+        Tajne miejsce obrad.
+      </div>
+    </div>
+    <div id="graveyard">
+      <div class="content-box">
+        Cmentarz.
+      </div>
+    </div>
+  </div>
+</div>
+
+{%endblock%}

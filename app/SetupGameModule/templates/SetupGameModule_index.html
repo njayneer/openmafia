@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/datatables.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/jquery-3.5.1') }}"></script>
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/jquery.dataTables.min.js') }}"></script>
+{%endblock%}
+
+{%block title%}Setup game{%endblock%}
+
+{%block main_content%}
+<form  method="post" class="form form-horizontal" name="setupgameform">
+    {{ wtf.form_errors(form,"only") }}
+    {{ form.hidden_tag() }}
+    {{ wtf.form_field(form.name) }}
+    <div class="form-actions">
+        <button name="action_create_game" type="submit" class="btn btn-primary">Załóż grę</button>
+    </div>
+</form>
+{%endblock%}

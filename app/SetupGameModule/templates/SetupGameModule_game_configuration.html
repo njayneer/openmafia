@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/datatables.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{%endblock%}
+
+{%block title%}Setup game{%endblock%}
+
+{%block main_content%}
+<h1>{{ game.name }}</h1>
+
+<div class="tab-content">
+    <div id="lobby" class="active">
+        <div class="content-box">
+                <h4>Status: {{ game.status.visible_name }}</h4>
+                {% if game.status.name == 'waiting_for_start' %}
+                Start gry: {{ game.start_time }}
+                Długość dnia: {{ game.phases[0].phase_duration }}
+                Długość nocy: {{ game.phases[1].phase_duration }}
+                {% endif %}
+        </div>
+        <div class="content-box">
+        <h4>Lista zapisanych:</h4>
+                {% for player in game.game_players %}
+                        {{ player.user.name }}
+                        {% if user_type=='admin' and player.user.id != current_user.id %}
+                                <a href="./game_configuration/throw-user/{{player.user.id}}">Wyrzuć gracza</a>
+                        {% endif %}
+                        <br/>
+                {% endfor %}
+        </div>
+        <div class="content-box">
+                {% if user_type=='guest' %}
+                        <a href="./game_configuration/join">Dołącz do gry</a>
+                {% elif user_type=='player' %}
+                        <a href="./game_configuration/sign-off">Wypisz się</a>
+                {% elif user_type=='admin' %}
+                        {% if game.status.name == 'new' %}
+                                <a href="./game_configuration/enrollment_open">Otwórz zapisy</a><br />
+                                <a href="./game_configuration/remove">Usuń grę</a>
+                        {% elif game.status.name == 'enrollment_open' %}
+                                <a href="./game_configuration/enrollment_close">Zamknij zapisy</a><br />
+                                <a href="./game_configuration/remove">Usuń grę</a>
+                        {% elif game.status.name == 'enrollment_closed' %}
+                                <a href="./game_configuration/choose_roles">Wybierz role</a><br />
+                                <a href="./game_configuration/enrollment_open">Otwórz zapisy</a><br />
+                                <a href="./game_configuration/plan_starting_game">Zweryfikuj i rozpocznij grę</a><br />
+                                <a href="./game_configuration/remove">Usuń grę</a>
+                        {% elif game.status.name == 'waiting_for_start' %}
+                                <a href="./game_configuration/remove">Usuń grę</a>
+                        {% endif %}
+                {% endif %}
+        </div>
+        <div class="content-box">
+                <h4>Konfiguracja</h4>
+                Ustaw nazwę gracza:<br />
+                <form action="./game_configuration/set_player_name" method="post" class="form form-horizontal" name="setplayernameform">
+                {{ wtf.form_errors(form,"only") }}
+                {{ form.hidden_tag() }}
+                {{ wtf.form_field(form.name) }}
+                <div class="form-actions">
+                        <button name="action_set_player_name" type="submit" class="btn btn-primary">Ustaw nazwę gracza</button>
+                </div>
+        </form>
+        </div>
+        {% if game.roles|length > 0 %}
+        <div class="content-box">
+                <h4>Role:</h4>
+                {% for role in game.roles %}
+                        {{ role.role.visible_name }}<br />
+                {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+  </div>
+</div>
+{%endblock%}

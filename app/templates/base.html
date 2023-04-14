@@ -1,0 +1,85 @@
+{% extends "bootstrap/base.html" %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap_table.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='js/base_scripts.js') }}"></script>
+{%endblock%}
+{% block header %}
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% endblock %}
+{%block title%}Base{%endblock%}
+
+{% block navbar %}
+<nav class="navbar navbar-default" id="nav">
+	<div class="container-fluid">
+	  <!-- Brand and toggle get grouped for better mobile display -->
+	  <div class="navbar-header">
+		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+		  <span class="sr-only">Toggle navigation</span>
+		  <span class="icon-bar"></span>
+		  <span class="icon-bar"></span>
+		  <span class="icon-bar"></span>
+		</button>
+		<a class="navbar-brand" href="/">OpenMafia 2.0</a>
+	  </div>
+
+	  <!-- Collect the nav links, forms, and other content for toggling -->
+	  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		<ul class="nav navbar-nav">
+			<li {{ 'class=active' if request.endpoint == 'SetupGameModule.setup_game' }} ><a href="{{ url_for('SetupGameModule.setup_game')}}">Załóż grę</a></li>
+			<li><a href="{{ url_for('SetupGameModule.game_list')}}/my_games">Moje gry</a></li>
+			<li><a href="{{ url_for('SetupGameModule.game_list')}}/open_games">Otwarte gry</a></li>
+		  </li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+		  <li><a href="#"></a></li>
+		  <li class="dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+				{% if current_user.is_authenticated %}
+				Zalogowany jako <b>{{ current_user.user }}</b>
+				{% else %}
+					Gość
+				{% endif %}
+				<span class="caret"></span>
+			</a>
+			<ul class="dropdown-menu">
+				{% if current_user.is_authenticated %}
+					<li><a href="/logout">Wyloguj</a></li>
+				{% else %}
+					<li><a href="/login">Zaloguj</a></li>
+					<li><a href="/signup">Zarejestruj</a></li>
+				{% endif %}
+			  	<li role="separator" class="divider"></li>
+				<li><a href="#">Wiadomości</a></li>
+			  	<li><a href="#">Ustawienia</a></li>
+			</ul>
+		  </li>
+		</ul>
+	  </div><!-- /.navbar-collapse -->
+	</div><!-- /.container-fluid -->
+  </nav>
+{% endblock %}
+
+{%block content %}
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+	    {% if messages %}
+		{% for category, message in messages %}
+	    <div class="row alert {{ category }}">
+			{{ message }}<button type="button" class="close">&times;</button>
+		</div>
+		{% endfor %}
+	    {% endif %}
+    {% endwith %}
+
+	{%block main_content%}{%endblock%}
+
+</div>
+
+{%endblock%}
