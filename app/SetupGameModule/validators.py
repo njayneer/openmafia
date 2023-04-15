@@ -76,6 +76,12 @@ class Validator:
             flash('Gra jeszcze nie wystartowała.', 'alert-danger')
             return False
 
+    def game_in_progress(self):
+        if self.game.status.name == 'in_progress':
+            return True
+        else:
+            flash('Nie jesteś w trakcie gry!', 'alert-danger')
+
     def roles_no_equals_players_no(self):
         if len(self.game.roles) == len(self.game.game_players):
             return True
@@ -98,4 +104,12 @@ class Validator:
             return True
         else:
             flash('Nie posiadasz odpowiedniej roli.', 'alert-danger')
+            return False
+
+    def user_is_alive(self):
+        user_status = [game_player.status for game_player in self.game.game_players if game_player.user_id == self.current_user.id][0]
+        if user_status == 'alive':
+            return True
+        else:
+            flash('Nie możesz tego zrobić, bo nie żyjesz!', 'alert-danger')
             return False

@@ -83,6 +83,14 @@
       </div>
     </div>
     <div id="roles">
+      <div class="content-box">
+        <h4>Twój status:
+          {% if data['you'].status == 'alive' %}żywy
+          {% elif data['you'].status == 'dead' %}martwy
+          {% else %}nieokreślony
+          {% endif %}
+        </h4>
+      </div>
         {% for r in data['you'].roles %}
         <div class="content-box">
           <h4>Twoja rola: {{ r.role.visible_name }}</h4>

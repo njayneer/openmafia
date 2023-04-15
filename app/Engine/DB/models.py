@@ -108,6 +108,15 @@ class Role_EventType(db.Model):
     eventtype = relationship("EventType")
 
 
+class Job(db.Model):
+    __tablename__ = 'jobs'
+    id = db.Column(db.Integer, primary_key=True)
+    job_name = db.Column(db.String(500))
+    game_id = db.Column(db.Integer, ForeignKey('Game.id'))
+    trigger_time = db.Column(db.DateTime(timezone=True))
+    status = db.Column(db.String(20), default='new')
+
+
 class User(db.Model):
     __tablename__ = 'User'
     id = db.Column(db.Integer, primary_key=True)

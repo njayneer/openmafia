@@ -75,4 +75,3 @@ with app.app_context():
                                          eventtype_id=gameevent_api.get_eventtype_id_from_name(event))
             db.session.add(e)
     db.session.commit()
-

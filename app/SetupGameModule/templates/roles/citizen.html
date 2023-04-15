@@ -1,4 +1,5 @@
 <h4>Głosowanie miasta w sprawie linczu</h4>
+{% if data['you'].status == 'alive' %}
 <form action="./create_event/citizen_vote" method="post" class="form form-horizontal" name="citizen_form">
     {{ wtf.form_errors(form,"only") }}
     {{ form.hidden_tag() }}
@@ -6,6 +7,7 @@
     <div class="form-actions">
         <button name="action_citizen" type="submit" class="btn btn-primary">Wyślij głos</button>
     </div>
+    {% endif %}
     {% if data['your_actual_citizen_vote'] is not none %}
     Aktualnie wybrany cel: {{ data['your_actual_citizen_vote'].name }}
     {% endif %}

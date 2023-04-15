@@ -5,10 +5,11 @@ from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi
 from flask_login import current_user, login_required
 from .validators import Validator
 import datetime
-from app import game_scheduler
+from app.Engine.AutomatedTasks.scheduler import GameScheduler
 from datetime import timedelta
 import app.alert_notifications as alert
-from app.Engine.AutomatedTasks.mafia_kill import check_target_from_events
+from app.Engine.AutomatedTasks.Tasks.mafia_kill import check_target_from_events
+from .decorators import handle_jobs
 
 
 @SetupGameModule.route('', methods=['GET', 'POST'])
@@ -36,6 +37,7 @@ def game_list(game_type='open_games'):
 
 @SetupGameModule.route('<game_id>/game_configuration', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration(game_id):
     game_id = int(game_id)
     db_api = GameApi()
@@ -65,6 +67,7 @@ def game_configuration(game_id):
 
 @SetupGameModule.route('<game_id>/game_configuration/join', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration_join(game_id):
     game_id = int(game_id)
     db_api = GameApi()
@@ -78,6 +81,7 @@ def game_configuration_join(game_id):
 
 @SetupGameModule.route('<game_id>/game_configuration/sign-off', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration_sign_off(game_id):
     game_id = int(game_id)
     db_api = GameApi()
@@ -91,6 +95,7 @@ def game_configuration_sign_off(game_id):
 
 @SetupGameModule.route('<game_id>/game_configuration/throw-user/<user_id>', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration_throw_user(game_id, user_id):
     game_id = int(game_id)
     user_id = int(user_id)
@@ -104,6 +109,7 @@ def game_configuration_throw_user(game_id, user_id):
 
 @SetupGameModule.route('<game_id>/game_configuration/enrollment_open', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration_enrollment_open(game_id):
     game_id = int(game_id)
     db_api = GameApi()
@@ -117,6 +123,7 @@ def game_configuration_enrollment_open(game_id):
 
 @SetupGameModule.route('<game_id>/game_configuration/enrollment_close', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration_enrollment_close(game_id):
     game_id = int(game_id)
     db_api = GameApi()
@@ -130,6 +137,7 @@ def game_configuration_enrollment_close(game_id):
 
 @SetupGameModule.route('<game_id>/game_configuration/set_player_name', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration_set_player_name(game_id):
     game_id = int(game_id)
     db_api = GameApi()
@@ -148,9 +156,11 @@ def game_configuration_set_player_name(game_id):
 
 @SetupGameModule.route('<game_id>/game_configuration/remove', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration_remove(game_id):
     game_id = int(game_id)
     db_api = GameApi()
+    game_scheduler = GameScheduler()
     game = db_api.get_game(game_id)
     v = Validator(game, current_user)
 
@@ -163,6 +173,7 @@ def game_configuration_remove(game_id):
 
 @SetupGameModule.route('<game_id>/game_configuration/choose_roles', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration_choose_roles(game_id):
     game_id = int(game_id)
     db_api = GameApi()
@@ -191,10 +202,12 @@ def game_configuration_choose_roles(game_id):
 
 @SetupGameModule.route('<game_id>/game_configuration/plan_starting_game', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def game_configuration_plan_starting_game(game_id):
     game_id = int(game_id)
     db_api = GameApi()
     game = db_api.get_game(game_id)
+    game_scheduler = GameScheduler()
     v = Validator(game, current_user)
     form = ChooseStartTimeForm()
 
@@ -211,8 +224,10 @@ def game_configuration_plan_starting_game(game_id):
     return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
 
 
+
 @SetupGameModule.route('<game_id>/lobby', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def lobby(game_id):
     game_id = int(game_id)
     db_api = GameApi()
@@ -253,9 +268,6 @@ def lobby(game_id):
         except KeyError:
             your_citizen_vote = None
 
-
-
-
         data = {
             'day_end': game.start_time + timedelta(seconds=game.day_no * day_duration),
             'night_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration)),
@@ -274,14 +286,16 @@ def lobby(game_id):
     else:
         return redirect(url_for('SetupGameModule.game_list'))
 
+
 @SetupGameModule.route('<game_id>/create_event/<event_name>', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def create_event(game_id, event_name):
     game_id = int(game_id)
     db_api = GameApi()
     game = db_api.get_game(game_id)
     v = Validator(game, current_user)
-    if v.user_in_game() and v.user_can_do_event(event_name):
+    if v.user_in_game() and v.user_can_do_event(event_name) and v.game_in_progress() and v.user_is_alive():
         alive_players = db_api.get_alive_players()
         alive_players_names = [player.name for player in alive_players]
         form = CreateEventForm()

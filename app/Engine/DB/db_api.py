@@ -265,3 +265,35 @@ class GameEventApi:
             events = Event.query.filter_by(game_id=game.id, day_no=game.day_no, event_type=event_type)
 
         return events
+
+
+class JobApi:
+    def add_job(self, job_name, game, trigger_time):
+        new_job = Job(job_name=job_name,
+                        game_id=game.id,
+                        trigger_time=trigger_time)
+        db.session.add(new_job)
+        db.session.commit()
+
+    def list_jobs(self):
+        return Job.query.filter(Job.status != 'done').all()
+
+    def list_jobs_for_game(self, game_id):
+        return Job.query.filter(Job.status != 'done', Job.game_id == game_id).all()
+
+    def remove_job(self, job_id):
+        job = Job.query.filter(Job.id == job_id).first()
+        job.delete()
+        db.session.commit()
+
+    def update_job_status(self, job_id, status):
+        job = Job.query.filter(Job.id == job_id).first()
+        job.status = status
+        db.session.commit()
+
+    def lock_table(self):
+        db.session.begin_nested()
+        db.session.execute('LOCK TABLE ' + Job.__tablename__ + ' IN ACCESS EXCLUSIVE MODE;')
+
+    def unlock_table(self):
+        db.session.commit()

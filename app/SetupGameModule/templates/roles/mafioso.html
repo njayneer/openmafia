@@ -1,4 +1,5 @@
 <h4>Głosowanie miasta w sprawie linczu</h4>
+{% if data['you'].status == 'alive' %}
 <form action="./create_event/citizen_vote" method="post" class="form form-horizontal" name="citizen_form">
     {{ wtf.form_errors(form,"only") }}
     {{ form.hidden_tag() }}
@@ -6,9 +7,12 @@
     <div class="form-actions">
         <button name="action_citizen" type="submit" class="btn btn-primary">Wyślij głos</button>
     </div>
-    Aktualnie wybrany cel: {{ data['your_actual_citizen_vote'].name }}
 </form>
+{% endif %}
+Aktualnie wybrany cel: {{ data['your_actual_citizen_vote'].name }}
+
 <h4>Wybieranie celu nocnego morderstwa</h4>
+{% if data['you'].status == 'alive' %}
 <form action="./create_event/mafia_kill_vote" method="post" class="form form-horizontal" name="mafia_kill_form">
     {{ wtf.form_errors(form,"only") }}
     {{ form.hidden_tag() }}
@@ -16,7 +20,8 @@
     <div class="form-actions">
         <button name="action_mafioso" type="submit" class="btn btn-primary">Wyślij głos</button>
     </div>
+</form>
+    {% endif %}
     {% if data['your_actual_citizen_vote'] is not none %}
     Aktualnie wybrany cel: {{ data['mafia_actual_target'].name }}
     {% endif %}
-</form>

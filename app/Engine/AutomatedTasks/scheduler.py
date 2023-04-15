@@ -1,19 +1,18 @@
-from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
-from . import start_game, lynch, mafia_kill
-from app.Engine.DB.db_api import GameApi
-from datetime import timedelta
+import app.Engine.AutomatedTasks.Tasks as Tasks
+from app.Engine.DB.db_api import GameApi, JobApi
+from datetime import timedelta, datetime
+
 
 class GameScheduler:
     def __init__(self):
-        self.scheduler = BackgroundScheduler(timezone="Europe/Berlin")
-        self.scheduler.start()
+        self.job_api = JobApi()
 
     def create_game_start(self, game):
         trigger = DateTrigger(
             run_date=game.start_time
         )
-        self.scheduler.add_job(func=start_game.do, args=[game.id], trigger=trigger)
+        self.job_api.add_job('start_game', game, game.start_time)
 
     def get_jobs(self):
         jobs = self.scheduler.get_jobs()
@@ -26,25 +25,13 @@ class GameScheduler:
     def create_dummy_job(self):
         self.scheduler.add_job(func=self._dummy_fun, trigger='cron', second=5)
 
-    def app_start(self):
-        game_api = GameApi()
-        games = game_api.list_games()
-        for game in games:
-            # creating jobs for game start
-            if game.status.name == 'waiting_for_start':
-                self.create_game_start(game)
-            # creating jobs for lynch and kill
-            if game.status.name == 'in_progress':
-                self.create_lynch_for_actual_day(game)
-                self.create_mafia_kill_for_actual_day(game)
-
     def create_lynch_for_actual_day(self, game):
         day_duration = game.phases[0].phase_duration
         seconds = int(game.day_no) * day_duration
         trigger = DateTrigger(
             run_date=game.start_time + timedelta(seconds=seconds)
         )
-        self.scheduler.add_job(func=lynch.do, args=[game.id], trigger=trigger)
+        self.job_api.add_job('lynch', game, game.start_time + timedelta(seconds=seconds))
 
     def create_mafia_kill_for_actual_day(self, game):
         day_duration = game.phases[0].phase_duration
@@ -53,11 +40,24 @@ class GameScheduler:
         trigger = DateTrigger(
             run_date=game.start_time + timedelta(seconds=seconds)
         )
-        self.scheduler.add_job(func=mafia_kill.do, args=[game.id], trigger=trigger)
+        self.job_api.add_job('mafia_kill', game, game.start_time + timedelta(seconds=seconds))
 
     def remove_jobs_for_game(self, game):
-        jobs = self.get_jobs()
+        jobs = self.job_api.list_jobs()
         for job in jobs:
-            game_id = job.args[0]
+            game_id = job.game_id
             if game.id == game_id:
-                job.remove()
+                self.job_api.remove_job(job.id)
+
+    def check_jobs_and_run(self, game_id):  # TODO: solve race condition in DB (new->in_progress)
+        #self.job_api.lock_table()
+        jobs = self.job_api.list_jobs_for_game(game_id)
+        jobs_to_do = []
+        for job in jobs:
+            if job.status == 'new' and datetime.now() > job.trigger_time:
+                self.job_api.update_job_status(job.id, 'in_progress')
+                jobs_to_do.append(job)
+        #self.job_api.unlock_table()
+        for job in jobs_to_do:
+            getattr(Tasks, job.job_name).__call__(job.game_id)
+            self.job_api.update_job_status(job.id, 'done')
