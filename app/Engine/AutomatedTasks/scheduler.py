@@ -1,4 +1,3 @@
-from apscheduler.triggers.date import DateTrigger
 import app.Engine.AutomatedTasks.Tasks as Tasks
 from app.Engine.DB.db_api import GameApi, JobApi
 from datetime import timedelta, datetime
@@ -9,9 +8,6 @@ class GameScheduler:
         self.job_api = JobApi()
 
     def create_game_start(self, game):
-        trigger = DateTrigger(
-            run_date=game.start_time
-        )
         self.job_api.add_job('start_game', game, game.start_time)
 
     def get_jobs(self):
@@ -29,18 +25,12 @@ class GameScheduler:
         day_duration = game.phases[0].phase_duration
         night_duration = game.phases[1].phase_duration
         seconds = int(game.day_no) * (day_duration + night_duration) - night_duration
-        trigger = DateTrigger(
-            run_date=game.start_time + timedelta(seconds=seconds)
-        )
         self.job_api.add_job('lynch', game, game.start_time + timedelta(seconds=seconds))
 
     def create_mafia_kill_for_actual_day(self, game):
         day_duration = game.phases[0].phase_duration
         night_duration = game.phases[1].phase_duration
         seconds = int(game.day_no) * (day_duration + night_duration)
-        trigger = DateTrigger(
-            run_date=game.start_time + timedelta(seconds=seconds)
-        )
         self.job_api.add_job('mafia_kill', game, game.start_time + timedelta(seconds=seconds))
 
     def remove_jobs_for_game(self, game):
