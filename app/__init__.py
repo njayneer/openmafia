@@ -23,7 +23,7 @@ lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
 
-dbcreation = True  # change when you run dbcreation.py
+dbcreation = False  # change when you run dbcreation.py
 if dbcreation:
     import app.Engine.DB.dbcreation
 else:
