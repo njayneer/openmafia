@@ -87,7 +87,7 @@ class Event(db.Model):
     event_type = db.Column(db.Integer, ForeignKey('EventType.id'))
     target = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
     day_no = db.Column(db.Integer)
-    phase_no = db.Column(db.Integer, ForeignKey('Game_Phases.phase_id'))
+    phase_no = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     source_player = relationship("GamePlayer", foreign_keys=[player_id])
     target_player = relationship("GamePlayer", foreign_keys=[target])

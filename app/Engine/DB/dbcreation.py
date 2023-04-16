@@ -7,7 +7,7 @@ from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi
 
 with app.app_context():
     #app.config.from_object('app.configuration.DevelopmentConfig')
-    app.config.from_object('app.configuration.ProductionConfig')
+    # app.config.from_object('app.configuration.ProductionConfig')
     db.create_all()  # pass the create_app result so Flask-SQLAlchemy gets the configuration.
 
     # generate admin account
