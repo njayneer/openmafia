@@ -8,12 +8,17 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+import os
+import time
+
+os.environ["TZ"] = "Europe/Warsaw"
+time.tzset()
 
 app = Flask(__name__)
 
 #Configuration of application, see configuration.py, choose one and uncomment.
-app.config.from_object('app.configuration.ProductionConfig')
-#app.config.from_object('app.configuration.DevelopmentConfig')
+#app.config.from_object('app.configuration.ProductionConfig')
+app.config.from_object('app.configuration.DevelopmentConfig')
 #app.config.from_object('app.configuration.TestingConfig')
 
 bs = Bootstrap(app) #flask-bootstrap

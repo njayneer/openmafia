@@ -15,14 +15,14 @@ def do(game_id):
         if target is not None:
             event_api.create_new_event(game=game_api.game,
                                        event_name='mafia_kill',
-                                       player_id=-1,
+                                       player_id=None,
                                        target_id=target)
             game_api.kill_player(target)
         else:
             event_api.create_new_event(game=game_api.game,
                                        event_name='mafia_kill',
-                                       player_id=-1,
-                                       target_id=-1)
+                                       player_id=None,
+                                       target_id=None)
 
         # Winning conditions
         if game_api.check_citizen_winning_condition():
@@ -30,14 +30,14 @@ def do(game_id):
             game_api.finish_game()
             event_api.create_new_event(game=game_api.game,
                                        event_name='citizens_win',
-                                       player_id=-1,
-                                       target_id=-1)
+                                       player_id=None,
+                                       target_id=None)
         elif game_api.check_mafioso_winning_condition():
             game_api.finish_game()
             event_api.create_new_event(game=game_api.game,
                                        event_name='mafiosos_win',
-                                       player_id=-1,
-                                       target_id=-1)
+                                       player_id=None,
+                                       target_id=None)
             # mafia win
         else:
             game_api.process_to_next_phase()

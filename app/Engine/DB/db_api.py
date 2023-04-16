@@ -2,6 +2,11 @@ from app.Engine.DB.models import *
 import random
 from flask_login import current_user
 from sqlalchemy import desc
+from datetime import datetime, timezone
+
+
+def utc_to_local(utc_dt):
+    return utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
 class GameApi:
     def __init__(self):

@@ -29,7 +29,7 @@ def do(game_id):
         # Kill winner
         event_api.create_new_event(game=game_api.game,
                                    event_name='lynch',
-                                   player_id=-1,
+                                   player_id=None,
                                    target_id=winner)
         game_api.kill_player(winner)
 
@@ -39,14 +39,14 @@ def do(game_id):
             game_api.finish_game()
             event_api.create_new_event(game=game_api.game,
                                        event_name='citizens_win',
-                                       player_id=-1,
-                                       target_id=-1)
+                                       player_id=None,
+                                       target_id=None)
         elif game_api.check_mafioso_winning_condition():
             game_api.finish_game()
             event_api.create_new_event(game=game_api.game,
                                        event_name='mafiosos_win',
-                                       player_id=-1,
-                                       target_id=-1)
+                                       player_id=None,
+                                       target_id=None)
             # mafia win
         else:
             game_api.process_to_next_phase()

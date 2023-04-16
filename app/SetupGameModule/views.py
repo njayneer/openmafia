@@ -32,7 +32,8 @@ def setup_game():
 def game_list(game_type='open_games'):
     db_api = GameApi()
     games = db_api.list_games(game_type)
-    return render_template('SetupGameModule_list.html', games=games)
+    current_time = datetime.datetime.now()
+    return render_template('SetupGameModule_list.html', games=games, now=current_time)
 
 
 @SetupGameModule.route('<game_id>/game_configuration', methods=['GET', 'POST'])
@@ -272,6 +273,9 @@ def lobby(game_id):
         # any winner?
         winners = event_api.check_if_someone_wins(game)
 
+        # current time
+        current_time = datetime.datetime.now()
+
         data = {
             'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration),
             'night_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration)),
@@ -282,7 +286,8 @@ def lobby(game_id):
             'mafia_actual_target': mafia_actual_target,
             'your_actual_citizen_vote': your_citizen_vote,
             'citizen_votes': citizen_votes,
-            'winners': winners
+            'winners': winners,
+            'now': current_time
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,
