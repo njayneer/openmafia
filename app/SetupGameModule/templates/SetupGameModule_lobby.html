@@ -24,6 +24,14 @@
   </ul>
   <div class="tab-content">
     <div id="lobby" class="active">
+      {% if game.status.name == 'finished' %}
+        <div class="content-box">
+          <h4>Gra zakończona!
+          {% if 'citizen' in data['winners'] %}<br />Grę wygrywa miasto!{% endif %}
+          {% if 'mafioso' in data['winners'] %}<br />Grę wygrywa mafia!{% endif %}
+          </h4>
+        </div>
+      {% endif %}
         <div class="content-box">
           <h4>Doba {{ game.day_no }}, {{ game.phases[game.phase - 1].phase_name }}</h4>
           Koniec fazy dnia: {{ data['day_end'] }}<br />
@@ -34,7 +42,15 @@
           <ul>
           {% if data['alive_players']|length > 0 %}
             {% for player in data['alive_players']  %}
-                <li>{{ player.name }}</li>
+                <li>{{ player.name }}
+                {% if game.status.name == 'finished' %}
+                  -
+                  {% for role in player.roles %}
+                  {{ role.role.visible_name }}
+                  {% if loop.index < player.roles|length %}, {% endif %}
+                  {% endfor %}
+                {% endif %}
+                </li>
             {% endfor %}
           {% else %}
             Wszyscy zginęli!

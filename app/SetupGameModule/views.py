@@ -254,7 +254,8 @@ def lobby(game_id):
         # actual your mafioso vote if you are in mafia
         if 'mafioso' in [role.name for role in db_api.get_user_roles(current_user.id)]:
             mafia_actual_target = check_target_from_events(db_api, event_api=event_api)
-            mafia_actual_target = [player for player in game.game_players if player.id == mafia_actual_target][0]
+            if mafia_actual_target is not None:
+                mafia_actual_target = [player for player in game.game_players if player.id == mafia_actual_target][0]
         else:
             mafia_actual_target = None
 
@@ -268,8 +269,11 @@ def lobby(game_id):
         except KeyError:
             your_citizen_vote = None
 
+        # any winner?
+        winners = event_api.check_if_someone_wins(game)
+
         data = {
-            'day_end': game.start_time + timedelta(seconds=game.day_no * day_duration),
+            'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration),
             'night_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration)),
             'you': you,
             'role_ready_to_use': True,
@@ -277,7 +281,8 @@ def lobby(game_id):
             'dead_players': dead_players,
             'mafia_actual_target': mafia_actual_target,
             'your_actual_citizen_vote': your_citizen_vote,
-            'citizen_votes': citizen_votes
+            'citizen_votes': citizen_votes,
+            'winners': winners
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,

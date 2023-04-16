@@ -91,6 +91,7 @@ class Event(db.Model):
     timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
     source_player = relationship("GamePlayer", foreign_keys=[player_id])
     target_player = relationship("GamePlayer", foreign_keys=[target])
+    event_type_tbl = relationship("EventType")
 
 class EventType(db.Model):
     __tablename__ = 'EventType'

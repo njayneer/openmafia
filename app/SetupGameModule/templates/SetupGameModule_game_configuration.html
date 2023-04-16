@@ -57,6 +57,7 @@
                         {% endif %}
                 {% endif %}
         </div>
+        {% if user_type=='player' or user_type=='admin' %}
         <div class="content-box">
                 <h4>Konfiguracja</h4>
                 Ustaw nazwę gracza:<br />
@@ -69,6 +70,7 @@
                 </div>
         </form>
         </div>
+        {% endif %}
         {% if game.roles|length > 0 %}
         <div class="content-box">
                 <h4>Role:</h4>

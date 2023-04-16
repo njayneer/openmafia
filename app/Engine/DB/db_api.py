@@ -177,7 +177,10 @@ class GameApi:
     def check_citizen_winning_condition(self):
         mafioso_ids = self.get_role_owners('mafioso')
         mafioso_ids_alive = [player.id for player in self.game.game_players if player.id in mafioso_ids and player.status == 'alive']
-        return len(mafioso_ids_alive) == 0
+        citizen_ids = self.get_role_owners('citizen')
+        citizen_ids_alive = [player.id for player in self.game.game_players if
+                             player.id in citizen_ids and player.status == 'alive']
+        return len(mafioso_ids_alive) == 0 and len(citizen_ids_alive) > 0
 
     def check_mafioso_winning_condition(self):
         mafioso_ids = self.get_role_owners('mafioso')
@@ -266,6 +269,18 @@ class GameEventApi:
 
         return events
 
+    def check_if_someone_wins(self, game):
+        event_citizens_win = self._get_event_id('citizens_win')
+        event_mafiosos_win = self._get_event_id('mafiosos_win')
+        events = Event.query.filter_by(game_id=game.id).all()
+        winners = []
+        for event in events:
+            if event.event_type_tbl.name == 'citizens_win':
+                winners.append('citizen')
+            if event.event_type_tbl.name == 'mafiosos_win':
+                winners.append('mafioso')
+        return winners
+
 
 class JobApi:
     def add_job(self, job_name, game, trigger_time):
@@ -278,8 +293,11 @@ class JobApi:
     def list_jobs(self):
         return Job.query.filter(Job.status != 'done').all()
 
-    def list_jobs_for_game(self, game_id):
-        return Job.query.filter(Job.status != 'done', Job.game_id == game_id).all()
+    def list_jobs_for_game(self, game_id, for_update=False):
+        if for_update:
+            return Job.query.filter(Job.status != 'done', Job.game_id == game_id).with_for_update().all()
+        else:
+            return Job.query.filter(Job.status != 'done', Job.game_id == game_id).all()
 
     def remove_job(self, job_id):
         job = Job.query.filter(Job.id == job_id).first()
