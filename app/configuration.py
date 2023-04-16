@@ -20,10 +20,10 @@ class Config(object):
 
 class ProductionConfig(Config):
 	# SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:admin@localhost/test'
-	SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://{user}:{password}@{server}/{database}'.format(user='njayneer',
+	SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://{user}:{password}@{server}/{database}'.format(user='openmafia',
 																						password='haslojebacjaslo',
-																						server='njayneer.mysql.pythonanywhere-services.com',
-																						database='njayneer$default')
+																						server='openmafia.mysql.pythonanywhere-services.com',
+																						database='openmafia$default')
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class DevelopmentConfig(Config):
