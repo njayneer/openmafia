@@ -33,8 +33,7 @@ def setup_game():
 def game_list(game_type='open_games'):
     db_api = GameApi()
     games = db_api.list_games(game_type)
-    current_time = datetime.datetime.now()
-    return render_template('SetupGameModule_list.html', games=games, now=current_time)
+    return render_template('SetupGameModule_list.html', games=games)
 
 
 @SetupGameModule.route('<game_id>/game_configuration', methods=['GET', 'POST'])

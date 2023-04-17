@@ -10,7 +10,7 @@
 <script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/scripts.js') }}"></script>
 {%endblock%}
 
-{%block title%}{{ game.name }} - lobby{%endblock%}
+{%block title%}OpenMafia - {{ game.name }}{%endblock%}
 {%block main_content%}
 
 <h2>Witaj <b>{{ data['you'].name }}</b> w grze {{ game.name }}</h2>
