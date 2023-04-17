@@ -12,6 +12,7 @@ from app.Engine.AutomatedTasks.Tasks.mafia_kill import check_target_from_events
 from .decorators import handle_jobs
 
 
+
 @SetupGameModule.route('', methods=['GET', 'POST'])
 @SetupGameModule.route('create', methods=['GET', 'POST'])
 @login_required
@@ -228,9 +229,12 @@ def game_configuration_plan_starting_game(game_id):
 
 @SetupGameModule.route('<game_id>/lobby', methods=['GET', 'POST'])
 @login_required
-@handle_jobs
 def lobby(game_id):
     game_id = int(game_id)
+
+    game_scheduler = GameScheduler()
+    game_scheduler.check_jobs_and_run(game_id)
+
     db_api = GameApi()
     game = db_api.get_game(game_id)
     v = Validator(game, current_user)

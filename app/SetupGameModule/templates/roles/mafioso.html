@@ -1,5 +1,5 @@
 <h4>Głosowanie miasta w sprawie linczu</h4>
-{% if data['you'].status == 'alive' and game.status.name == 'in_progress' %}
+{% if data['you'].status == 'alive' and game.status.name == 'in_progress'  and game.phase == 1 %}
 <form action="./create_event/citizen_vote" method="post" class="form form-horizontal" name="citizen_form">
     {{ wtf.form_errors(form,"only") }}
     {{ form.hidden_tag() }}

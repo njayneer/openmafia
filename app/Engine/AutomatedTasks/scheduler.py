@@ -60,6 +60,5 @@ class GameScheduler:
 
         else:
             for job in jobs_to_do:
-                job_id = job.id
                 getattr(Tasks, job.job_name).__call__(job.game_id)
-                self.job_api.update_job_status(job_id, 'done')
+                self.job_api.update_job_status(job.id, 'done')

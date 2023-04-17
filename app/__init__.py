@@ -22,7 +22,7 @@ app.config.from_object('app.configuration.DevelopmentConfig')
 #app.config.from_object('app.configuration.TestingConfig')
 
 bs = Bootstrap(app) #flask-bootstrap
-db = SQLAlchemy(app) #flask-sqlalchemy
+db = SQLAlchemy(app, session_options={"expire_on_commit": False}) #flask-sqlalchemy
 
 lm = LoginManager()
 lm.init_app(app)
