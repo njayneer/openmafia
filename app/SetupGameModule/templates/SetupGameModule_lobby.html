@@ -77,6 +77,17 @@
     </div>
     <div id="city">
       <div class="content-box">
+          <h4>Forum miasta</h4>
+          <ul>
+            {% for post in data['citizen_thread'] %}
+            <li>
+              <b>{{ post.author.name }}</b>
+              {{ post.content }}
+            </li>
+            {% endfor %}
+          </ul>
+      </div>
+      <div class="content-box">
         <h4>Głosowanie miasta:</h4>
         <table class="table">
           <thead>

@@ -320,3 +320,79 @@ class JobApi:
 
     def unlock_table(self):
         db.session.commit()
+
+
+class ForumApi:
+    def __init__(self, game_id, current_user_id):
+        self.game_id = game_id
+        self.current_user_id = current_user_id
+
+    def create_topic(self, title, content, author_is_none = True):
+        if author_is_none:
+            author = 1  # admin
+        else:
+            author = self.current_user_id
+        topic = Topic(
+            title=title,
+            content=content,
+            author=author,
+            game_id=self.game_id,
+        )
+        db.session.add(topic)
+        db.session.commit()
+
+
+    def read_last_reply(self, topic_id, player_id):
+        last_reply = Reply.query.filter_by(inReplyTo=topic_id, author_id=player_id).order_by(Reply.date.desc()).first()
+        return last_reply
+
+    def create_reply(self, topic_id, content, player_id):
+        topic = Topic.query.filter(Topic.id == topic_id).first()
+        topic.replies += 1
+        thread_reply = Reply(
+            reply_id=int(topic.replies),
+            content=content,
+            author_id=int(player_id),
+            inReplyTo=int(topic.id)
+        )  # Add the reply
+        db.session.add(thread_reply)
+        db.session.commit()
+
+    def get_topic(self, game_id, topic_title):
+        topic = Topic.query.filter(Topic.game_id == game_id, Topic.title == topic_title).first()
+        return topic
+
+    def get_or_create_topics_for_game(self):
+
+        citizen_thread = self.get_topic(self.game_id, 'citizen_thread')
+        if citizen_thread is None:
+            self.create_topic(title='citizen_thread',
+                              content='Oto główny wątek dyskusyjny miasta. Rozpoczynamy grę!')
+            citizen_thread = self.get_topic(self.game_id, 'citizen_thread')
+
+        mafioso_thread = self.get_topic(self.game_id, 'mafioso_thread')
+        if mafioso_thread is None:
+            self.create_topic(title='mafioso_thread',
+                              content='To jest tajny wątek tylko dla mafii. Wszystkie informacje tu zawarte będą poufne tylko dla mafii.')
+            mafioso_thread = self.get_topic(self.game_id, 'mafioso_thread')
+
+        graveyard_thread = self.get_topic(self.game_id, 'graveyard_thread')
+        if graveyard_thread is None:
+            self.create_topic(title='graveyard_thread',
+                              content='Cmentarz to wątek życia po życiu. Żywi go nie widzą. Możesz tu porozmawiać z innymi zmarłymi.')
+            graveyard_thread = self.get_topic(self.game_id, 'graveyard_thread')
+
+        initial_thread = self.get_topic(self.game_id, 'initial_thread')
+        if initial_thread is None:
+            self.create_topic(title='initial_thread',
+                              content='Wątek wstępny.')
+            initial_thread = self.get_topic(self.game_id, 'initial_thread')
+
+        return {'citizen_thread': citizen_thread,
+                'mafioso_thread': mafioso_thread,
+                'graveyard_thread': graveyard_thread,
+                'initial_thread': initial_thread
+                }
+
+    def get_thread_page(self, thread_id, page):
+        return Reply.query.filter(Reply.inReplyTo == thread_id).order_by(Reply.reply_id.asc()).paginate(page=page, per_page=15)

@@ -3,6 +3,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from flask import g
+import json
 
 
 class Game(db.Model):
@@ -142,3 +143,25 @@ class User(db.Model):
     def __repr__(self):
         return self.id
 
+
+class Topic(db.Model):
+    __tablename__ = 'Topic'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text)
+    content = db.Column(db.Text)
+    date = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    lastActivity = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    author = db.Column(db.Integer, ForeignKey('User.id'))
+    game_id = db.Column(db.Integer, ForeignKey('Game.id'))
+    replies = db.Column(db.Integer, default=0)
+
+
+class Reply(db.Model):
+    __tablename__ = 'Reply'
+    id = db.Column(db.Integer, primary_key=True)
+    reply_id = db.Column(db.Integer)
+    content = db.Column(db.Text)
+    date = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    author_id = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
+    inReplyTo = db.Column(db.Integer, ForeignKey('Topic.id'))
+    author = relationship("GamePlayer")

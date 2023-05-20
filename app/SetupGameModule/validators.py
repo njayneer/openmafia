@@ -113,3 +113,23 @@ class Validator:
         else:
             flash('Nie możesz tego zrobić, bo nie żyjesz!', 'alert-danger')
             return False
+
+    def user_is_allowed_for_forum(self, forum_name):
+        if forum_name == 'initial_thread':
+            if self.game.status.name not in ['in_progress']:
+                return True
+            else:
+                flash('Nie masz uprawnień do tego forum!', 'alert-danger')
+                return False
+        elif forum_name == 'graveyard_thread':
+            user_status = [game_player.status for game_player in self.game.game_players if
+                           game_player.user_id == self.current_user.id][0]
+            if user_status == 'dead':
+                return True
+            else:
+                flash('Nie masz uprawnień do tego forum!', 'alert-danger')
+                return False
+        elif forum_name == 'mafioso_thread':
+            return self.user_has_role('mafioso')
+        elif forum_name == 'citizen_thread':
+            return self.user_is_alive()

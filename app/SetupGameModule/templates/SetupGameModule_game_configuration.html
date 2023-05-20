@@ -8,9 +8,30 @@
 
 {% block scripts %}
 {{ super() }}
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/scripts.js') }}"></script>
+
 {%endblock%}
+{% macro render_pagination(pagination) %}
+  <div class=page-items>
+    {{ pagination.first }} - {{ pagination.last }} of {{ pagination.total }}
+  </div>
+  <div class=pagination>
+    {% for page in pagination.iter_pages() %}
+      {% if page %}
+        {% if page != pagination.page %}
+          <a href='./game_configuration?p={{ page }}'>{{ page }}</a>
+        {% else %}
+          <strong>{{ page }}</strong>
+        {% endif %}
+      {% else %}
+        <span class=ellipsis>…</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endmacro %}
 
 {%block title%}OpenMafia - konfiguracja gry{%endblock%}
+
 
 {%block main_content%}
 <h1>{{ game.name }}</h1>
@@ -79,6 +100,35 @@
                 {% endfor %}
         </div>
         {% endif %}
+        <div class="content-box">
+          <h4>Forum</h4>
+            {% for post in data['initial_thread'].items %}
+            <div class="post">
+              <div class="post-header">
+                <span class="post-login">{{ post.author.name }}</span>
+                <span class="post-date">{{ post.date }}</span>
+              </div>
+              <div class="post-content">
+                <p>
+                {% for line in post.content.splitlines() %}
+                {{line}}<br>
+                {% endfor %}</p>
+              </div>
+            </div>
+            {% endfor %}
+            {{ render_pagination(data['initial_thread']) }}
+            {% if user_type=='player' or user_type=='admin' %}
+            <form action="./add_forum_reply" method="post" class="form form-horizontal" name="addforumreplyform">
+                {{ wtf.form_errors(forum_form,"only") }}
+                {{ forum_form.hidden_tag() }}
+                {{ wtf.form_field(forum_form.content) }}
+                {{ forum_form.topic_name(value='initial_thread') }}
+                <div class="form-actions">
+                    <button name="action_reply" type="submit" class="btn btn-primary">Odpowiedz</button>
+                </div>
+            </form>
+            {% endif %}
+      </div>
     </div>
   </div>
 </div>

@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms  import StringField, FieldList, SelectField, FormField
+from wtforms  import StringField, FieldList, SelectField, FormField, HiddenField
 from wtforms.validators import DataRequired
 from wtforms.fields import DateField, TimeField
-
+from wtforms.widgets import TextArea
 
 class SetupGameForm(FlaskForm):
 	name = StringField(u'Nazwa', validators=[DataRequired()])
@@ -40,3 +40,8 @@ class ChooseStartTimeForm(FlaskForm):
 
 class CreateEventForm(FlaskForm):
 	target = SelectField('Żywy gracz', choices=[])
+
+
+class ForumForm(FlaskForm):
+	content = StringField(u'Content', validators=[DataRequired()], widget=TextArea())
+	topic_name = HiddenField(u'TopicName')

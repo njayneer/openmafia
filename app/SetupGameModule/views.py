@@ -1,7 +1,7 @@
 from . import SetupGameModule
-from flask import render_template, g, redirect, url_for
-from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm
-from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi
+from flask import render_template, g, redirect, url_for, request, flash
+from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm
+from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi
 from flask_login import current_user, login_required
 from .validators import Validator
 import datetime
@@ -40,11 +40,16 @@ def game_list(game_type='open_games'):
 @login_required
 @handle_jobs
 def game_configuration(game_id):
+    try:
+        page = int(request.args.get('p'))
+    except:
+        page = 1
     game_id = int(game_id)
     db_api = GameApi()
     game = db_api.get_game(game_id)
     v = Validator(game, current_user)
     form = SetupGameForm()
+    forum_form = ForumForm()
     if v.game_is_not_started():
         user_ids = []
         for player in game.game_players:
@@ -57,10 +62,25 @@ def game_configuration(game_id):
         else:
             user_type = 'guest'
 
+        # forums
+        forum_api = ForumApi(game.id, current_user.id)
+        forums = forum_api.get_or_create_topics_for_game()
+
+        # initial forum
+        # if request.form['citizen_chat_page'] is None:
+        initial_chat_page = int(page)
+        initial_chat_page_content = forum_api.get_thread_page(forums['initial_thread'].id, initial_chat_page)
+
+        data = {
+            'initial_thread': initial_chat_page_content
+        }
+
         return render_template('SetupGameModule_game_configuration.html',
                                game=game,
                                user_type=user_type,
-                               form=form
+                               form=form,
+                               data=data,
+                               forum_form=forum_form
                                )
     else:
         return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
@@ -225,6 +245,48 @@ def game_configuration_plan_starting_game(game_id):
     return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
 
 
+@SetupGameModule.route('<game_id>/add_forum_reply', methods=['GET', 'POST'])
+@login_required
+@handle_jobs
+def add_forum_reply(game_id):
+    game_id = int(game_id)
+    db_api = GameApi()
+    game = db_api.get_game(game_id)
+
+    v = Validator(game, current_user)
+    form = ForumForm()
+
+    topic_name = None
+
+    if form.is_submitted():
+        post_content = form.content.data
+        post_content = (post_content[:998] + '..') if len(post_content) > 998 else post_content
+        topic_name = form.topic_name.raw_data[1]
+
+        if v.user_is_allowed_for_forum(topic_name) and v.user_in_game():
+
+            # you db object
+            you = [player for player in game.game_players if player.user_id == current_user.id][0]
+
+            forum_api = ForumApi(game.id, current_user.id)
+            forums = forum_api.get_or_create_topics_for_game()
+
+            # check if it is not too early
+            last_reply = forum_api.read_last_reply(forums[topic_name].id, you.id)
+            if last_reply is None:
+                last_reply_date = datetime.datetime(1970, 1, 1)
+            else:
+                last_reply_date = last_reply.date
+            if datetime.datetime.utcnow() - last_reply_date < timedelta(seconds=60): # TODO: remove hardcoded confituration
+                flash('Nie możesz tak szybko pisać kolejnych postów (blokada trwa 60 sekund). Spróbuj ponownie za chwilę.', 'alert-danger')
+            else:
+                forum_api.create_reply(forums[topic_name].id, post_content, you.id)
+
+    if topic_name == 'initial_thread':
+        return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
+    else:
+        return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
 
 @SetupGameModule.route('<game_id>/lobby', methods=['GET', 'POST'])
 @login_required
@@ -234,6 +296,7 @@ def lobby(game_id):
     game_scheduler = GameScheduler()
     game_scheduler.check_jobs_and_run(game_id)
 
+    forum_form = ForumForm()
     db_api = GameApi()
     game = db_api.get_game(game_id)
     v = Validator(game, current_user)
@@ -279,6 +342,15 @@ def lobby(game_id):
         # current time
         current_time = datetime.datetime.now()
 
+        # forums
+        forum_api = ForumApi(game.id, current_user.id)
+        forums = forum_api.get_or_create_topics_for_game()
+
+        # citizen forum
+        #if request.form['citizen_chat_page'] is None:
+        citizen_chat_page = 1
+        citizen_chat_page_content = forum_api.get_thread_page(forums['citizen_thread'].id, citizen_chat_page)
+
         data = {
             'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration),
             'night_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration)),
@@ -290,12 +362,14 @@ def lobby(game_id):
             'your_actual_citizen_vote': your_citizen_vote,
             'citizen_votes': citizen_votes,
             'winners': winners,
-            'now': current_time
+            'now': current_time,
+            'citizen_thread': citizen_chat_page_content
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,
                                data=data,
-                               form=form)
+                               form=form,
+                               forum_form=forum_form)
     else:
         return redirect(url_for('SetupGameModule.game_list'))
 
