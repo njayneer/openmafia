@@ -4,9 +4,14 @@ from flask_login import current_user
 from sqlalchemy import desc
 from datetime import datetime, timezone
 
-
+import os
+from dateutil import tz
 def utc_to_local(utc_dt):
-    return utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
+    from_zone = tz.gettz('UTC')
+    to_zone = tz.gettz(os.environ["TZ"])
+    utc_dt = utc_dt.replace(tzinfo=from_zone)
+    localized_tz = utc_dt.astimezone(to_zone)
+    return localized_tz
 
 class GameApi:
     def __init__(self):
@@ -344,6 +349,7 @@ class ForumApi:
 
     def read_last_reply(self, topic_id, player_id):
         last_reply = Reply.query.filter_by(inReplyTo=topic_id, author_id=player_id).order_by(Reply.date.desc()).first()
+        utc_to_local(last_reply.date)
         return last_reply
 
     def create_reply(self, topic_id, content, player_id):
@@ -395,4 +401,7 @@ class ForumApi:
                 }
 
     def get_thread_page(self, thread_id, page):
-        return Reply.query.filter(Reply.inReplyTo == thread_id).order_by(Reply.reply_id.asc()).paginate(page=page, per_page=15)
+        replies = Reply.query.filter(Reply.inReplyTo == thread_id).order_by(Reply.reply_id.asc()).paginate(page=page, per_page=15)
+        for reply in replies:
+            reply.date = utc_to_local(reply.date)
+        return replies
