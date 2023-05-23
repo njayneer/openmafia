@@ -245,10 +245,11 @@ def game_configuration_plan_starting_game(game_id):
     return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
 
 
+@SetupGameModule.route('<game_id>/add_forum_reply/<topic_name>', methods=['GET', 'POST'])
 @SetupGameModule.route('<game_id>/add_forum_reply', methods=['GET', 'POST'])
 @login_required
 @handle_jobs
-def add_forum_reply(game_id):
+def add_forum_reply(game_id, topic_name='citizen_thread'):
     game_id = int(game_id)
     db_api = GameApi()
     game = db_api.get_game(game_id)
@@ -256,14 +257,12 @@ def add_forum_reply(game_id):
     v = Validator(game, current_user)
     form = ForumForm()
 
-    topic_name = None
-
     if form.is_submitted():
         post_content = form.content.data
         post_content = (post_content[:998] + '..') if len(post_content) > 998 else post_content
         topic_name = form.topic_name.raw_data[1]
 
-        if v.user_is_allowed_for_forum(topic_name) and v.user_in_game():
+        if v.user_can_write_in_forum(topic_name) and v.user_in_game():
 
             # you db object
             you = [player for player in game.game_players if player.user_id == current_user.id][0]
@@ -281,11 +280,12 @@ def add_forum_reply(game_id):
                 flash('Nie możesz tak szybko pisać kolejnych postów (blokada trwa 60 sekund). Spróbuj ponownie za chwilę.', 'alert-danger')
             else:
                 forum_api.create_reply(forums[topic_name].id, post_content, you.id)
-
+        else:
+            return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
     if topic_name == 'initial_thread':
         return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
     else:
-        return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+        return redirect(url_for('SetupGameModule.forum', game_id=game_id, forum_name=topic_name))
 
 
 @SetupGameModule.route('<game_id>/lobby', methods=['GET', 'POST'])
@@ -301,6 +301,8 @@ def lobby(game_id):
     game = db_api.get_game(game_id)
     v = Validator(game, current_user)
     event_api = GameEventApi()
+
+    your_privileges = []
     if v.user_in_game() and v.game_is_started():
         # day and night duration
         day_duration = game.phases[0].phase_duration
@@ -314,12 +316,13 @@ def lobby(game_id):
 
         # dead players list
         dead_players = db_api.get_dead_players()
-
         # you db object
         you = [player for player in game.game_players if player.user_id == current_user.id][0]
-
+        if you in dead_players:
+            your_privileges.append('graveyard')
         # actual your mafioso vote if you are in mafia
         if 'mafioso' in [role.name for role in db_api.get_user_roles(current_user.id)]:
+            your_privileges.append('mafioso')
             mafia_actual_target = check_target_from_events(db_api, event_api=event_api)
             if mafia_actual_target is not None:
                 mafia_actual_target = [player for player in game.game_players if player.id == mafia_actual_target][0]
@@ -363,7 +366,8 @@ def lobby(game_id):
             'citizen_votes': citizen_votes,
             'winners': winners,
             'now': current_time,
-            'citizen_thread': citizen_chat_page_content
+            'citizen_thread': citizen_chat_page_content,
+            'your_privileges': your_privileges
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,
@@ -395,3 +399,51 @@ def create_event(game_id, event_name):
                                             db_api.get_player_id_for_name(form.target.data))
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+
+# @SetupGameModule.route('<game_id>/forum/<forum_name>/<page>', methods=['GET', 'POST'])
+@SetupGameModule.route('<game_id>/forum/<forum_name>', methods=['GET', 'POST'])
+# @SetupGameModule.route('<game_id>/forum', methods=['GET', 'POST'])
+@login_required
+def forum(game_id, forum_name='citizen_thread'):
+    game_id = int(game_id)
+    page = int(request.args.get('page', default='1'))
+    forum_form = ForumForm()
+    db_api = GameApi()
+    game = db_api.get_game(game_id)
+    v = Validator(game, current_user)
+    privileges = []
+    if v.user_is_allowed_for_forum(forum_name):
+        #privileges
+        privileges.append('user_can_read')
+        if v.user_can_write_in_forum(forum_name):
+            privileges.append('user_can_write')
+
+        # forums
+        forum_api = ForumApi(game.id, current_user.id)
+        forums = forum_api.get_or_create_topics_for_game()
+
+        # forum
+        if forum_name == 'citizen_thread':
+            page_content = forum_api.get_thread_page(forums['citizen_thread'].id, page)
+            thread_description = 'Oto główny wątek dyskusyjny miasta.'
+        elif forum_name == 'mafioso_thread':
+            page_content = forum_api.get_thread_page(forums['mafioso_thread'].id, page)
+            thread_description = 'Witamy w mafijnym zakątku...'
+        elif forum_name == 'graveyard_thread':
+            page_content = forum_api.get_thread_page(forums['graveyard_thread'].id, page)
+            thread_description = 'Cmentarne forum - miejsce życia po śmierci.'
+        else:
+            return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+        data = {
+            'thread_content': page_content,
+            'thread_description': thread_description,
+            'forum_name': forum_name,
+            'privileges': privileges
+        }
+        return render_template('SetupGameModule_forum.html',
+                               game=game,
+                               data=data,
+                               forum_form=forum_form)
+    else:
+        return redirect(url_for('SetupGameModule.lobby', game_id=game_id))

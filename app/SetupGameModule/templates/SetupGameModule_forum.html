@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/scripts.js') }}"></script>
+{%endblock%}
+{% macro render_pagination(pagination) %}
+  <div class=page-items>
+    {{ pagination.first }} - {{ pagination.last }} of {{ pagination.total }}
+  </div>
+  <div class=pagination>
+    {% for page in pagination.iter_pages() %}
+      {% if page %}
+        {% if page != pagination.page %}
+          <a href='?page={{ page }}'>{{ page }}</a>
+        {% else %}
+          <strong>{{ page }}</strong>
+        {% endif %}
+      {% else %}
+        <span class=ellipsis>…</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endmacro %}
+{%block title%}OpenMafia - {{ game.name }} - forum{%endblock%}
+{%block main_content%}
+
+  <div class="tab-content">
+    {% if 'user_can_read' in data['privileges'] %}
+    <div id="city" class="active">
+      <div class="content-box post-bg-{{ data['forum_name'] }}">
+          <h4>{{ data['thread_description'] }}</h4>
+            {% for post in data['thread_content'].items %}
+            <div class="post">
+              <div class="post-header">
+                <span class="post-login">{{ post.author.name }}</span>
+                <span class="post-date">{{ post.date }}</span>
+              </div>
+              <div class="post-content">
+                <p>
+                {% for line in post.content.splitlines() %}
+                {{line}}<br>
+                {% endfor %}</p>
+              </div>
+            </div>
+            {% endfor %}
+            {{ render_pagination(data['thread_content']) }}
+            {% if 'user_can_write' in data['privileges'] %}
+            <form action="../add_forum_reply/{{ data['forum_name'] }}" method="post" class="form form-horizontal" name="addforumreplyform">
+                {{ wtf.form_errors(forum_form,"only") }}
+                {{ forum_form.hidden_tag() }}
+                {{ wtf.form_field(forum_form.content, style="width:100%;") }}
+                {{ forum_form.topic_name(value=data["forum_name"]) }}
+                <div class="form-actions">
+                    <button name="action_reply" type="submit" class="btn btn-primary">Odpowiedz</button>
+                </div>
+            </form>
+            {% endif %}
+      </div>
+
+  </div>
+  {% endif %}
+</div>
+
+{%endblock%}

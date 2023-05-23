@@ -19,8 +19,8 @@
     <li class="active"><a href="#lobby">Lobby</a></li>
     <li><a href="#city">Miasto</a></li>
     <li><a href="#roles">Rola</a></li>
-    <li class="disabled"><a href="#mafia">Mafia</a></li>
-    <li class="disabled"><a href="#graveyard">Cmentarz</a></li>
+    {% if 'mafioso' in data['your_privileges'] %}<li><a href="#mafia">Mafia</a></li>{% endif %}
+    {% if 'graveyard' in data['your_privileges'] %}<li><a href="#graveyard">Cmentarz</a></li>{% endif %}
   </ul>
   <div class="tab-content">
     <div id="lobby" class="active">
@@ -78,14 +78,7 @@
     <div id="city">
       <div class="content-box">
           <h4>Forum miasta</h4>
-          <ul>
-            {% for post in data['citizen_thread'] %}
-            <li>
-              <b>{{ post.author.name }}</b>
-              {{ post.content }}
-            </li>
-            {% endfor %}
-          </ul>
+          <a target="_blank" href="./forum/citizen_thread">Otwórz w nowym oknie</a>
       </div>
       <div class="content-box">
         <h4>Głosowanie miasta:</h4>
@@ -130,10 +123,18 @@
       <div class="content-box">
         Tajne miejsce obrad.
       </div>
+      <div class="content-box">
+          <h4>Forum mafii</h4>
+          <a target="_blank" href="./forum/mafioso_thread">Otwórz w nowym oknie</a>
+      </div>
     </div>
     <div id="graveyard">
       <div class="content-box">
         Cmentarz.
+      </div>
+      <div class="content-box">
+          <h4>Forum cmentarza</h4>
+          <a target="_blank" href="./forum/graveyard_thread">Otwórz w nowym oknie</a>
       </div>
     </div>
   </div>

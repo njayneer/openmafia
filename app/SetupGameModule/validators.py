@@ -124,12 +124,31 @@ class Validator:
         elif forum_name == 'graveyard_thread':
             user_status = [game_player.status for game_player in self.game.game_players if
                            game_player.user_id == self.current_user.id][0]
-            if user_status == 'dead':
+            if user_status == 'dead' or self.game.status.name == 'finished':
                 return True
             else:
                 flash('Nie masz uprawnień do tego forum!', 'alert-danger')
                 return False
         elif forum_name == 'mafioso_thread':
+            return self.user_has_role('mafioso') or self.game.status.name == 'finished'
+        elif forum_name == 'citizen_thread':
+            return True # anyone can see citizen thread
+
+    def user_can_write_in_forum(self, forum_name):
+        if forum_name == 'initial_thread':
+            return self.game.status.name not in ['in_progress']
+
+        elif forum_name == 'graveyard_thread':
+            user_status = [game_player.status for game_player in self.game.game_players if
+                           game_player.user_id == self.current_user.id][0]
+            return user_status == 'dead'
+
+        elif forum_name == 'mafioso_thread':
             return self.user_has_role('mafioso')
         elif forum_name == 'citizen_thread':
-            return self.user_is_alive()
+            try:
+                user_status = [game_player.status for game_player in self.game.game_players if
+                               game_player.user_id == self.current_user.id][0]
+            except:
+                user_status = 'unknown'
+            return user_status == 'alive'

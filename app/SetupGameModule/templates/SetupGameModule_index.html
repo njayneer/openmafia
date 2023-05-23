@@ -18,7 +18,7 @@
 <form  method="post" class="form form-horizontal" name="setupgameform">
     {{ wtf.form_errors(form,"only") }}
     {{ form.hidden_tag() }}
-    {{ wtf.form_field(form.name) }}
+    {{ wtf.form_field(form.name, style="width:100%;") }}
     <div class="form-actions">
         <button name="action_create_game" type="submit" class="btn btn-primary">Załóż grę</button>
     </div>

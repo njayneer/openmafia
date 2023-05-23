@@ -123,3 +123,15 @@ tfoot input {
       border-radius: 5px;
       margin-bottom: 10px;
     }
+
+.post-bg-citizen_thread {
+    background-color: white
+}
+
+.post-bg-mafioso_thread {
+    background-color: #CD5C5C
+}
+
+.post-bg-graveyard_thread {
+    background-color: silver
+}
