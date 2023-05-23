@@ -32,4 +32,8 @@ class DevelopmentConfig(Config):
 
 
 class TestingConfig(Config):
-	TESTING = True
+	SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://{user}:{password}@{server}/{database}'.format(user='njayneer',
+																									password='haslojebacjaslo',
+																									server='njayneer.mysql.pythonanywhere-services.com',
+																									database='njayneer$default')
+	SQLALCHEMY_TRACK_MODIFICATIONS = False
