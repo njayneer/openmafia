@@ -404,4 +404,4 @@ class ForumApi:
         replies = Reply.query.filter(Reply.inReplyTo == thread_id).order_by(Reply.reply_id.asc()).paginate(page=page, per_page=15)
         for reply in replies.items:
             reply.date = utc_to_local(reply.date)
-        return replies.items
+        return replies

@@ -405,6 +405,7 @@ def create_event(game_id, event_name):
 @SetupGameModule.route('<game_id>/forum/<forum_name>', methods=['GET', 'POST'])
 # @SetupGameModule.route('<game_id>/forum', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def forum(game_id, forum_name='citizen_thread'):
     game_id = int(game_id)
     page = int(request.args.get('page', default='1'))
