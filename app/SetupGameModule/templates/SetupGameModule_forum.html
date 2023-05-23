@@ -33,6 +33,9 @@
   <div class="tab-content">
     {% if 'user_can_read' in data['privileges'] %}
     <div id="city" class="active">
+      <div class="content-box">
+        <a href="../lobby">Powrót do lobby</a>
+      </div>
       <div class="content-box post-bg-{{ data['forum_name'] }}">
           <h4>{{ data['thread_description'] }}</h4>
             {% for post in data['thread_content'].items %}
