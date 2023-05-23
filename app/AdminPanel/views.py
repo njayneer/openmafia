@@ -1,11 +1,13 @@
 from . import AdminModule
-from flask import render_template
+from flask import render_template, redirect, url_for, flash
 from flask_login import login_required
 
 
-@AdminModule.route('list_jobs', methods=['GET', 'POST'])
+@AdminModule.route('update_db', methods=['GET', 'POST'])
 @login_required
-def setup_game():
-    jobs = []
-    return render_template('AdminModule_index.html', jobs=jobs)
+def update_db():
+    from app import db
+    db.create_all()
+    flash('Wykonano', 'alert-success')
+    return redirect(url_for('index'))
 
