@@ -292,7 +292,7 @@ def add_forum_reply(game_id, topic_name='citizen_thread'):
 @login_required
 def lobby(game_id):
     game_id = int(game_id)
-
+    lynch_vote_day = request.args.get('lynch_vote_day', default=None)
     game_scheduler = GameScheduler()
     game_scheduler.check_jobs_and_run(game_id)
 
@@ -334,12 +334,12 @@ def lobby(game_id):
             mafia_actual_target = None
 
         # citizen votes, your actual vote and actual results
-        citizen_votes = event_api.get_all_events_for_actual_day(game, 'citizen_vote')
+        citizen_votes = event_api.get_all_events_for_actual_day(game, 'citizen_vote', day_no=lynch_vote_day)
         citizen_votes = sorted(citizen_votes, key=lambda d: d.timestamp)
         for citizen_vote in citizen_votes: # change UTC timestamp to local time
             citizen_vote.timestamp = utc_to_local(citizen_vote.timestamp)
 
-        last_citizen_votes = event_api.get_last_events_for_actual_day(game, 'citizen_vote')
+        last_citizen_votes = event_api.get_last_events_for_actual_day(game, 'citizen_vote', day_no=lynch_vote_day)
         try:
             your_citizen_vote = last_citizen_votes['citizen_vote'][you.id]
             your_citizen_vote = [player for player in game.game_players if player.id == your_citizen_vote.target][0]
@@ -393,7 +393,8 @@ def lobby(game_id):
             'your_privileges': your_privileges,
             'mafiosos': mafiosos,
             'vote_results': vote_results,
-            'history_events': history_events
+            'history_events': history_events,
+            'lynch_vote_day': lynch_vote_day
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,

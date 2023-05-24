@@ -18,7 +18,7 @@ for (var i = 0; i < tabNavLinks.length; i++) {
   });
 }
 
-
+// wyswietlanie bbcode
 function parseBBCode() {
       let postContents = document.getElementsByClassName("post-content");
       for (let i = 0; i < postContents.length; i++) {
@@ -42,3 +42,53 @@ function parseBBCode() {
         postContents[i].innerHTML = html + "<p>Parsing BBCode completed</p>";
       }
     }
+
+// ladowanie ostatnio wyswietlanego taba
+document.addEventListener("DOMContentLoaded", function() {
+  var lastTab = localStorage.getItem("lastTab");
+
+  // Znalezienie elementu o klasie 'tab-content'
+  var tabContent = document.querySelector('.tab-content');
+
+  if (lastTab) {
+    // Znalezienie wszystkich div-ów wewnątrz 'tab-content'
+    var contentDivs = tabContent.querySelectorAll('div');
+
+    // Iteracja przez div-y i sprawdzenie ich id
+    contentDivs.forEach(function(div) {
+      if (div.id === lastTab) {
+        // Dodanie klasy 'active' do ostatnio wybranego div-a
+        div.classList.add('active');
+      } else {
+        // Usunięcie klasy 'active' z innych div-ów
+        div.classList.remove('active');
+      }
+    });
+
+    activeTab = document.querySelector('.tab-nav li[data-tab="' + lastTab + '"]');
+
+    if (activeTab) {
+      // Usunięcie klasy active z innych tabów i dodanie jej do ostatnio wybranego taba
+      var tabs = document.querySelectorAll('.tab-nav li');
+      tabs.forEach(function(tab) {
+        tab.classList.remove("active");
+      });
+      activeTab.classList.add("active");
+
+      // Wyświetlenie odpowiadającego mu content-box
+    }
+
+  }
+
+
+
+  // Obsługa zdarzeń kliknięcia na tab
+  var tabs = document.querySelectorAll('.tab-nav li');
+  tabs.forEach(function(tab) {
+    tab.addEventListener("click", function() {
+      // Zapisanie wartości ostatnio wybranego taba do localStorage
+      var selectedTab = this.getAttribute("data-tab");
+      localStorage.setItem("lastTab", selectedTab);
+    });
+  });
+});

@@ -252,18 +252,20 @@ class GameEventApi:
         e = EventType.query.filter_by(name=event_name).first()
         return e.id
 
-    def get_last_events_for_actual_day(self, game, event_name=None):
+    def get_last_events_for_actual_day(self, game, event_name=None, day_no=None):
         '''
         result = {'event_name1': {1: Event(), 2: Event()},
                   'event_name2': {5: Event(), 18: Event()}
                  }
         Numbers are players
         '''
+        if day_no is None:
+            day_no = game.day_no
         if event_name is None:
-            events = Event.query.filter_by(game_id=game.id, day_no=game.day_no)
+            events = Event.query.filter_by(game_id=game.id, day_no=day_no)
         else:
             event_type = self._get_event_id(event_name)
-            events = Event.query.filter_by(game_id=game.id, day_no=game.day_no, event_type=event_type)
+            events = Event.query.filter_by(game_id=game.id, day_no=day_no, event_type=event_type)
 
         # get last event for each player - newer overrides older one
         event_dict = {}
@@ -274,15 +276,17 @@ class GameEventApi:
             event_dict[event_name][ev.player_id] = ev
         return event_dict
 
-    def get_all_events_for_actual_day(self, game, event_name=None):
+    def get_all_events_for_actual_day(self, game, event_name=None, day_no=None):
         '''
         result = [Event(), Event(), ...]
         '''
+        if day_no is None:
+            day_no = game.day_no
         if event_name is None:
-            events = Event.query.filter_by(game_id=game.id, day_no=game.day_no)
+            events = Event.query.filter_by(game_id=game.id, day_no=day_no)
         else:
             event_type = self._get_event_id(event_name)
-            events = Event.query.filter_by(game_id=game.id, day_no=game.day_no, event_type=event_type)
+            events = Event.query.filter_by(game_id=game.id, day_no=day_no, event_type=event_type)
 
         return events
 

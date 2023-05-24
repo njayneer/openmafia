@@ -16,11 +16,11 @@
 <h2>Witaj <b>{{ data['you'].name }}</b> w grze {{ game.name }}</h2>
 <div class="tabs">
   <ul class="tab-nav">
-    <li class="active"><a href="#lobby">Lobby</a></li>
-    <li><a href="#city">Miasto</a></li>
-    <li><a href="#roles">Rola</a></li>
-    {% if 'mafioso' in data['your_privileges'] %}<li><a href="#mafia">Mafia</a></li>{% endif %}
-    {% if 'graveyard' in data['your_privileges'] %}<li><a href="#graveyard">Cmentarz</a></li>{% endif %}
+    <li class="active" data-tab="lobby"><a href="#lobby">Lobby</a></li>
+    <li data-tab="city"><a href="#city">Miasto</a></li>
+    <li data-tab="roles"><a href="#roles">Rola</a></li>
+    {% if 'mafioso' in data['your_privileges'] %}<li data-tab="mafia"><a href="#mafia">Mafia</a></li>{% endif %}
+    {% if 'graveyard' in data['your_privileges'] %}<li data-tab="graveyard><a href="#graveyard"">Cmentarz</a></li>{% endif %}
   </ul>
   <div class="tab-content">
     <div id="lobby" class="active">
@@ -101,7 +101,11 @@
           <a href="./forum/citizen_thread">Otwórz</a>
       </div>
       <div class="content-box">
-        <h4>Aktualne wyniki głosowania:</h4>
+        {% if data['lynch_vote_day'] %}
+        <h4>Wyniki głosowania z dnia {{ data['lynch_vote_day'] }}</h4>
+        {% else %}
+        <h4>Aktualne wyniki głosowania</h4>
+        {% endif %}
         <table class="table">
           <thead>
             <tr>
@@ -139,6 +143,16 @@
           {% endfor %}
           </tbody>
         </table>
+      </div>
+      <div class="content-box">
+        Zobacz głosowania z wcześniejszych dni<br />
+        {% for n in range(game.day_no) %}
+        {% if n+1 == game.day_no %}
+          <a href="./lobby">{{ n+1 }}</a>
+        {% else %}
+          <a href="./lobby?lynch_vote_day={{ n+1 }}">{{ n+1 }}</a>
+        {% endif %}
+        {% endfor %}
       </div>
     </div>
     <div id="roles">
