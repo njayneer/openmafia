@@ -146,6 +146,13 @@ class GameApi:
                 players.append(player)
         return players
 
+    def get_players_with_role(self, role_name):
+        players = []
+        for player in self.game.game_players:
+            if role_name in [role.role.name for role in player.roles]:
+                players.append(player)
+        return players
+
     def _set_status(self, status_name):
         statuses = Status.query.all()
         self.game.status_id = [status.id for status in statuses if status_name == status.name][0]
@@ -349,7 +356,8 @@ class ForumApi:
 
     def read_last_reply(self, topic_id, player_id):
         last_reply = Reply.query.filter_by(inReplyTo=topic_id, author_id=player_id).order_by(Reply.date.desc()).first()
-        utc_to_local(last_reply.date)
+        if last_reply is not None:
+            utc_to_local(last_reply.date)
         return last_reply
 
     def create_reply(self, topic_id, content, player_id):

@@ -316,6 +316,10 @@ def lobby(game_id):
 
         # dead players list
         dead_players = db_api.get_dead_players()
+
+        # mafiosos
+        mafiosos = db_api.get_players_with_role('mafioso')
+
         # you db object
         you = [player for player in game.game_players if player.user_id == current_user.id][0]
         if you in dead_players:
@@ -345,14 +349,6 @@ def lobby(game_id):
         # current time
         current_time = datetime.datetime.now()
 
-        # forums
-        forum_api = ForumApi(game.id, current_user.id)
-        forums = forum_api.get_or_create_topics_for_game()
-
-        # citizen forum
-        #if request.form['citizen_chat_page'] is None:
-        citizen_chat_page = 1
-        citizen_chat_page_content = forum_api.get_thread_page(forums['citizen_thread'].id, citizen_chat_page)
 
         data = {
             'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration),
@@ -366,8 +362,8 @@ def lobby(game_id):
             'citizen_votes': citizen_votes,
             'winners': winners,
             'now': current_time,
-            'citizen_thread': citizen_chat_page_content,
-            'your_privileges': your_privileges
+            'your_privileges': your_privileges,
+            'mafiosos': mafiosos
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,

@@ -119,15 +119,23 @@
         </div>
         {% endfor %}
     </div>
+    {% if 'mafioso' in data['your_privileges'] %}
     <div id="mafia">
       <div class="content-box">
-        Tajne miejsce obrad.
+        Tajne miejsce obrad. Lista mafiozów:<br />
+        <ul>
+        {% for mafioso in data['mafiosos'] %}
+        <li>{{ mafioso.name }}</li>
+        {% endfor %}
+        </ul>
       </div>
       <div class="content-box">
           <h4>Forum mafii</h4>
           <a href="./forum/mafioso_thread">Otwórz</a>
       </div>
     </div>
+    {% endif %}
+    {% if 'graveyard' in data['your_privileges'] %}
     <div id="graveyard">
       <div class="content-box">
         Cmentarz.
@@ -137,6 +145,7 @@
           <a href="./forum/graveyard_thread">Otwórz</a>
       </div>
     </div>
+    {% endif %}
   </div>
 </div>
 
