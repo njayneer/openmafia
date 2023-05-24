@@ -1,7 +1,7 @@
 from . import SetupGameModule
 from flask import render_template, g, redirect, url_for, request, flash
 from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm
-from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi
+from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local
 from flask_login import current_user, login_required
 from .validators import Validator
 import datetime
@@ -333,15 +333,43 @@ def lobby(game_id):
         else:
             mafia_actual_target = None
 
-        # citizen votes and your actual vote
+        # citizen votes, your actual vote and actual results
         citizen_votes = event_api.get_all_events_for_actual_day(game, 'citizen_vote')
         citizen_votes = sorted(citizen_votes, key=lambda d: d.timestamp)
+        for citizen_vote in citizen_votes: # change UTC timestamp to local time
+            citizen_vote.timestamp = utc_to_local(citizen_vote.timestamp)
 
+        last_citizen_votes = event_api.get_last_events_for_actual_day(game, 'citizen_vote')
         try:
-            your_citizen_vote = event_api.get_last_events_for_actual_day(game, 'citizen_vote')['citizen_vote'][you.id]
+            your_citizen_vote = last_citizen_votes['citizen_vote'][you.id]
             your_citizen_vote = [player for player in game.game_players if player.id == your_citizen_vote.target][0]
         except KeyError:
             your_citizen_vote = None
+
+        # Count votes
+        vote_results_id = {}
+        vote_results = {}
+        if len(last_citizen_votes) > 0:
+            for vote in last_citizen_votes['citizen_vote']:
+                target_id = last_citizen_votes['citizen_vote'][vote].target
+                if target_id not in vote_results_id.keys():
+                    vote_results_id[target_id] = 0
+                vote_results_id[target_id] += 1
+            vote_results_id = {k: v for k, v in sorted(vote_results_id.items(), key=lambda item: item[1], reverse=True)}
+
+            for vote in vote_results_id:
+                target_name = [player for player in game.game_players if player.id == vote][0]
+                target_value = vote_results_id[vote]
+                vote_results[target_name] = target_value
+
+        # get all events for history
+        history_events = list(event_api.get_all_events_for_whole_game(game, 'lynch'))
+        history_events += list(event_api.get_all_events_for_whole_game(game, 'mafia_kill'))
+        history_events += list(event_api.get_all_events_for_whole_game(game, 'citizens_win'))
+        history_events += list(event_api.get_all_events_for_whole_game(game, 'mafiosos_win'))
+        history_events.sort(key=lambda x: x.timestamp)
+        for ev in history_events:
+            ev.timestamp = utc_to_local(ev.timestamp)
 
         # any winner?
         winners = event_api.check_if_someone_wins(game)
@@ -363,7 +391,9 @@ def lobby(game_id):
             'winners': winners,
             'now': current_time,
             'your_privileges': your_privileges,
-            'mafiosos': mafiosos
+            'mafiosos': mafiosos,
+            'vote_results': vote_results,
+            'history_events': history_events
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,

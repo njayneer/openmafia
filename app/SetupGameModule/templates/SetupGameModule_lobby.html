@@ -74,6 +74,26 @@
           {% endif %}
           </ul>
         </div>
+      <div class="content-box">
+        <h4>Historia miasta</h4>
+        <ul>
+       {% for history_event in data['history_events'] %}
+          {% if history_event.event_type_tbl.name == 'lynch' %}
+          <li>Dnia {{ history_event.day_no }} zlinczowany został <b>{{ history_event.target_player.name }}</b></li>
+          {% elif history_event.event_type_tbl.name == 'mafia_kill' %}
+            {% if history_event.target_player.name %}
+              <li>Dnia {{ history_event.day_no }} zabity przez mafię został <b>{{ history_event.target_player.name }}</b></li>
+            {% else %}
+              <li>Dnia {{ history_event.day_no }} noc była spokojna i cicha. Podczas niej nikt nie zginął.</b></li>
+            {% endif %}
+          {% elif history_event.event_type_tbl.name == 'citizens_win' %}
+          <li>Dnia {{ history_event.day_no }} grę wygrywa <b>miasto!</b></li>
+          {% elif history_event.event_type_tbl.name == 'mafiosos_win' %}
+          <li>Dnia {{ history_event.day_no }} grę wygrywa <b>mafia!</b></li>
+          {% endif %}
+        {% endfor %}
+        </ul>
+      </div>
     </div>
     <div id="city">
       <div class="content-box">
@@ -81,7 +101,26 @@
           <a href="./forum/citizen_thread">Otwórz</a>
       </div>
       <div class="content-box">
-        <h4>Głosowanie miasta:</h4>
+        <h4>Aktualne wyniki głosowania:</h4>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Kto</th>
+              <th scope="col">Liczba głosów</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for citizen_actual_vote in data['vote_results'] %}
+          <tr>
+            <td>{{ citizen_actual_vote.name }}</td>
+            <td>{{ data['vote_results'][citizen_actual_vote] }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="content-box">
+        <h4>Historia głosowania:</h4>
         <table class="table">
           <thead>
             <tr>
@@ -95,7 +134,7 @@
           <tr>
             <td>{{ citizen_vote.source_player.name }}</td>
             <td>{{ citizen_vote.target_player.name }}</td>
-            <td>{{ citizen_vote.timestamp }}</td>
+            <td>{{ citizen_vote.timestamp.strftime('%Y.%m.%d %H:%M:%S') }}</td>
           </tr>
           {% endfor %}
           </tbody>

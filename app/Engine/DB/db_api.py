@@ -286,6 +286,17 @@ class GameEventApi:
 
         return events
 
+    def get_all_events_for_whole_game(self, game, event_name=None):
+        '''
+            result = [Event(), Event(), ...]
+        '''
+        if event_name is None:
+            events = Event.query.filter_by(game_id=game.id)
+        else:
+            event_type = self._get_event_id(event_name)
+            events = Event.query.filter_by(game_id=game.id, event_type=event_type).order_by(Event.timestamp)
+        return events
+
     def check_if_someone_wins(self, game):
         event_citizens_win = self._get_event_id('citizens_win')
         event_mafiosos_win = self._get_event_id('mafiosos_win')
