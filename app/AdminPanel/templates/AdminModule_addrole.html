@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/datatables.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/jquery-3.5.1') }}"></script>
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/jquery.dataTables.min.js') }}"></script>
+{%endblock%}
+
+{%block title%}Setup game{%endblock%}
+
+{%block main_content%}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Nazwa</th>
+      <th scope="col">Widoczna nazwa</th>
+      <th scope="col">Opis</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for role in roles %}
+  <tr>
+    <td>{{ role.name }}</td>
+    <td>{{ role.visible_name }}</td>
+    <td>{{ role.description }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<form method="post" class="form form-horizontal" name="addrole">
+                {{ wtf.form_errors(role_form,"only") }}
+                {{ role_form.hidden_tag() }}
+                {{ wtf.form_field(role_form.name) }}
+                {{ wtf.form_field(role_form.visible_name) }}
+                {{ wtf.form_field(role_form.description) }}
+                <div class="form-actions">
+                    <button name="action" type="submit" class="btn btn-primary">Wykonaj</button>
+                </div>
+            </form>
+{%endblock%}

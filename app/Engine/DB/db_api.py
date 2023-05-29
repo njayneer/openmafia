@@ -230,6 +230,11 @@ class RolesApi:
 
     def get_role_id_from_name(self, name):
         return Role.query.filter_by(name=name).first().id
+
+    def add_role(self, name, visible_name, description):
+        role = Role(name=name, visible_name=visible_name, description=description)
+        db.session.add(role)
+        db.session.commit()
     
 
 class GameEventApi:

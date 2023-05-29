@@ -15,12 +15,6 @@
 {%block title%}Setup game{%endblock%}
 
 {%block main_content%}
-Active jobs:<br />
-{% if jobs|length > 0 %}
-    {% for job in jobs %}
-    Name: {{job.func_ref}}, Trigger: {{ job.trigger }}, Args: {{ job.args }}<br />
-    {% endfor %}
-{% else %}
-No active jobs
-{% endif %}
+<a href="./admin/update_db">Dodaj brakujące tabele w bazie danych</a><br />
+<a href="./admin/add_role">Dodaj rolę do bazy</a><br />
 {%endblock%}
