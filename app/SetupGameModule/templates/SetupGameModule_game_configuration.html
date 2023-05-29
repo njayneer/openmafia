@@ -42,8 +42,8 @@
                 <h4>Status: {{ game.status.visible_name }}</h4>
                 {% if game.status.name == 'waiting_for_start' %}
                 Start gry: {{ game.start_time }}
-                Długość dnia: {{ game.phases[0].phase_duration }}
-                Długość nocy: {{ game.phases[1].phase_duration }}
+                Długość dnia: {{ '%0.2f'| format(game.phases[0].phase_duration/3600|float) }}h
+                Długość nocy: {{ '%0.2f'| format(game.phases[1].phase_duration/3600|float) }}h
                 {% endif %}
         </div>
         <div class="content-box">

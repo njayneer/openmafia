@@ -20,14 +20,14 @@
     {{ form.hidden_tag() }}
     Data i godzina startu: {{ form.date_posted() }}
     {{ form.time_posted() }}<br />
-    Czas trwania:<br />
+    Czas trwania faz (Godziny:Minuty):<br />
     {% for phase in form.phases %}
     {% if loop.index0 == 0 %}
         Dzień
     {% else %}
         Noc
     {% endif %}
-    {{ phase.form.duration }}<br />
+    {{ phase.form.duration_hours }}:{{ phase.form.duration_minutes }}<br />
     {% endfor %}
     <div class="form-actions">
         <button name="action_plan_starting" type="submit" class="btn btn-primary">Zaplanuj start!</button>

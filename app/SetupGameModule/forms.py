@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms  import StringField, FieldList, SelectField, FormField, HiddenField
+from wtforms  import StringField, FieldList, SelectField, FormField, HiddenField, IntegerField
 from wtforms.validators import DataRequired
 from wtforms.fields import DateField, TimeField
 from wtforms.widgets import TextArea
@@ -29,7 +29,9 @@ class ChooseRolesForm(FlaskForm):
 
 
 class DurationForm(FlaskForm):
-	duration = TimeField('Time', format='%H:%M', validators=[DataRequired()])
+	#duration = TimeField('Time', format='%H:%M', validators=[DataRequired()])
+	duration_hours = IntegerField('Hours', validators=[DataRequired()], default=0)
+	duration_minutes = IntegerField('Minutes', validators=[DataRequired()], default=0)
 
 
 class ChooseStartTimeForm(FlaskForm):

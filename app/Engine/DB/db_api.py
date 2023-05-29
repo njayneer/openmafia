@@ -100,13 +100,15 @@ class GameApi:
         return self.game
 
     def set_phases(self, phases):
-        day_dt = phases[0]['duration']
-        day_seconds = (day_dt.hour * 60 + day_dt.minute) * 60 + day_dt.second
+        day_hours = phases[0]['duration_hours']
+        day_minutes = phases[0]['duration_minutes']
+        day_seconds = (day_hours * 60 + day_minutes) * 60
         day_phase = Game_Phases(game_id=self.game.id, phase_id=1, phase_name='Dzień', phase_duration=day_seconds)
         db.session.add(day_phase)
 
-        night_dt = phases[1]['duration']
-        night_seconds = (night_dt.hour * 60 + night_dt.minute) * 60 + night_dt.second
+        night_hours = phases[1]['duration_hours']
+        night_minutes = phases[1]['duration_minutes']
+        night_seconds = (night_hours * 60 + night_minutes) * 60
         night_phase = Game_Phases(game_id=self.game.id, phase_id=2, phase_name='Noc', phase_duration=night_seconds)
         db.session.add(night_phase)
 
