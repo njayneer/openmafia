@@ -10,7 +10,7 @@ from datetime import timedelta
 import app.alert_notifications as alert
 from app.Engine.AutomatedTasks.Tasks.mafia_kill import check_target_from_events
 from .decorators import handle_jobs
-from .privileges import get_all_privileges, judge_privileges
+from .privileges import judge_privileges
 
 
 
@@ -305,8 +305,7 @@ def lobby(game_id):
 
     # privileges
     you = db_api.get_player_object_for_user_id(current_user.id)
-    your_privileges = get_all_privileges()
-    your_privileges = judge_privileges(your_privileges, you, game)
+    your_privileges = judge_privileges(you, game)
 
     if v.user_in_game() and v.game_is_started():
         # day and night duration
@@ -416,8 +415,7 @@ def create_event(game_id, event_name):
 
     # privileges
     you = db_api.get_player_object_for_user_id(current_user.id)
-    your_privileges = get_all_privileges()
-    your_privileges = judge_privileges(your_privileges, you, game)
+    your_privileges = judge_privileges(you, game)
 
     #if v.user_in_game() and v.user_can_do_event(event_name) and v.game_in_progress() and v.user_is_alive():
     if your_privileges[event_name].granted:
@@ -450,8 +448,7 @@ def forum(game_id, forum_name='citizen_thread'):
 
     # privileges
     you = db_api.get_player_object_for_user_id(current_user.id)
-    your_privileges = get_all_privileges()
-    your_privileges = judge_privileges(your_privileges, you, game)
+    your_privileges = judge_privileges(you, game)
 
     forum_privileges = {
         'read': {

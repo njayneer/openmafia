@@ -1,34 +1,40 @@
 def _player_roles(player):
     return [role.role.name for role in player.roles]
 
-def get_all_privileges():
+
+def _get_all_privileges(player, game):
     return {
-        'graveyard_visible': GraveyardVisible(),
-        'graveyard_forum_read': GraveyardForumRead(),
-        'graveyard_forum_write': GraveyardForumWrite(),
-        'initial_thread_forum_read': InitialThreadForumRead(),
-        'initial_thread_forum_write': InitialThreadForumWrite(),
-        'mafioso_forum_read': MafiosoForumRead(),
-        'mafioso_forum_write': MafiosoForumWrite(),
-        'citizen_forum_read': CitizenForumRead(),
-        'citizen_forum_write': CitizenForumWrite(),
-        'citizen_vote': CitizenVote(),
-        'mafia_kill_vote': MafiaKillVote(),
-        'mafia_tab_visible': MafiaTabVisible(),
-        'see_roles_of_alive_players': SeeRolesOfAlivePlayers(),
-        'see_roles_of_dead_players': SeeRolesOfDeadPlayers()
+        'graveyard_visible': GraveyardVisible(player, game),
+        'graveyard_forum_read': GraveyardForumRead(player, game),
+        'graveyard_forum_write': GraveyardForumWrite(player, game),
+        'initial_thread_forum_read': InitialThreadForumRead(player, game),
+        'initial_thread_forum_write': InitialThreadForumWrite(player, game),
+        'mafioso_forum_read': MafiosoForumRead(player, game),
+        'mafioso_forum_write': MafiosoForumWrite(player, game),
+        'citizen_forum_read': CitizenForumRead(player, game),
+        'citizen_forum_write': CitizenForumWrite(player, game),
+        'citizen_vote': CitizenVote(player, game),
+        'mafia_kill_vote': MafiaKillVote(player, game),
+        'mafia_tab_visible': MafiaTabVisible(player, game),
+        'see_roles_of_alive_players': SeeRolesOfAlivePlayers(player, game),
+        'see_roles_of_dead_players': SeeRolesOfDeadPlayers(player, game)
     }
 
 
-def judge_privileges(privileges, player, game):
+def judge_privileges(player, game):
+    privileges = _get_all_privileges(player, game)
     for privilege in privileges:
-        privileges[privilege].judge_if_deserved(player, game)
+        privileges[privilege].judge_if_deserved()
     return privileges
 
 class Privilege:
     description = 'This is generic privilege and should not be used in practical situations.'
-    def __init__(self):
+
+    def __init__(self, player, game):
         self.granted = False
+        self.player = player
+        self.game = game
+        self.calculate_conditions()
 
     def grant(self):
         self.granted = True
@@ -40,14 +46,21 @@ class Privilege:
         self.granted = False
         return self.granted
 
+    def calculate_conditions(self):
+        self.dead_citizen = self.player.status == 'dead' and 'citizen' in _player_roles(self.player)
+        self.game_finished = self.game.status.name == 'finished'
+        self.game_admin = 'game_admin' in _player_roles(self.player)
+        self.player_in_game = self.player.game_id == self.game.id
+        self.game_not_in_progress = self.game.status.name != 'in_progress'
+        self.player_is_mafioso = 'mafioso' in _player_roles(self.player)
+        self.alive_player = self.player.status == 'alive'
+        self.current_phase_is_day = self.game.phase == 1
 
 class GraveyardVisible(Privilege):
     description = 'You are able to see whole graveyard tab with all that content.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        dead_citizen = player.status == 'dead' and 'citizen' in _player_roles(player)
-        game_finished = game.status.name == 'finished'
-        if dead_citizen or game_finished:
+    def judge_if_deserved(self):
+        if self.dead_citizen or self.game_finished or self.game_admin:
             self.granted = True
         else:
             self.granted = False
@@ -57,10 +70,8 @@ class GraveyardVisible(Privilege):
 class GraveyardForumRead(Privilege):
     description = 'You are able read in graveyard forum.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        dead_citizen = player.status == 'dead' and 'citizen' in _player_roles(player)
-        game_finished = game.status.name == 'finished'
-        if dead_citizen or game_finished:
+    def judge_if_deserved(self):
+        if self.dead_citizen or self.game_finished or self.game_admin:
             self.granted = True
         else:
             self.granted = False
@@ -70,10 +81,8 @@ class GraveyardForumRead(Privilege):
 class GraveyardForumWrite(Privilege):
     description = 'You are able write in graveyard forum.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        player_in_game = player.game_id == game.id
-        dead_citizen = player.status == 'dead' and 'citizen' in _player_roles(player)
-        if player_in_game and dead_citizen:
+    def judge_if_deserved(self):
+        if (self.player_in_game and self.dead_citizen) or self.game_admin:
             self.granted = True
         else:
             self.granted = False
@@ -83,9 +92,8 @@ class GraveyardForumWrite(Privilege):
 class InitialThreadForumRead(Privilege):
     description = 'You are able read in initial thread forum.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        game_not_in_progress = game.status.name != 'in_progress'
-        if game_not_in_progress:
+    def judge_if_deserved(self):
+        if self.game_not_in_progress:
             self.granted = True
         else:
             self.granted = False
@@ -95,9 +103,8 @@ class InitialThreadForumRead(Privilege):
 class InitialThreadForumWrite(Privilege):
     description = 'You are able write in initial thread forum.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        game_not_in_progress = game.status.name != 'in_progress'
-        if game_not_in_progress:
+    def judge_if_deserved(self):
+        if self.game_not_in_progress:
             self.granted = True
         else:
             self.granted = False
@@ -107,10 +114,8 @@ class InitialThreadForumWrite(Privilege):
 class MafiosoForumRead(Privilege):
     description = 'You are able read in mafioso forum.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        player_is_mafioso = 'mafioso' in _player_roles(player)
-        game_finished = game.status.name == 'finished'
-        if player_is_mafioso or game_finished:
+    def judge_if_deserved(self):
+        if self.player_is_mafioso or self.game_finished or self.game_admin:
             self.granted = True
         else:
             self.granted = False
@@ -120,10 +125,8 @@ class MafiosoForumRead(Privilege):
 class MafiosoForumWrite(Privilege):
     description = 'You are able write in mafioso forum.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        player_in_game = player.game_id == game.id
-        player_is_mafioso = 'mafioso' in _player_roles(player)
-        if player_in_game and player_is_mafioso:
+    def judge_if_deserved(self):
+        if (self.player_in_game and self.player_is_mafioso) or self.game_admin:
             self.granted = True
         else:
             self.granted = False
@@ -133,9 +136,8 @@ class MafiosoForumWrite(Privilege):
 class CitizenForumRead(Privilege):
     description = 'You are able read in citizen forum.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        player_in_game = player.game_id == game.id
-        if player_in_game:
+    def judge_if_deserved(self):
+        if self.player_in_game:
             self.granted = True
         else:
             self.granted = False
@@ -145,10 +147,8 @@ class CitizenForumRead(Privilege):
 class CitizenForumWrite(Privilege):
     description = 'You are able write in citizen forum.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        player_in_game = player.game_id == game.id
-        alive_player = player.status == 'alive'
-        if player_in_game and alive_player:
+    def judge_if_deserved(self):
+        if (self.player_in_game and self.alive_player) or self.game_admin:
             self.granted = True
         else:
             self.granted = False
@@ -158,11 +158,8 @@ class CitizenForumWrite(Privilege):
 class CitizenVote(Privilege):
     description = 'You are able to vote choosing player to be lynch.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        player_in_game = player.game_id == game.id
-        alive_player = player.status == 'alive'
-        current_phase_is_day = game.phase == 1
-        if player_in_game and alive_player and current_phase_is_day:
+    def judge_if_deserved(self):
+        if self.player_in_game and self.alive_player and self.current_phase_is_day:
             self.granted = True
         else:
             self.granted = False
@@ -172,11 +169,8 @@ class CitizenVote(Privilege):
 class MafiaKillVote(Privilege):
     description = 'You are able to choose target for mafia murder.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        player_in_game = player.game_id == game.id
-        player_is_mafioso = 'mafioso' in _player_roles(player)
-        alive_player = player.status == 'alive'
-        if player_in_game and player_is_mafioso and alive_player:
+    def judge_if_deserved(self):
+        if self.player_in_game and self.player_is_mafioso and self.alive_player:
             self.granted = True
         else:
             self.granted = False
@@ -186,10 +180,8 @@ class MafiaKillVote(Privilege):
 class MafiaTabVisible(Privilege):
     description = 'You are able to see content from mafia tab.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        player_in_game = player.game_id == game.id
-        player_is_mafioso = 'mafioso' in _player_roles(player)
-        if player_in_game and player_is_mafioso:
+    def judge_if_deserved(self):
+        if (self.player_in_game and self.player_is_mafioso) or self.game_admin:
             self.granted = True
         else:
             self.granted = False
@@ -199,9 +191,8 @@ class MafiaTabVisible(Privilege):
 class SeeRolesOfAlivePlayers(Privilege):
     description = 'You are able to see all roles owned by alive players.'
 
-    def judge_if_deserved(self, player=None, game=None):
-        game_finished = game.status.name == 'finished'
-        if game_finished:
+    def judge_if_deserved(self):
+        if self.game_finished or self.game_admin:
             self.granted = True
         else:
             self.granted = False
@@ -211,14 +202,7 @@ class SeeRolesOfAlivePlayers(Privilege):
 class SeeRolesOfDeadPlayers(Privilege):
     description = 'You are able to see all roles owned by dead players.'
 
-    def judge_if_deserved(self, player=None, game=None):
+    def judge_if_deserved(self):
         self.granted = True
         return self.granted
 
-    
-class SeeRolesOfDeadPlayers(Privilege):
-    description = 'You are able to see all roles owned by dead players.'
-
-    def judge_if_deserved(self, player=None, game=None):
-        self.granted = True
-        return self.granted
