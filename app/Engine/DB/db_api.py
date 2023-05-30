@@ -171,6 +171,13 @@ class GameApi:
     def get_player_id_for_user_id(self, user_id):
         return [player.id for player in self.game.game_players if player.user_id == user_id][0]
 
+    def get_player_object_for_user_id(self, user_id):
+        try:
+            player = [player for player in self.game.game_players if player.user_id == user_id][0]
+        except:
+            player = None
+        return player
+
     def get_player_id_for_name(self, name):
         return [player.id for player in self.game.game_players if player.name == name][0]
 

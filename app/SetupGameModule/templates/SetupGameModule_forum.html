@@ -31,7 +31,7 @@
 {%block main_content%}
 
   <div class="tab-content">
-    {% if 'user_can_read' in data['privileges'] %}
+    {% if data['privileges']['read'][data['forum_name']] %}
     <div id="city" class="active">
       <div class="content-box">
         <a href="../lobby">Powrót do lobby</a>
@@ -53,7 +53,7 @@
             </div>
             {% endfor %}
             {{ render_pagination(data['thread_content']) }}
-            {% if 'user_can_write' in data['privileges'] %}
+            {% if data['privileges']['write'][data['forum_name']] %}
             <form action="../add_forum_reply/{{ data['forum_name'] }}" method="post" class="form form-horizontal" name="addforumreplyform">
                 {{ wtf.form_errors(forum_form,"only") }}
                 {{ forum_form.hidden_tag() }}

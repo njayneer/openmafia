@@ -77,7 +77,6 @@ class Role(db.Model):
     name = db.Column(db.String(100))
     visible_name = db.Column(db.String(500))
     description = db.Column(db.String(500))
-    events = relationship("Role_EventType", back_populates="role")
 
 
 class Event(db.Model):
@@ -99,16 +98,6 @@ class EventType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(500))
     description = db.Column(db.String(500))
-
-
-class Role_EventType(db.Model):
-    __tablename__ = 'Role_EventType'
-    id = db.Column(db.Integer, primary_key=True)
-    role_id = db.Column(db.Integer, ForeignKey('Role.id'))
-    eventtype_id = db.Column(db.Integer, ForeignKey('EventType.id'))
-    role = relationship("Role", back_populates="events")
-    eventtype = relationship("EventType")
-
 
 class Job(db.Model):
     __tablename__ = 'jobs'

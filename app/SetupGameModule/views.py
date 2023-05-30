@@ -10,6 +10,7 @@ from datetime import timedelta
 import app.alert_notifications as alert
 from app.Engine.AutomatedTasks.Tasks.mafia_kill import check_target_from_events
 from .decorators import handle_jobs
+from .privileges import get_all_privileges, judge_privileges
 
 
 
@@ -302,7 +303,11 @@ def lobby(game_id):
     v = Validator(game, current_user)
     event_api = GameEventApi()
 
-    your_privileges = []
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = get_all_privileges()
+    your_privileges = judge_privileges(your_privileges, you, game)
+
     if v.user_in_game() and v.game_is_started():
         # day and night duration
         day_duration = game.phases[0].phase_duration
@@ -320,13 +325,8 @@ def lobby(game_id):
         # mafiosos
         mafiosos = db_api.get_players_with_role('mafioso')
 
-        # you db object
-        you = [player for player in game.game_players if player.user_id == current_user.id][0]
-        if you in dead_players:
-            your_privileges.append('graveyard')
         # actual your mafioso vote if you are in mafia
-        if 'mafioso' in [role.name for role in db_api.get_user_roles(current_user.id)]:
-            your_privileges.append('mafioso')
+        if your_privileges['mafia_tab_visible'].granted:
             mafia_actual_target = check_target_from_events(db_api, event_api=event_api)
             if mafia_actual_target is not None:
                 mafia_actual_target = [player for player in game.game_players if player.id == mafia_actual_target][0]
@@ -413,7 +413,14 @@ def create_event(game_id, event_name):
     db_api = GameApi()
     game = db_api.get_game(game_id)
     v = Validator(game, current_user)
-    if v.user_in_game() and v.user_can_do_event(event_name) and v.game_in_progress() and v.user_is_alive():
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = get_all_privileges()
+    your_privileges = judge_privileges(your_privileges, you, game)
+
+    #if v.user_in_game() and v.user_can_do_event(event_name) and v.game_in_progress() and v.user_is_alive():
+    if your_privileges[event_name].granted:
         alive_players = db_api.get_alive_players()
         alive_players_names = [player.name for player in alive_players]
         form = CreateEventForm()
@@ -440,12 +447,28 @@ def forum(game_id, forum_name='citizen_thread'):
     db_api = GameApi()
     game = db_api.get_game(game_id)
     v = Validator(game, current_user)
-    privileges = []
-    if v.user_is_allowed_for_forum(forum_name):
-        #privileges
-        privileges.append('user_can_read')
-        if v.user_can_write_in_forum(forum_name):
-            privileges.append('user_can_write')
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = get_all_privileges()
+    your_privileges = judge_privileges(your_privileges, you, game)
+
+    forum_privileges = {
+        'read': {
+            'citizen_thread': your_privileges['citizen_forum_read'].granted,
+            'mafioso_thread': your_privileges['mafioso_forum_read'].granted,
+            'graveyard_thread': your_privileges['graveyard_forum_read'].granted,
+            'initial_thread': your_privileges['initial_thread_forum_read'].granted
+        },
+        'write': {
+            'citizen_thread': your_privileges['citizen_forum_write'].granted,
+            'mafioso_thread': your_privileges['mafioso_forum_write'].granted,
+            'graveyard_thread': your_privileges['graveyard_forum_write'].granted,
+            'initial_thread': your_privileges['initial_thread_forum_write'].granted
+        }
+    }
+
+    if forum_privileges['read'][forum_name]:
 
         # forums
         forum_api = ForumApi(game.id, current_user.id)
@@ -467,7 +490,7 @@ def forum(game_id, forum_name='citizen_thread'):
             'thread_content': page_content,
             'thread_description': thread_description,
             'forum_name': forum_name,
-            'privileges': privileges
+            'privileges': forum_privileges
         }
         return render_template('SetupGameModule_forum.html',
                                game=game,

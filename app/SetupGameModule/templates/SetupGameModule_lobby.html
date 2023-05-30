@@ -19,8 +19,8 @@
     <li class="active" data-tab="lobby"><a href="#lobby">Lobby</a></li>
     <li data-tab="city"><a href="#city">Miasto</a></li>
     <li data-tab="roles"><a href="#roles">Rola</a></li>
-    {% if 'mafioso' in data['your_privileges'] %}<li data-tab="mafia"><a href="#mafia">Mafia</a></li>{% endif %}
-    {% if 'graveyard' in data['your_privileges'] %}<li data-tab="graveyard"><a href="#graveyard">Cmentarz</a></li>{% endif %}
+    {% if data['your_privileges']['mafia_tab_visible'].granted %}<li data-tab="mafia"><a href="#mafia">Mafia</a></li>{% endif %}
+    {% if data['your_privileges']['graveyard_visible'].granted %}<li data-tab="graveyard"><a href="#graveyard">Cmentarz</a></li>{% endif %}
   </ul>
   <div class="tab-content">
     <div id="lobby" class="active">
@@ -43,7 +43,7 @@
           {% if data['alive_players']|length > 0 %}
             {% for player in data['alive_players']  %}
                 <li>{{ player.name }}
-                {% if game.status.name == 'finished' %}
+                {% if data['your_privileges']['see_roles_of_alive_players'].granted %}
                   -
                   {% for role in player.roles %}
                   {{ role.role.visible_name }}
@@ -62,11 +62,14 @@
           <ul>
           {% if data['dead_players']|length > 0 %}
             {% for player in data['dead_players']  %}
-                <li>{{ player.name }} -
-                  {% for role in player.roles %}
-                  {{ role.role.visible_name }}
-                  {% if loop.index < player.roles|length %}, {% endif %}
-                  {% endfor %}
+                <li>{{ player.name }}
+                  {% if data['your_privileges']['see_roles_of_alive_players'].granted %}
+                    -
+                    {% for role in player.roles %}
+                    {{ role.role.visible_name }}
+                    {% if loop.index < player.roles|length %}, {% endif %}
+                    {% endfor %}
+                  {% endif %}
                 </li>
             {% endfor %}
           {% else %}
@@ -172,7 +175,7 @@
         </div>
         {% endfor %}
     </div>
-    {% if 'mafioso' in data['your_privileges'] %}
+    {% if data['your_privileges']['mafia_tab_visible'].granted %}
     <div id="mafia">
       <div class="content-box">
         Tajne miejsce obrad. Lista mafiozów:<br />
@@ -188,7 +191,7 @@
       </div>
     </div>
     {% endif %}
-    {% if 'graveyard' in data['your_privileges'] %}
+    {% if data['your_privileges']['graveyard_visible'].granted %}
     <div id="graveyard">
       <div class="content-box">
         Cmentarz.

@@ -56,21 +56,3 @@ with app.app_context():
     for event_type in event_types:
         db.session.add(event_type)
     db.session.commit()
-
-    # generate role_event types
-    roles_api = RolesApi()
-    gameevent_api = GameEventApi()
-
-    # configuration
-    role_event_dictionary = {
-        'citizen': ['citizen_vote'],
-        'mafioso': ['citizen_vote', 'mafia_kill_vote']
-    }
-
-    # parse dictionary into db objects
-    for role in role_event_dictionary:
-        for event in role_event_dictionary[role]:
-            e = db_models.Role_EventType(role_id=roles_api.get_role_id_from_name(role),
-                                         eventtype_id=gameevent_api.get_eventtype_id_from_name(event))
-            db.session.add(e)
-    db.session.commit()
