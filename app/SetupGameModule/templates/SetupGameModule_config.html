@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/datatables.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/jquery-3.5.1') }}"></script>
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/jquery.dataTables.min.js') }}"></script>
+{%endblock%}
+
+{%block title%}OpenMafia - konfiguracja{%endblock%}
+
+{%block main_content%}
+<h3>Konfiguracja gry:</h3>
+<form method="post" class="form form-horizontal" name="game_config">
+    {{ wtf.form_errors(form,"only") }}
+    {{ form.hidden_tag() }}
+    {{ form.game_admin() }} Administrator gry<br/>
+    <div class="form-actions">
+        <button name="action_game_config" type="submit" class="btn btn-primary">Zatwierdź</button>
+    </div>
+</form>
+{%endblock%}

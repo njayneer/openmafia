@@ -21,7 +21,7 @@ def admin_index():
 def update_db():
     db.create_all()
     flash('Wykonano', 'alert-success')
-    return redirect(url_for('admin_index'))
+    return redirect(url_for('AdminModule.admin_index'))
 
 
 @AdminModule.route('add_role', methods=['GET', 'POST'])

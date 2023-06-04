@@ -20,13 +20,7 @@ class Game(db.Model):
     game_players = relationship("GamePlayer")
     roles = relationship("Game_Roles")
     phases = relationship("Game_Phases")
-
-
-    # def get_status(self):
-    #     return next(status.name for status in self.status_table if status['id'] == self.status)
-    #
-    # def set_status(self, status_name):
-    #     self.status = next(status.id for status in self.status_table if status['name'] == status_name)
+    game_config = relationship("Game_Configuration")
 
 
 class GamePlayer(db.Model):
@@ -39,8 +33,6 @@ class GamePlayer(db.Model):
     name = db.Column(db.String(500))
     status = db.Column(db.String(500))
     user = relationship("User")
-
-
 
 
 class Game_Roles(db.Model):
@@ -59,6 +51,22 @@ class Game_Phases(db.Model):
     phase_id = db.Column(db.Integer)
     phase_name = db.Column(db.String(100))
     phase_duration = db.Column(db.Integer)
+
+
+class Game_Configuration(db.Model):
+    __tablename__ = 'Game_Configuration'
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, ForeignKey('Game.id'))
+    configuration_id = db.Column(db.Integer, ForeignKey('Configuration.id'))
+    value = db.Column(db.String(50))
+    configuration = relationship("Configuration")
+
+
+class Configuration(db.Model):
+    __tablename__ = 'Configuration'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
+    description = db.Column(db.String(100))
 
 
 class Status(db.Model):

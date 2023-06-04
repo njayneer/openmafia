@@ -1,6 +1,6 @@
 from . import SetupGameModule
 from flask import render_template, g, redirect, url_for, request, flash
-from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm
+from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm, ConfigurationForm
 from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local
 from flask_login import current_user, login_required
 from .validators import Validator
@@ -11,7 +11,7 @@ import app.alert_notifications as alert
 from app.Engine.AutomatedTasks.Tasks.mafia_kill import check_target_from_events
 from .decorators import handle_jobs
 from .privileges import judge_privileges
-
+from app.Engine.DB.game_config import GameConfiguration
 
 
 @SetupGameModule.route('', methods=['GET', 'POST'])
@@ -201,8 +201,15 @@ def game_configuration_choose_roles(game_id):
     db_api = GameApi()
     game = db_api.get_game(game_id)
     roles_api = RolesApi()
+    game_config = GameConfiguration(game)
+
     v = Validator(game, current_user)
     form = ChooseRolesForm()
+    players_count = len(game.game_players)
+    if db_api.game_admin():
+        players_count -= 1
+        form.roles[0].role.data = "game_admin"
+        form.roles[0].role.render_kw["disabled"] = "disabled"
     form = form.set_form_parameters(entries=len(game.game_players), choices=[role.visible_name for role in roles_api.roles])
 
     if v.user_is_game_admin() and v.enrollment_is_closed():
@@ -246,6 +253,37 @@ def game_configuration_plan_starting_game(game_id):
     return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
 
 
+@SetupGameModule.route('<game_id>/game_configuration/configuration', methods=['GET', 'POST'])
+@login_required
+@handle_jobs
+def game_configuration_configuration(game_id):
+    game_id = int(game_id)
+    db_api = GameApi()
+    game = db_api.get_game(game_id)
+    form = ConfigurationForm()
+    v = Validator(game, current_user)
+
+    if v.user_is_game_admin():
+        if form.validate_on_submit():
+            if form.game_admin.data:
+                game_admin = '1'
+            else:
+                game_admin = '0'
+            configuration = {
+                'game_admin': game_admin
+            }
+            db_api.update_game_configuration(configuration)
+            flash('Konfiguracja zapisana!', 'alert-success')
+        else:
+            form.game_admin.data = db_api.game_admin()
+        return render_template('SetupGameModule_config.html',
+                               game=game,
+                               form=form
+                               )
+    return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
+
+
+
 @SetupGameModule.route('<game_id>/add_forum_reply/<topic_name>', methods=['GET', 'POST'])
 @SetupGameModule.route('<game_id>/add_forum_reply', methods=['GET', 'POST'])
 @login_required
@@ -258,12 +296,33 @@ def add_forum_reply(game_id, topic_name='citizen_thread'):
     v = Validator(game, current_user)
     form = ForumForm()
 
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    forum_privileges = {
+        'read': {
+            'citizen_thread': your_privileges['citizen_forum_read'].granted,
+            'mafioso_thread': your_privileges['mafioso_forum_read'].granted,
+            'graveyard_thread': your_privileges['graveyard_forum_read'].granted,
+            'initial_thread': your_privileges['initial_thread_forum_read'].granted
+        },
+        'write': {
+            'citizen_thread': your_privileges['citizen_forum_write'].granted,
+            'mafioso_thread': your_privileges['mafioso_forum_write'].granted,
+            'graveyard_thread': your_privileges['graveyard_forum_write'].granted,
+            'initial_thread': your_privileges['initial_thread_forum_write'].granted
+        }
+    }
+
+
+
     if form.is_submitted():
         post_content = form.content.data
         post_content = (post_content[:998] + '..') if len(post_content) > 998 else post_content
         topic_name = form.topic_name.raw_data[1]
 
-        if v.user_can_write_in_forum(topic_name) and v.user_in_game():
+        if forum_privileges['write'][topic_name]:
 
             # you db object
             you = [player for player in game.game_players if player.user_id == current_user.id][0]

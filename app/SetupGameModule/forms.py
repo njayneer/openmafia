@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms  import StringField, FieldList, SelectField, FormField, HiddenField, IntegerField
+from wtforms import StringField, FieldList, SelectField, FormField, HiddenField, IntegerField, BooleanField
 from wtforms.validators import DataRequired
 from wtforms.fields import DateField, TimeField
 from wtforms.widgets import TextArea
@@ -47,3 +47,7 @@ class CreateEventForm(FlaskForm):
 class ForumForm(FlaskForm):
 	content = StringField(u'Content', validators=[DataRequired()], widget=TextArea())
 	topic_name = HiddenField(u'TopicName')
+
+
+class ConfigurationForm(FlaskForm):
+	game_admin = BooleanField(u'Game admin')

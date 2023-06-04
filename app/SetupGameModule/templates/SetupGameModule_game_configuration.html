@@ -62,6 +62,7 @@
                 {% elif user_type=='player' %}
                         <a href="./game_configuration/sign-off">Wypisz się</a>
                 {% elif user_type=='admin' %}
+                                <a href="./game_configuration/configuration">Skonfiguruj grę</a><br />
                         {% if game.status.name == 'new' %}
                                 <a href="./game_configuration/enrollment_open">Otwórz zapisy</a><br />
                                 <a href="./game_configuration/remove">Usuń grę</a>

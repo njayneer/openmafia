@@ -42,7 +42,7 @@ class Privilege:
     def revoke(self):
         self.granted = False
 
-    def judge_if_deserved(self, player=None, game=None):
+    def judge_if_deserved(self):
         self.granted = False
         return self.granted
 

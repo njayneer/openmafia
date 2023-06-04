@@ -171,7 +171,7 @@
         <div class="content-box">
           <h4>Twoja rola: {{ r.role.visible_name }}</h4>
           {{ r.role.description }}<br />
-          {% include "roles/" + r.role.name + ".html" %}
+          {% include "roles/" + r.role.name + ".html" ignore missing %}
         </div>
         {% endfor %}
     </div>

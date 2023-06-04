@@ -228,6 +228,31 @@ class GameApi:
         self._set_status('finished')
         db.session.commit()
 
+    def _get_configuration_dictionary(self):
+        return Configuration.query.all()
+
+    def update_game_configuration(self, configuration):
+        '''
+        configuration = {
+        'game_admin': '1'
+        }
+        '''
+        configs_dictionary = {cfg.configuration.name: enum for enum, cfg in enumerate(self.game.game_config)}
+        configs = self._get_configuration_dictionary()
+        for cfg in configs:
+            try:
+                self.game.game_config[configs_dictionary[cfg.name]].value = configuration[cfg.name]
+            except KeyError:
+                game_admin_cfg = Game_Configuration(game_id=self.game.id, configuration_id=cfg.id, value=configuration[cfg.name])
+                db.session.add(game_admin_cfg)
+        db.session.commit()
+
+    def game_admin(self):
+        value = [config.value for config in self.game.game_config if config.configuration.name == 'game_admin']
+        if len(value) > 0:
+            value = value[0]
+        return value == '1'
+
 class RolesApi:
     def __init__(self):
         self.roles = self.list_roles()
