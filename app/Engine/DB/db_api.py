@@ -93,6 +93,16 @@ class GameApi:
             db.session.add(role)
         db.session.commit()
 
+
+    def assign_game_admin(self, player_id):
+        admin_role_id = RolesApi().get_role_id_from_name('game_admin')
+        role = Game_Roles(game_id=self.game.id,
+                          role_id=admin_role_id)
+        role.player_id = player_id
+        db.session.add(role)
+        db.session.commit()
+
+
     def set_start_time(self, start_datetime):
         self.game.start_time = start_datetime
         self._set_status('waiting_for_start')
@@ -115,10 +125,11 @@ class GameApi:
         db.session.commit()
 
     def shuffle_roles_to_players(self):
-        player_ids = [player.id for player in self.game.game_players]
+        player_ids = [player.id for player in self.game.game_players if len(player.roles) == 0] # only players with no predefined role
         random.shuffle(player_ids)
         i_id = iter(player_ids)
-        for role in self.game.roles:
+        unassigned_roles = [role for role in self.game.roles if role.player_id is None]
+        for role in unassigned_roles:
             role.player_id = next(i_id)
         db.session.commit()
 
@@ -133,6 +144,14 @@ class GameApi:
         for player in self.game.game_players:
             player.status = 'alive'
         db.session.commit()
+
+    def make_special_players_status_special(self):
+        special_owners = self.get_role_owners('game_admin')
+        for player in self.game.game_players:
+            if player.id in special_owners:
+                player.status = 'special'
+        db.session.commit()
+
 
     def get_alive_players(self):
         players = []

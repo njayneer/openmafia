@@ -15,7 +15,13 @@
 {%block title%}OpenMafia - wybierz role{%endblock%}
 
 {%block main_content%}
+<a href="../game_configuration">Powrót do głównego panelu</a>
 <h3>Wybierz role:</h3>
+{% if game_admin_activated %}
+{{ current_user.user }} - Mistrz gry aktywny
+{% else %}
+Rozgrywka bez mistrza gry
+{% endif %}
 <form method="post" class="form form-horizontal" name="chooserolesform">
     {{ wtf.form_errors(form,"only") }}
     {{ form.hidden_tag() }}

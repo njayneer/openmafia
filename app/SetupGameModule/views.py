@@ -206,25 +206,26 @@ def game_configuration_choose_roles(game_id):
     v = Validator(game, current_user)
     form = ChooseRolesForm()
     players_count = len(game.game_players)
-    if db_api.game_admin():
+    game_admin_activated = db_api.game_admin()
+    if game_admin_activated:
         players_count -= 1
-        form.roles[0].role.data = "game_admin"
-        form.roles[0].role.render_kw["disabled"] = "disabled"
-    form = form.set_form_parameters(entries=len(game.game_players), choices=[role.visible_name for role in roles_api.roles])
+    form = form.set_form_parameters(entries=players_count, choices=[role.visible_name for role in roles_api.roles])
 
     if v.user_is_game_admin() and v.enrollment_is_closed():
         if not form.is_submitted():
-            return render_template('SetupGameModule_choose_roles.html', game=game, form=form)
+            return render_template('SetupGameModule_choose_roles.html', game=game, form=form, game_admin_activated=game_admin_activated)
         else:
             # placeholder for form handler
             roles = [role.name for role in roles_api.roles]
             role_ids = []
             for entry in form.roles.entries:
-                print(entry.data['role'])
                 role_index = [role.visible_name for role in roles_api.roles].index(entry.data['role'])
                 role_ids.append(roles_api.roles[role_index].id)
                 db_api.remove_roles_from_game()
                 db_api.set_roles_to_game(role_ids)
+            if game_admin_activated:
+                admin_player_id = db_api.get_player_id_for_user_id(current_user.id)
+                db_api.assign_game_admin(admin_player_id)
 
     return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
 
