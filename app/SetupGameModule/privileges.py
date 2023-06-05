@@ -17,7 +17,8 @@ def _get_all_privileges(player, game):
         'mafia_kill_vote': MafiaKillVote(player, game),
         'mafia_tab_visible': MafiaTabVisible(player, game),
         'see_roles_of_alive_players': SeeRolesOfAlivePlayers(player, game),
-        'see_roles_of_dead_players': SeeRolesOfDeadPlayers(player, game)
+        'see_roles_of_dead_players': SeeRolesOfDeadPlayers(player, game),
+        'kill_a_player_at_any_time': KillAPlayerAtAnyTime(player, game)
     }
 
 
@@ -206,3 +207,13 @@ class SeeRolesOfDeadPlayers(Privilege):
         self.granted = True
         return self.granted
 
+
+class KillAPlayerAtAnyTime(Privilege):
+    description = 'You can kill any player at any time'
+
+    def judge_if_deserved(self):
+        if self.game_admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted

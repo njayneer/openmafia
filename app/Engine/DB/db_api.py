@@ -200,7 +200,7 @@ class GameApi:
     def get_player_id_for_name(self, name):
         return [player.id for player in self.game.game_players if player.name == name][0]
 
-    def kill_player(self, player_id):
+    def kill_player(self, player_id: int):
         player = [player for player in self.game.game_players if player.id == player_id][0]
         player.status = 'dead'
         db.session.commit()

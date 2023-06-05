@@ -50,6 +50,9 @@
                   {% if loop.index < player.roles|length %}, {% endif %}
                   {% endfor %}
                 {% endif %}
+                {% if data['your_privileges']['kill_a_player_at_any_time'].granted %}
+                  <a href="./kill_player/{{ player.id }}"><b>zabij</b></a>
+                {% endif %}
                 </li>
             {% endfor %}
           {% else %}

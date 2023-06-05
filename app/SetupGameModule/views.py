@@ -316,8 +316,6 @@ def add_forum_reply(game_id, topic_name='citizen_thread'):
         }
     }
 
-
-
     if form.is_submitted():
         post_content = form.content.data
         post_content = (post_content[:998] + '..') if len(post_content) > 998 else post_content
@@ -555,3 +553,41 @@ def forum(game_id, forum_name='citizen_thread'):
                                forum_form=forum_form)
     else:
         return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+
+@SetupGameModule.route('<game_id>/kill_player/<player_id>', methods=['GET', 'POST'])
+@login_required
+def kill_player(game_id, player_id):
+    game_id = int(game_id)
+    db_api = GameApi()
+    event_api = GameEventApi()
+
+    game = db_api.get_game(game_id)
+    v = Validator(game, current_user)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    # if v.user_is_game_admin() and v.game_is_started():
+    if your_privileges['kill_a_player_at_any_time'].granted:
+        db_api.kill_player(int(player_id))
+        flash('Pomyślnie zabito gracza.', 'alert-success')
+
+        # Winning conditions
+        if db_api.check_citizen_winning_condition():
+            # city win
+            db_api.finish_game()
+            event_api.create_new_event(game=db_api.game,
+                                       event_name='citizens_win',
+                                       player_id=None,
+                                       target_id=None)
+        elif db_api.check_mafioso_winning_condition():
+            # mafia win
+            db_api.finish_game()
+            event_api.create_new_event(game=db_api.game,
+                                       event_name='mafiosos_win',
+                                       player_id=None,
+                                       target_id=None)
+
+    return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
