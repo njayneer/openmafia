@@ -206,7 +206,7 @@ def game_configuration_choose_roles(game_id):
     v = Validator(game, current_user)
     form = ChooseRolesForm()
     players_count = len(game.game_players)
-    game_admin_activated = db_api.game_admin()
+    game_admin_activated = db_api.get_configuration_value('game_admin')
     if game_admin_activated:
         players_count -= 1
     form = form.set_form_parameters(entries=players_count, choices=[role.visible_name for role in roles_api.roles])
@@ -254,6 +254,13 @@ def game_configuration_plan_starting_game(game_id):
     return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
 
 
+def _boolean_to_string(var: bool):
+    if var:
+        return '1'
+    else:
+        return '0'
+
+
 @SetupGameModule.route('<game_id>/game_configuration/configuration', methods=['GET', 'POST'])
 @login_required
 @handle_jobs
@@ -266,17 +273,20 @@ def game_configuration_configuration(game_id):
 
     if v.user_is_game_admin():
         if form.validate_on_submit():
-            if form.game_admin.data:
-                game_admin = '1'
-            else:
-                game_admin = '0'
+            game_admin = _boolean_to_string(form.game_admin.data)
+            detailed_lynch_results = _boolean_to_string(form.detailed_lynch_results.data)
+            lynch_voting_history = _boolean_to_string(form.lynch_voting_history.data)
             configuration = {
-                'game_admin': game_admin
+                'game_admin': game_admin,
+                'detailed_lynch_results': detailed_lynch_results,
+                'lynch_voting_history': lynch_voting_history
             }
             db_api.update_game_configuration(configuration)
             flash('Konfiguracja zapisana!', 'alert-success')
         else:
-            form.game_admin.data = db_api.game_admin()
+            form.game_admin.data = db_api.get_configuration_value('game_admin')
+            form.detailed_lynch_results.data = db_api.get_configuration_value('detailed_lynch_results')
+            form.lynch_voting_history.data = db_api.get_configuration_value('lynch_voting_history')
         return render_template('SetupGameModule_config.html',
                                game=game,
                                form=form

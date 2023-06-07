@@ -266,8 +266,8 @@ class GameApi:
                 db.session.add(game_admin_cfg)
         db.session.commit()
 
-    def game_admin(self):
-        value = [config.value for config in self.game.game_config if config.configuration.name == 'game_admin']
+    def get_configuration_value(self, cfg_name):
+        value = [config.value for config in self.game.game_config if config.configuration.name == cfg_name]
         if len(value) > 0:
             value = value[0]
         return value == '1'

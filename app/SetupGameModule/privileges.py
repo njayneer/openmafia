@@ -18,7 +18,9 @@ def _get_all_privileges(player, game):
         'mafia_tab_visible': MafiaTabVisible(player, game),
         'see_roles_of_alive_players': SeeRolesOfAlivePlayers(player, game),
         'see_roles_of_dead_players': SeeRolesOfDeadPlayers(player, game),
-        'kill_a_player_at_any_time': KillAPlayerAtAnyTime(player, game)
+        'kill_a_player_at_any_time': KillAPlayerAtAnyTime(player, game),
+        'see_detailed_lynch_results': SeeDetailedLynchResults(player, game),
+        'see_history_of_lynch_voting': SeeHistoryOfLynchVoting(player, game)
     }
 
 
@@ -56,6 +58,8 @@ class Privilege:
         self.player_is_mafioso = 'mafioso' in _player_roles(self.player)
         self.alive_player = self.player.status == 'alive'
         self.current_phase_is_day = self.game.phase == 1
+        self.cfg_see_detailed_lynch_results = self.game.get_configuration('detailed_lynch_results') == '1'
+        self.cfg_see_history_of_lynch_voting = self.game.get_configuration('lynch_voting_history') == '1'
 
 class GraveyardVisible(Privilege):
     description = 'You are able to see whole graveyard tab with all that content.'
@@ -217,3 +221,26 @@ class KillAPlayerAtAnyTime(Privilege):
         else:
             self.granted = False
         return self.granted
+
+
+class SeeDetailedLynchResults(Privilege):
+    description = 'You can see who voted to who in previous days'
+
+    def judge_if_deserved(self):
+        if self.cfg_see_detailed_lynch_results or self.game_admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class SeeHistoryOfLynchVoting(Privilege):
+    description = 'You can see all votes, also changed and outdated, also in current day.'
+
+    def judge_if_deserved(self):
+        if self.cfg_see_history_of_lynch_voting or self.game_admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+

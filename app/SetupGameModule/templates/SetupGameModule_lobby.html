@@ -106,12 +106,14 @@
           <h4>Forum miasta</h4>
           <a href="./forum/citizen_thread">Otwórz</a>
       </div>
+      {% if data['your_privileges']['see_detailed_lynch_results'].granted %}
       <div class="content-box">
-        {% if data['lynch_vote_day'] %}
+        {% if (data['lynch_vote_day'] != game.day_no|string and data['lynch_vote_day']) %}
         <h4>Wyniki głosowania z dnia {{ data['lynch_vote_day'] }}</h4>
         {% else %}
         <h4>Aktualne wyniki głosowania</h4>
         {% endif %}
+        {% if (data['your_privileges']['see_history_of_lynch_voting'].granted) or (data['lynch_vote_day'] != game.day_no|string and data['lynch_vote_day']) %}
         <table class="table">
           <thead>
             <tr>
@@ -128,7 +130,12 @@
           {% endfor %}
           </tbody>
         </table>
+        {% else %}
+        Niejawne głosowanie w trakcie...
+        {% endif %}
       </div>
+      {% endif %}
+      {% if data['your_privileges']['see_history_of_lynch_voting'].granted %}
       <div class="content-box">
         <h4>Historia głosowania:</h4>
         <table class="table">
@@ -150,6 +157,8 @@
           </tbody>
         </table>
       </div>
+      {% endif %}
+      {% if data['your_privileges']['see_detailed_lynch_results'].granted %}
       <div class="content-box">
         Zobacz głosowania z wcześniejszych dni<br />
         {% for n in range(game.day_no) %}
@@ -160,6 +169,7 @@
         {% endif %}
         {% endfor %}
       </div>
+      {% endif %}
     </div>
     <div id="roles">
       <div class="content-box">

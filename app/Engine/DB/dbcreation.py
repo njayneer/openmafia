@@ -56,3 +56,15 @@ with app.app_context():
     # for event_type in event_types:
     #     db.session.add(event_type)
     # db.session.commit()
+
+    # generate configuration
+    configs = [db_models.Configuration(name="game_admin",
+                                       description="Twórca zostaje administratorem (mistrzem) gry"),
+               db_models.Configuration(name="detailed_lynch_results",
+                                       description="Wyniki po linczu szczegółowe (kto na kogo)"),
+               db_models.Configuration(name="lynch_voting_history",
+                                       description="Głosowanie do linczu jawne na żywo"),
+                   ]
+    for config in configs:
+        db.session.add(config)
+    db.session.commit()

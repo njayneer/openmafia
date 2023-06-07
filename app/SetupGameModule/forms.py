@@ -50,4 +50,6 @@ class ForumForm(FlaskForm):
 
 
 class ConfigurationForm(FlaskForm):
-	game_admin = BooleanField(u'Game admin')
+	game_admin = BooleanField(u'Twórca zostaje mistrzem gry')
+	detailed_lynch_results = BooleanField(u'Wyniki po linczu szczegółowe (kto na kogo)')
+	lynch_voting_history = BooleanField(u'Głosowanie do linczu jawne na żywo')
