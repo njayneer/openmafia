@@ -419,10 +419,15 @@ def lobby(game_id):
         if len(last_citizen_votes) > 0:
             for vote in last_citizen_votes['citizen_vote']:
                 target_id = last_citizen_votes['citizen_vote'][vote].target
+                source_id = last_citizen_votes['citizen_vote'][vote].player_id
+                source_name = db_api.get_player_name_for_id(source_id)
                 if target_id not in vote_results_id.keys():
-                    vote_results_id[target_id] = 0
-                vote_results_id[target_id] += 1
-            vote_results_id = {k: v for k, v in sorted(vote_results_id.items(), key=lambda item: item[1], reverse=True)}
+                    vote_results_id[target_id] = [source_name]
+                else:
+                    vote_results_id[target_id].append(source_name)
+            vote_results_len = {k: len(vote_results_id[k]) for k in vote_results_id}
+            vote_results_len = {k: v for k, v in sorted(vote_results_len.items(), key=lambda item: item[1], reverse=True)}
+            vote_results_id = {k: vote_results_id[k] for k in vote_results_len}
 
             for vote in vote_results_id:
                 target_name = [player for player in game.game_players if player.id == vote][0]

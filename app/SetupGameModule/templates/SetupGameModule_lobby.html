@@ -119,13 +119,18 @@
             <tr>
               <th scope="col">Kto</th>
               <th scope="col">Liczba głosów</th>
+              <th scope="col">Głosujący</th>
             </tr>
           </thead>
           <tbody>
           {% for citizen_actual_vote in data['vote_results'] %}
           <tr>
             <td>{{ citizen_actual_vote.name }}</td>
-            <td>{{ data['vote_results'][citizen_actual_vote] }}</td>
+            <td>{{ data['vote_results'][citizen_actual_vote]|length }}</td>
+            <td>{% for vote in data['vote_results'][citizen_actual_vote] %}
+              {% if not loop.first %}, {% endif %}
+              {{ vote }}
+              {% endfor %}</td>
           </tr>
           {% endfor %}
           </tbody>
