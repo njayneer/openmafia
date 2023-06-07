@@ -440,6 +440,8 @@ def lobby(game_id):
         history_events += list(event_api.get_all_events_for_whole_game(game, 'citizens_win'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'mafiosos_win'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_kill'))
+        history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_lynch'))
+        history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_mafia_kill'))
         history_events.sort(key=lambda x: x.timestamp)
         for ev in history_events:
             ev.timestamp = utc_to_local(ev.timestamp)
@@ -606,5 +608,29 @@ def kill_player(game_id, player_id):
                                        event_name='mafiosos_win',
                                        player_id=None,
                                        target_id=None)
+
+    return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+
+@SetupGameModule.route('<game_id>/block_event/<event_type>', methods=['GET', 'POST'])
+@login_required
+def block_lynch(game_id, event_type):
+    game_id = int(game_id)
+    db_api = GameApi()
+    event_api = GameEventApi()
+
+    game = db_api.get_game(game_id)
+    v = Validator(game, current_user)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    if event_type == 'lynch' and your_privileges['block_lynch'].granted:
+        event_api.create_new_event(game, 'admin_block_lynch', you.id, None)
+        flash('Pomyślnie zablokowano dzisiejszy lincz.', 'alert-success')
+    elif event_type == 'mafia_kill' and your_privileges['block_mafia_kill'].granted:
+        event_api.create_new_event(game, 'admin_block_mafia_kill', you.id, None)
+        flash('Pomyślnie zablokowano dzisiejszy mord.', 'alert-success')
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))

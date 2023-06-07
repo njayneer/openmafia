@@ -9,20 +9,24 @@ def do(game_id):
         game_api.get_game(game_id)
         event_api = GameEventApi()
 
-        target = check_target_from_events(game_api, event_api)
+        # game_admin can create event to block lynch. If so, kill noone and proces to next phase
+        admin_blocks = len(event_api.get_last_events_for_actual_day(game_api.game, 'admin_block_mafia_kill')) > 0
 
-        # Kill the target
-        if target is not None:
-            event_api.create_new_event(game=game_api.game,
-                                       event_name='mafia_kill',
-                                       player_id=None,
-                                       target_id=target)
-            game_api.kill_player(target)
-        else:
-            event_api.create_new_event(game=game_api.game,
-                                       event_name='mafia_kill',
-                                       player_id=None,
-                                       target_id=None)
+        if not admin_blocks:
+            target = check_target_from_events(game_api, event_api)
+
+            # Kill the target
+            if target is not None:
+                event_api.create_new_event(game=game_api.game,
+                                           event_name='mafia_kill',
+                                           player_id=None,
+                                           target_id=target)
+                game_api.kill_player(target)
+            else:
+                event_api.create_new_event(game=game_api.game,
+                                           event_name='mafia_kill',
+                                           player_id=None,
+                                           target_id=None)
 
         # Winning conditions
         if game_api.check_citizen_winning_condition():

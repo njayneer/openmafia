@@ -20,7 +20,9 @@ def _get_all_privileges(player, game):
         'see_roles_of_dead_players': SeeRolesOfDeadPlayers(player, game),
         'kill_a_player_at_any_time': KillAPlayerAtAnyTime(player, game),
         'see_detailed_lynch_results': SeeDetailedLynchResults(player, game),
-        'see_history_of_lynch_voting': SeeHistoryOfLynchVoting(player, game)
+        'see_history_of_lynch_voting': SeeHistoryOfLynchVoting(player, game),
+        'block_lynch': BlockLynch(player, game),
+        'block_mafia_kill': BlockMafiaKill(player, game)
     }
 
 
@@ -244,3 +246,24 @@ class SeeHistoryOfLynchVoting(Privilege):
             self.granted = False
         return self.granted
 
+
+class BlockLynch(Privilege):
+    description = 'You can block this day lynch.'
+
+    def judge_if_deserved(self):
+        if self.game_admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class BlockMafiaKill(Privilege):
+    description = 'You can block this day mafia kill.'
+
+    def judge_if_deserved(self):
+        if self.game_admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted

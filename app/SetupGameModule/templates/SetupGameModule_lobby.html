@@ -94,6 +94,10 @@
             {% endif %}
           {% elif history_event.event_type_tbl.name == 'admin_kill' %}
           <li>Dnia {{ history_event.day_no }} administrator zabił gracza <b>{{ history_event.target_player.name }}.</b></li>
+          {% elif history_event.event_type_tbl.name == 'admin_block_lynch' %}
+          <li>Dnia {{ history_event.day_no }} administrator zablokował lincz.</b></li>
+          {% elif history_event.event_type_tbl.name == 'admin_block_mafia_kill' %}
+          <li>Dnia {{ history_event.day_no }} administrator zablokował mord.</b></li>
           {% elif history_event.event_type_tbl.name == 'citizens_win' %}
           <li>Dnia {{ history_event.day_no }} grę wygrywa <b>miasto!</b></li>
           {% elif history_event.event_type_tbl.name == 'mafiosos_win' %}

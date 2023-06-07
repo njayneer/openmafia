@@ -1,0 +1,6 @@
+{% if data['your_privileges']['block_lynch'].granted %}
+<a href="./block_event/lynch">Zablokuj dzisiejszy lincz</a><br />
+{% endif %}
+{% if data['your_privileges']['block_mafia_kill'].granted %}
+<a href="./block_event/mafia_kill">Zablokuj dzisiejszy mord</a><br />
+{% endif %}
