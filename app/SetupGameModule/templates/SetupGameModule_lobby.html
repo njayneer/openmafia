@@ -92,6 +92,8 @@
             {% else %}
               <li>Dnia {{ history_event.day_no }} noc była spokojna i cicha. Podczas niej nikt nie zginął.</b></li>
             {% endif %}
+          {% elif history_event.event_type_tbl.name == 'admin_kill' %}
+          <li>Dnia {{ history_event.day_no }} administrator zabił gracza <b>{{ history_event.target_player.name }}.</b></li>
           {% elif history_event.event_type_tbl.name == 'citizens_win' %}
           <li>Dnia {{ history_event.day_no }} grę wygrywa <b>miasto!</b></li>
           {% elif history_event.event_type_tbl.name == 'mafiosos_win' %}

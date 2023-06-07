@@ -52,6 +52,8 @@ with app.app_context():
     #                                    description="Miasto wygrywa!"),
     #                db_models.EventType(name="mafiosos_win",
     #                                    description="Mafia wygrywa!")
+    #                   db_models.EventType(name="admin_kill",
+    #                                   description="Administrator zabił gracza.")
     #                ]
     # for event_type in event_types:
     #     db.session.add(event_type)

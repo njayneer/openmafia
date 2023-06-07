@@ -439,6 +439,7 @@ def lobby(game_id):
         history_events += list(event_api.get_all_events_for_whole_game(game, 'mafia_kill'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'citizens_win'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'mafiosos_win'))
+        history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_kill'))
         history_events.sort(key=lambda x: x.timestamp)
         for ev in history_events:
             ev.timestamp = utc_to_local(ev.timestamp)
@@ -587,6 +588,7 @@ def kill_player(game_id, player_id):
     # if v.user_is_game_admin() and v.game_is_started():
     if your_privileges['kill_a_player_at_any_time'].granted:
         db_api.kill_player(int(player_id))
+        event_api.create_new_event(game, 'admin_kill', you.id, int(player_id))
         flash('Pomyślnie zabito gracza.', 'alert-success')
 
         # Winning conditions

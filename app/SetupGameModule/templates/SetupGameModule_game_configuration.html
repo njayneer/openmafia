@@ -106,7 +106,7 @@
             {% for post in data['initial_thread'].items %}
             <div class="post">
               <div class="post-header">
-                <span class="post-login">{{ post.author.name }}</span>
+                <span class="post-login">{{ post.author.user.name }}</span>
                 <span class="post-date">{{ post.date.strftime('%Y.%m.%d %H:%M:%S') }}</span>
               </div>
               <div class="post-content">
