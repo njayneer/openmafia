@@ -73,7 +73,7 @@ class Game_Configuration(db.Model):
 class Configuration(db.Model):
     __tablename__ = 'Configuration'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20))
+    name = db.Column(db.String(50))
     description = db.Column(db.String(100))
 
 
