@@ -1,7 +1,7 @@
 from . import SetupGameModule
 from flask import render_template, g, redirect, url_for, request, flash
 from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm, ConfigurationForm
-from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local
+from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local, UserApi
 from flask_login import current_user, login_required
 from .validators import Validator
 import datetime
@@ -632,5 +632,35 @@ def block_lynch(game_id, event_type):
     elif event_type == 'mafia_kill' and your_privileges['block_mafia_kill'].granted:
         event_api.create_new_event(game, 'admin_block_mafia_kill', you.id, None)
         flash('Pomyślnie zablokowano dzisiejszy mord.', 'alert-success')
+
+    return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+
+@SetupGameModule.route('<game_id>/add_game_guest', methods=['GET', 'POST'])
+@login_required
+def add_game_guest(game_id):
+    game_id = int(game_id)
+    db_api = GameApi()
+    game = db_api.get_game(game_id)
+    user_name = request.args.get('user_name', default=None)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    if your_privileges['adding_game_guest'].granted and user_name is not None:
+        user_api = UserApi()
+        user_added = user_api.get_user_for_username(user_name)
+        if user_added is None:
+            flash('Użytkownik o podanym loginie nie istnieje!', 'alert-danger')
+        else:
+            user_id = user_added.id
+            player_id = db_api.get_player_id_for_user_id(user_id)
+            if player_id is None:
+                added_player_id = db_api.join_user_as_player(user_id, user_name, 'special')
+                db_api.assign_game_guest(added_player_id)
+                flash('Pomyślnie dodano gościa ' + user_name, 'alert-success')
+            else:
+                flash('Użytkownik jest już w grze!', 'alert-danger')
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))

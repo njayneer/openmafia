@@ -3,4 +3,8 @@
 {% endif %}
 {% if data['your_privileges']['block_mafia_kill'].granted %}
 <a href="./block_event/mafia_kill">Zablokuj dzisiejszy mord</a><br />
+<form action="./add_game_guest">
+    <input id="user_name" name="user_name" />
+    <input type="submit" />
+</form>
 {% endif %}

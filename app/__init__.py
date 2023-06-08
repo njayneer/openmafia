@@ -28,7 +28,7 @@ lm.login_view = 'login'
 
 dbcreation = False  # change when you run dbcreation.py
 if dbcreation:
-    import app.Engine.DB.dbcreation
+    import app.Engine.DB.update2_2
 else:
     from app.AdminPanel import AdminModule as adminmodule_blueprint
     from app.SetupGameModule import SetupGameModule as setupgamemodule_blueprint

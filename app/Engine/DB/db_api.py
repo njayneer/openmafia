@@ -58,8 +58,8 @@ class GameApi:
     def set_game(self, game):
         self.game = game
 
-    def join_user_as_player(self, user_id, name):
-        game_player = GamePlayer(user_id=user_id, game_id=self.game.id, name=name, status='new')
+    def join_user_as_player(self, user_id, name, status='new'):
+        game_player = GamePlayer(user_id=user_id, game_id=self.game.id, name=name, status=status)
         db.session.add(game_player)
         db.session.commit()
         return game_player.id
@@ -103,6 +103,14 @@ class GameApi:
         db.session.commit()
 
 
+    def assign_game_guest(self, player_id):
+        guest_role_id = RolesApi().get_role_id_from_name('game_guest')
+        role = Game_Roles(game_id=self.game.id,
+                          role_id=guest_role_id)
+        role.player_id = player_id
+        db.session.add(role)
+        db.session.commit()
+
     def set_start_time(self, start_datetime):
         self.game.start_time = start_datetime
         self._set_status('waiting_for_start')
@@ -145,8 +153,8 @@ class GameApi:
             player.status = 'alive'
         db.session.commit()
 
-    def make_special_players_status_special(self):
-        special_owners = self.get_role_owners('game_admin')
+    def make_special_players_status_special(self, role_name = 'game_admin'):
+        special_owners = self.get_role_owners(role_name)
         for player in self.game.game_players:
             if player.id in special_owners:
                 player.status = 'special'
@@ -188,7 +196,12 @@ class GameApi:
         return user_roles
 
     def get_player_id_for_user_id(self, user_id):
-        return [player.id for player in self.game.game_players if player.user_id == user_id][0]
+        try:
+            player_id = [player.id for player in self.game.game_players if player.user_id == user_id][0]
+        except:
+            player_id = None
+        return player_id
+
 
     def get_player_object_for_user_id(self, user_id):
         try:
@@ -489,3 +502,12 @@ class ForumApi:
         for reply in replies.items:
             reply.date = utc_to_local(reply.date)
         return replies
+
+
+class UserApi:
+    def __init__(self):
+        self.user = None
+
+    def get_user_for_username(self, username: str):
+        self.user = User.query.filter(User.name == username).first()
+        return self.user

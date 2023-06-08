@@ -43,4 +43,3 @@ def add_role():
 
     roles = roles_api.list_roles()
     return render_template('AdminModule_addrole.html', role_form=role_form, roles=roles)
-

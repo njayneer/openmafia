@@ -22,7 +22,8 @@ def _get_all_privileges(player, game):
         'see_detailed_lynch_results': SeeDetailedLynchResults(player, game),
         'see_history_of_lynch_voting': SeeHistoryOfLynchVoting(player, game),
         'block_lynch': BlockLynch(player, game),
-        'block_mafia_kill': BlockMafiaKill(player, game)
+        'block_mafia_kill': BlockMafiaKill(player, game),
+        'adding_game_guest': AddingGameGuest(player, game)
     }
 
 
@@ -62,12 +63,13 @@ class Privilege:
         self.current_phase_is_day = self.game.phase == 1
         self.cfg_see_detailed_lynch_results = self.game.get_configuration('detailed_lynch_results') == '1'
         self.cfg_see_history_of_lynch_voting = self.game.get_configuration('lynch_voting_history') == '1'
+        self.game_guest = 'game_guest' in _player_roles(self.player)
 
 class GraveyardVisible(Privilege):
     description = 'You are able to see whole graveyard tab with all that content.'
 
     def judge_if_deserved(self):
-        if self.dead_citizen or self.game_finished or self.game_admin:
+        if self.dead_citizen or self.game_finished or self.game_admin or self.game_guest:
             self.granted = True
         else:
             self.granted = False
@@ -78,7 +80,7 @@ class GraveyardForumRead(Privilege):
     description = 'You are able read in graveyard forum.'
 
     def judge_if_deserved(self):
-        if self.dead_citizen or self.game_finished or self.game_admin:
+        if self.dead_citizen or self.game_finished or self.game_admin or self.game_guest:
             self.granted = True
         else:
             self.granted = False
@@ -89,7 +91,7 @@ class GraveyardForumWrite(Privilege):
     description = 'You are able write in graveyard forum.'
 
     def judge_if_deserved(self):
-        if (self.player_in_game and self.dead_citizen) or self.game_admin:
+        if (self.player_in_game and self.dead_citizen) or self.game_admin or self.game_guest:
             self.granted = True
         else:
             self.granted = False
@@ -260,6 +262,17 @@ class BlockLynch(Privilege):
 
 class BlockMafiaKill(Privilege):
     description = 'You can block this day mafia kill.'
+
+    def judge_if_deserved(self):
+        if self.game_admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class AddingGameGuest(Privilege):
+    description = 'You can add an user as a game guest.'
 
     def judge_if_deserved(self):
         if self.game_admin:
