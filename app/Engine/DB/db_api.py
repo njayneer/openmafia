@@ -1,17 +1,17 @@
 from app.Engine.DB.models import *
 import random
 from flask_login import current_user
-from sqlalchemy import desc
-from datetime import datetime, timezone
-
 import os
 from dateutil import tz
+
+
 def utc_to_local(utc_dt):
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz(os.environ["TZ"])
     utc_dt = utc_dt.replace(tzinfo=from_zone)
     localized_tz = utc_dt.astimezone(to_zone)
     return localized_tz
+
 
 class GameApi:
     def __init__(self):
@@ -27,8 +27,10 @@ class GameApi:
             status_id = self._get_status_id('enrollment_open')
             return Game.query.filter(Game.status_id == status_id).all()
         elif game_type == 'my_games':
+            if user is None:
+                user = current_user
             games = Game.query.all()
-            return [game for game in games if current_user.id in [player.user_id for player in game.game_players]]
+            return [game for game in games if user.id in [player.user_id for player in game.game_players]]
         # elif game_type == 'my_last_game':
         #     games = Game.query.order_by(desc(Game.id))
         #     return [game for game in games if current_user.id in [player.user_id for player in game.game_players]][0]
@@ -116,6 +118,21 @@ class GameApi:
         self._set_status('waiting_for_start')
         db.session.commit()
         return self.game
+
+    def set_game_type(self):
+        day_length = sum([phase.phase_duration for phase in self.game.phases])
+        player_counter = len(self.game.game_players)
+        if day_length >= 86400 and player_counter >= 10:
+            self.game.game_type = self.get_game_type_id('classic')
+        elif player_counter >= 7:
+            self.game.game_type = self.get_game_type_id('blitz')
+        else:
+            self.game.game_type = self.get_game_type_id('short')
+        db.session.commit()
+        return self.game
+
+    def get_game_type_id(self, name: str):
+        return GameType.query.filter_by(name=name).first()
 
     def set_phases(self, phases):
         day_hours = phases[0]['duration_hours']
@@ -287,6 +304,48 @@ class GameApi:
         if len(value) > 0:
             value = value[0]
         return value == '1'
+
+    def check_winning_condition(self):
+        event_api = GameEventApi()
+        finished = False
+        if self.check_citizen_winning_condition():
+            finished = True
+            # city win
+            self.finish_game()
+            winners = self.set_winners('citizen')
+            self.set_achievements(winners)
+            event_api.create_new_event(game=self.game,
+                                       event_name='citizens_win',
+                                       player_id=None,
+                                       target_id=None)
+        elif self.check_mafioso_winning_condition():
+            finished = True
+            self.finish_game()
+            winners = self.set_winners('mafioso')
+            self.set_achievements(winners)
+            event_api.create_new_event(game=self.game,
+                                       event_name='mafiosos_win',
+                                       player_id=None,
+                                       target_id=None)
+        return finished
+
+    def set_winners(self, winner_role: str):
+        role_owners = self.get_role_owners(winner_role)
+        for p in self.game.game_players:
+            if p.id in role_owners:
+                p.winner = 1
+            else:
+                p.winner = 0
+        return role_owners
+
+    def set_achievements(self, winners):
+        if self.game.game_type.name == 'classic':
+            user_api = UserApi()
+            for w_id in winners:
+                winner = [player for player in self.game.game_players if player.id == w_id][0]
+                user_api.user = winner.user
+                user_api.set_achievement_to_user('classic_winner', winner.id)
+
 
 class RolesApi:
     def __init__(self):
@@ -507,7 +566,34 @@ class ForumApi:
 class UserApi:
     def __init__(self):
         self.user = None
+        self.user_achievements = None
 
     def get_user_for_username(self, username: str):
         self.user = User.query.filter(User.name == username).first()
         return self.user
+
+    def get_user_for_user_id(self, user_id: int):
+        self.user = User.query.filter(User.id == user_id).first()
+        return self.user
+
+    def get_user_achievements(self):
+        self.user_achievements = Achievements.query.filter(Achievements.user_id == self.user.id).all()
+        return self.user_achievements
+
+    def get_achievement_id_for_name(self, achievement_name: str):
+        achievement = AchievementTypes.query.filter(AchievementTypes.name == achievement_name).first()
+        if achievement:
+            return achievement.id
+        else:
+            return None
+
+    def set_achievement_to_user(self, achievement_name: str, player_id=None):
+        achievement_id = self.get_achievement_id_for_name(achievement_name)
+        a = Achievements(user_id=self.user.id,
+                         player_id=player_id,
+                         achievement_id=achievement_id)
+        db.session.add(a)
+        db.session.commit()
+
+    def list_achievement_types(self):
+        return AchievementTypes.query.all()

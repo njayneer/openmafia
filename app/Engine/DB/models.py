@@ -15,12 +15,15 @@ class Game(db.Model):
     status_id = db.Column(db.Integer, ForeignKey('Status.id'), default=1)
     owner_id = db.Column(db.Integer, ForeignKey('User.id'))
     start_time = db.Column(db.DateTime(timezone=True))
+    game_type_id = db.Column(db.Integer, ForeignKey('GameType.id'))
     owner = relationship("User", uselist=False)
     status = relationship("Status", uselist=False)
-    game_players = relationship("GamePlayer")
+    game_players = relationship("GamePlayer", back_populates='game')
     roles = relationship("Game_Roles")
     phases = relationship("Game_Phases")
     game_config = relationship("Game_Configuration")
+
+    game_type = relationship("GameType")
 
     def get_configuration(self, cfg_name: str):
         privilege = [config.value for config in self.game_config if config.configuration.name == cfg_name]
@@ -30,6 +33,11 @@ class Game(db.Model):
             privilege_value = None
         return privilege_value
 
+
+class GameType(db.Model):
+    __tablename__ = 'GameType'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
 
 class GamePlayer(db.Model):
     __tablename__ = 'GamePlayer'
@@ -41,6 +49,8 @@ class GamePlayer(db.Model):
     name = db.Column(db.String(500))
     status = db.Column(db.String(500))
     user = relationship("User")
+    winner = db.Column(db.Integer)
+    game = relationship("Game", back_populates='game_players')
 
 
 class Game_Roles(db.Model):
@@ -170,3 +180,20 @@ class Reply(db.Model):
     author_id = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
     inReplyTo = db.Column(db.Integer, ForeignKey('Topic.id'))
     author = relationship("GamePlayer")
+
+
+class Achievements(db.Model):
+    __tablename__ = 'Achievements'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, ForeignKey('User.id'))
+    player_id = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
+    player = relationship("GamePlayer")
+    achievement_id = db.Column(db.Integer, ForeignKey('AchievementTypes.id'))
+    achievement = relationship("AchievementTypes")
+
+
+class AchievementTypes(db.Model):
+    __tablename__ = 'AchievementTypes'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    description = db.Column(db.String(500))

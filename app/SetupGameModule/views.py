@@ -248,7 +248,8 @@ def game_configuration_plan_starting_game(game_id):
             start_datetime = datetime.datetime.combine(form.date_posted.data,
                                                        form.time_posted.data)
             db_api.set_phases(form.phases.data)
-            game = db_api.set_start_time(start_datetime)
+            db_api.set_start_time(start_datetime)
+            game = db_api.set_game_type()
             game_scheduler.create_game_start(game)
 
     return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
@@ -594,20 +595,7 @@ def kill_player(game_id, player_id):
         flash('Pomyślnie zabito gracza.', 'alert-success')
 
         # Winning conditions
-        if db_api.check_citizen_winning_condition():
-            # city win
-            db_api.finish_game()
-            event_api.create_new_event(game=db_api.game,
-                                       event_name='citizens_win',
-                                       player_id=None,
-                                       target_id=None)
-        elif db_api.check_mafioso_winning_condition():
-            # mafia win
-            db_api.finish_game()
-            event_api.create_new_event(game=db_api.game,
-                                       event_name='mafiosos_win',
-                                       player_id=None,
-                                       target_id=None)
+        finished = db_api.check_winning_condition()
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
 

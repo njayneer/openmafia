@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('User.static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{%endblock%}
+
+{%block title%}OpenMafia - użytkownicy{%endblock%}
+{%block main_content%}
+
+<div class="tabs">
+  <div class="tab-content">
+    <div id="general" class="active">
+      <div class="content-box">
+        <b>{{ user.name }}</b>
+      </div>
+      <div class="content-box">
+          Osiągnięcia:<br/>
+        {% for a in achievements %}
+        {% if a.player_id == None %}
+        <div title="{{ a.achievement.description }}">
+          {{ a.achievement.name }}
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      <div class="content-box">
+        <b>Kreacje klasyczne</b><br />
+        <div class="posts-container">
+          {% for creation in classic_creations %}
+          <div class="post">
+            <div class="post-header">
+              <span class="post-login">{{ creation.name }}</span>
+              <span class="post-date">{{ creation.game.name }}</span>
+            </div>
+            <div class="post-content">
+              <p>{% if creation.winner == True %}Winner!{% else %}Loser :({% endif %}</p>
+              <p>
+                Osiągnięcia:
+                {% for a in achievements %}
+                {% if a.player_id == creation.id %}
+                <div title="{{ a.achievement.description }}">
+                  {{ a.achievement.name }}
+                </div>
+                {% endif %}
+                {% endfor %}
+              </p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%endblock%}

@@ -37,21 +37,8 @@ def do(game_id):
             game_api.kill_player(winner)
 
         # Winning conditions
-        if game_api.check_citizen_winning_condition():
-            # city win
-            game_api.finish_game()
-            event_api.create_new_event(game=game_api.game,
-                                       event_name='citizens_win',
-                                       player_id=None,
-                                       target_id=None)
-        elif game_api.check_mafioso_winning_condition():
-            game_api.finish_game()
-            event_api.create_new_event(game=game_api.game,
-                                       event_name='mafiosos_win',
-                                       player_id=None,
-                                       target_id=None)
-            # mafia win
-        else:
+        finished = game_api.check_winning_condition()
+        if not finished:
             game_api.process_to_next_phase()
             game_scheduler = GameScheduler()
             game_scheduler.create_mafia_kill_for_actual_day(game_api.game)

@@ -81,3 +81,31 @@ with app.app_context():
     for config in configs:
         db.session.add(config)
     db.session.commit()
+
+    # generate achievements
+    achievements = [db_models.AchievementTypes(name="tester",
+                                               description="Użytkownik zasłużył się jako testujący nowe wersje OpenMafii."),
+                    db_models.AchievementTypes(name="pioneer",
+                                               description="Użytkownik jest z nami od początków istnienia OpenMafii."),
+                    db_models.AchievementTypes(name="mvp",
+                                               description="Gracz został wybrany na najlepszego zawodnika gry!"),
+                    db_models.AchievementTypes(name="classic_winner",
+                                               description="Gracz wygrał grę w trybie klasycznym."),
+                    db_models.AchievementTypes(name="administrator",
+                                               description="Użytkownik administruje OpenMafię."),
+                    db_models.AchievementTypes(name="game_master",
+                                               description="Gracz był mistrzem gry w trybie klasycznym."),
+                    db_models.AchievementTypes(name="patron",
+                                               description="Użytkownik aktywnie wspiera rozwój OpenMafii, dziękujemy!")
+                    ]
+    for achievement in achievements:
+        db.session.add(achievement)
+    db.session.commit()
+
+    # game types
+    gametypes = [db_models.GameType(name="classic"),
+                 db_models.GameType(name="blitz"),
+                 db_models.GameType(name="short")]
+    for gametype in gametypes:
+        db.session.add(gametype)
+    db.session.commit()

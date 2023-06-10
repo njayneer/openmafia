@@ -17,4 +17,16 @@
 {%block main_content%}
 <a href="./admin/update_db">Dodaj brakujące tabele w bazie danych</a><br />
 <a href="./admin/add_role">Dodaj rolę do bazy</a><br />
+<a href="./admin/create_test_users">Dodaj testowych userów</a><br />
+
+<h3>Dodawanie osiągnięć</h3>
+<form action="./admin/set_achievement">
+    <select name="achievement_name" id="achievement_name">
+        {% for a in achievement_types %}
+            <option value="{{ a.name }}">{{ a.name }}</option>
+        {% endfor %}
+    </select><br />
+    <input type="text" id="user_name" name="user_name" /><br />
+    <input type="submit" value="Submit" />
+</form>
 {%endblock%}

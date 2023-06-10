@@ -15,8 +15,8 @@ os.environ["TZ"] = "Europe/Warsaw"
 app = Flask(__name__)
 
 #Configuration of application, see configuration.py, choose one and uncomment.
-app.config.from_object('app.configuration.ProductionConfig')
-#app.config.from_object('app.configuration.DevelopmentConfig')
+#app.config.from_object('app.configuration.ProductionConfig')
+app.config.from_object('app.configuration.DevelopmentConfig')
 #app.config.from_object('app.configuration.TestingConfig')
 
 bs = Bootstrap(app) #flask-bootstrap
@@ -28,13 +28,16 @@ lm.login_view = 'login'
 
 dbcreation = False  # change when you run dbcreation.py
 if dbcreation:
-    import app.Engine.DB.update2_2
+    # import app.Engine.DB.update2_3
+    import app.Engine.DB.dbcreation
 else:
     from app.AdminPanel import AdminModule as adminmodule_blueprint
     from app.SetupGameModule import SetupGameModule as setupgamemodule_blueprint
+    from app.User import UserModule as usermodule_blueprint
 
     app.register_blueprint(adminmodule_blueprint)
     app.register_blueprint(setupgamemodule_blueprint)
+    app.register_blueprint(usermodule_blueprint)
 
     from app import views
     from app.Engine.DB import models
