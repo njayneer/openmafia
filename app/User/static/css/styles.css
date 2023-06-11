@@ -99,7 +99,7 @@ tfoot input {
   background-color: #f2f2f2;
   border-radius: 10px;
   padding: 10px;
-  width: 200px;
+  width: 212px;
   margin: 0 10px 20px 0;
 }
 
@@ -118,7 +118,9 @@ tfoot input {
 }
 
 .post-content {
-  line-height: 1.5;
+    line-height: 1.5;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .post-quote {
@@ -138,4 +140,8 @@ tfoot input {
 
 .post-bg-graveyard_thread {
     background-color: silver
+}
+
+.post-achievement {
+width: 48px;
 }

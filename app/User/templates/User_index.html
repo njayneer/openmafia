@@ -23,7 +23,7 @@
         {% for a in achievements %}
         {% if a.player_id == None %}
         <div title="{{ a.achievement.description }}">
-          {{ a.achievement.name }}
+          <img src="{{url_for('static', filename='images/awards/'+a.achievement.name+'.png')}}"/>
         </div>
         {% endif %}
         {% endfor %}
@@ -35,16 +35,20 @@
           <div class="post">
             <div class="post-header">
               <span class="post-login">{{ creation.name }}</span>
-              <span class="post-date">{{ creation.game.name }}</span>
+              <a href="{{url_for('SetupGameModule.lobby', game_id=creation.game.id)}}"><span class="post-date">{{ creation.game.name }}</span></a>
+              <span class="post-roles">
+                {% for role in creation.roles %}
+                {{ role.role.visible_name }}
+                {% if loop.index < creation.roles|length %}, {% endif %}
+                {% endfor %}
+              </span>
             </div>
             <div class="post-content">
-              <p>{% if creation.winner == True %}Winner!{% else %}Loser :({% endif %}</p>
               <p>
-                Osiągnięcia:
                 {% for a in achievements %}
                 {% if a.player_id == creation.id %}
-                <div title="{{ a.achievement.description }}">
-                  {{ a.achievement.name }}
+                <div title="{{ a.achievement.visible_name }} - {{ a.achievement.description }}">
+                  <img class="post-achievement" src="{{url_for('static', filename='images/awards/'+a.achievement.name+'.png')}}"/>
                 </div>
                 {% endif %}
                 {% endfor %}
