@@ -36,3 +36,11 @@ with app.app_context():
     for gametype in gametypes:
         db.session.add(gametype)
     db.session.commit()
+
+    # generate configuration
+    configs = [db_models.Configuration(name="see_enrolled_user_list",
+                                       description="Pokazywanie całej listy zapisanych do gry przed rozpoczęciem.")
+               ]
+    for config in configs:
+        db.session.add(config)
+    db.session.commit()

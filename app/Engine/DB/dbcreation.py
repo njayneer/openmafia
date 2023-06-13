@@ -77,6 +77,8 @@ with app.app_context():
                                        description="Wyniki po linczu szczegółowe (kto na kogo)"),
                db_models.Configuration(name="lynch_voting_history",
                                        description="Głosowanie do linczu jawne na żywo"),
+               db_models.Configuration(name="see_enrolled_user_list",
+                                       description="Pokazywanie całej listy zapisanych do gry przed rozpoczęciem.")
                    ]
     for config in configs:
         db.session.add(config)

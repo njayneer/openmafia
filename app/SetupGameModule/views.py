@@ -283,10 +283,12 @@ def game_configuration_configuration(game_id):
             game_admin = _boolean_to_string(form.game_admin.data)
             detailed_lynch_results = _boolean_to_string(form.detailed_lynch_results.data)
             lynch_voting_history = _boolean_to_string(form.lynch_voting_history.data)
+            see_enrolled_user_list = _boolean_to_string(form.see_enrolled_user_list.data)
             configuration = {
                 'game_admin': game_admin,
                 'detailed_lynch_results': detailed_lynch_results,
-                'lynch_voting_history': lynch_voting_history
+                'lynch_voting_history': lynch_voting_history,
+                'see_enrolled_user_list': see_enrolled_user_list
             }
             db_api.update_game_configuration(configuration)
             flash('Konfiguracja zapisana!', 'alert-success')
@@ -294,6 +296,7 @@ def game_configuration_configuration(game_id):
             form.game_admin.data = db_api.get_configuration_value('game_admin')
             form.detailed_lynch_results.data = db_api.get_configuration_value('detailed_lynch_results')
             form.lynch_voting_history.data = db_api.get_configuration_value('lynch_voting_history')
+            form.see_enrolled_user_list.data = db_api.get_configuration_value('see_enrolled_user_list')
         return render_template('SetupGameModule_config.html',
                                game=game,
                                form=form
