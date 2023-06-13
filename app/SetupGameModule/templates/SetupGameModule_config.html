@@ -20,9 +20,10 @@
 <form method="post" class="form form-horizontal" name="game_config">
     {{ wtf.form_errors(form,"only") }}
     {{ form.hidden_tag() }}
-    {{ form.game_admin() }} Twórca zostaje administratorem (mistrzem) gry<br/>
+    {{ form.game_admin() }} Twórca zostaje mistrzem gry<br/>
     {{ form.detailed_lynch_results() }} Wyniki po linczu szczegółowe (kto na kogo)<br/>
     {{ form.lynch_voting_history() }} Głosowanie do linczu jawne na żywo<br/>
+    {{ form.see_enrolled_user_list() }} Przed startem gry wyświetlaj wszystkim pełną listę zapisanych (zamiast ogólnej liczby)<br/>
     <div class="form-actions">
         <button name="action_game_config" type="submit" class="btn btn-primary">Zatwierdź</button>
     </div>

@@ -1,3 +1,4 @@
+from app.Engine.DB.models import GamePlayer, Game
 def _player_roles(player):
     return [role.role.name for role in player.roles]
 
@@ -26,7 +27,8 @@ def _get_all_privileges(player, game):
         'adding_game_guest': AddingGameGuest(player, game),
         'reverting_game': RevertingGame(player, game),
         'see_list_of_dead_people': SeeListOfDeadPeople(player, game),
-        'see_user_names_of_players': SeeUserNamesOfPlayers(player, game)
+        'see_user_names_of_players': SeeUserNamesOfPlayers(player, game),
+        'see_enrolled_user_list': SeeEnrolledUserList(player, game)
     }
 
 
@@ -39,10 +41,16 @@ def judge_privileges(player, game):
 class Privilege:
     description = 'This is generic privilege and should not be used in practical situations.'
 
-    def __init__(self, player, game):
+    def __init__(self, player=None, game=None):
         self.granted = False
-        self.player = player
-        self.game = game
+        if player:
+            self.player = player
+        else:
+            self.player = GamePlayer()
+        if game:
+            self.game = game
+        else:
+            self.game = Game()
         self.calculate_conditions()
 
     def grant(self):
@@ -67,6 +75,8 @@ class Privilege:
         self.cfg_see_detailed_lynch_results = self.game.get_configuration('detailed_lynch_results') == '1'
         self.cfg_see_history_of_lynch_voting = self.game.get_configuration('lynch_voting_history') == '1'
         self.game_guest = 'game_guest' in _player_roles(self.player)
+        self.cfg_see_enrolled_user_list = self.game.get_configuration('see_enrolled_user_list') == '1'
+        self.cfg_game_admin = self.game.get_configuration('game_admin') == '1'
 
 class GraveyardVisible(Privilege):
     description = 'You are able to see whole graveyard tab with all that content.'
@@ -305,10 +315,23 @@ class SeeListOfDeadPeople(Privilege):
             self.granted = False
         return self.granted
 
-    
+
 class SeeUserNamesOfPlayers(Privilege):
+    description = 'You can see user name next to player name in game list of players.'
     def judge_if_deserved(self):
         if self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class SeeEnrolledUserList(Privilege):
+    description = 'You can see full list of user names before game start. If no, you can see only number of enrolled people.'
+
+    def judge_if_deserved(self):
+        # only with configuration or if you are to be GM.
+        if self.cfg_see_enrolled_user_list or (self.cfg_game_admin and self.game.owner_id == self.player.user_id):
             self.granted = True
         else:
             self.granted = False

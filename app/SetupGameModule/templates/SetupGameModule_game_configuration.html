@@ -47,15 +47,19 @@
                 {% endif %}
         </div>
         <div class="content-box">
-        <h4>Lista zapisanych:</h4>
-                {% for player in game.game_players %}
-                        {{ player.user.name }}
-                        {% if user_type=='admin' and player.user.id != current_user.id %}
-                                <a href="./game_configuration/throw-user/{{player.user.id}}">Wyrzuć gracza</a>
-                        {% endif %}
-                        <br/>
-                {% endfor %}
-        </div>
+        {% if data['your_privileges']['see_enrolled_user_list'].granted %}
+            <h4>Lista zapisanych:</h4>
+                    {% for player in game.game_players %}
+                            {{ player.user.name }}
+                            {% if user_type=='admin' and player.user.id != current_user.id %}
+                                    <a href="./game_configuration/throw-user/{{player.user.id}}">Wyrzuć gracza</a>
+                            {% endif %}
+                            <br/>
+                    {% endfor %}
+            </div>
+        {% else %}
+            <h4>Zapisanych do gry: {{ game.game_players|length - 1 }}</h4>
+        {% endif %}
         <div class="content-box">
                 {% if user_type=='guest' %}
                         <a href="./game_configuration/join">Dołącz do gry</a>

@@ -51,6 +51,11 @@ def game_configuration(game_id):
     v = Validator(game, current_user)
     form = SetupGameForm()
     forum_form = ForumForm()
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
     if v.game_is_not_started():
         user_ids = []
         for player in game.game_players:
@@ -73,7 +78,8 @@ def game_configuration(game_id):
         initial_chat_page_content = forum_api.get_thread_page(forums['initial_thread'].id, initial_chat_page)
 
         data = {
-            'initial_thread': initial_chat_page_content
+            'initial_thread': initial_chat_page_content,
+            'your_privileges': your_privileges
         }
 
         return render_template('SetupGameModule_game_configuration.html',
