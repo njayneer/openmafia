@@ -652,3 +652,20 @@ def add_game_guest(game_id):
                 flash('Użytkownik jest już w grze!', 'alert-danger')
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+@SetupGameModule.route('<game_id>/revert_game', methods=['GET', 'POST'])
+@login_required
+def revert_game(game_id):
+    game_id = int(game_id)
+    db_api = GameApi()
+    game = db_api.get_game(game_id)
+    user_name = request.args.get('user_name', default=None)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    if your_privileges['reverting_game'].granted:
+        db_api.revert_game()
+
+    return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))

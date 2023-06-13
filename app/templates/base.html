@@ -34,7 +34,7 @@
 			<li {{ 'class=active' if request.endpoint == 'SetupGameModule.setup_game' }} ><a href="{{ url_for('SetupGameModule.setup_game')}}">Załóż grę</a></li>
 			<li><a href="{{ url_for('SetupGameModule.game_list')}}/my_games">Moje gry</a></li>
 			<li><a href="{{ url_for('SetupGameModule.game_list')}}/open_games">Otwarte gry</a></li>
-		  </li>
+			<li><a href="{{ url_for('User.user_main')}}">Użytkownicy</a></li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
 		  <li><a href="#"></a></li>

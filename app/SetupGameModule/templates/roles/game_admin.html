@@ -1,10 +1,16 @@
+<form action="./add_game_guest">
+    <label for="user_name">Obserwator do dodania</label>
+    <input id="user_name" name="user_name" />
+    <input type="submit" value="Dodaj obserwatora"/>
+</form><br />
+
+<h4>Uwaga! Ten panel umożliwia dokonywanie krytycznych wyborów z punktu widzenia gry. Korzytaj z niego bardzo ostrożnie!</h4>
 {% if data['your_privileges']['block_lynch'].granted %}
 <a href="./block_event/lynch">Zablokuj dzisiejszy lincz</a><br />
 {% endif %}
 {% if data['your_privileges']['block_mafia_kill'].granted %}
 <a href="./block_event/mafia_kill">Zablokuj dzisiejszy mord</a><br />
-<form action="./add_game_guest">
-    <input id="user_name" name="user_name" />
-    <input type="submit" />
-</form>
+{% endif %}
+{% if data['your_privileges']['reverting_game'].granted %}
+<a href="./revert_game">Cofnij grę do stanu sprzed startu</a><br />
 {% endif %}

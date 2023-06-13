@@ -23,7 +23,8 @@ def _get_all_privileges(player, game):
         'see_history_of_lynch_voting': SeeHistoryOfLynchVoting(player, game),
         'block_lynch': BlockLynch(player, game),
         'block_mafia_kill': BlockMafiaKill(player, game),
-        'adding_game_guest': AddingGameGuest(player, game)
+        'adding_game_guest': AddingGameGuest(player, game),
+        'reverting_game': RevertingGame(player, game)
     }
 
 
@@ -273,6 +274,16 @@ class BlockMafiaKill(Privilege):
 
 class AddingGameGuest(Privilege):
     description = 'You can add an user as a game guest.'
+
+    def judge_if_deserved(self):
+        if self.game_admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+class RevertingGame(Privilege):
+    description = 'You can revert the game to state before shuffling roles and start.'
 
     def judge_if_deserved(self):
         if self.game_admin:

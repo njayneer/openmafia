@@ -19,7 +19,7 @@
         <b>{{ user.name }}</b>
       </div>
       <div class="content-box">
-          Osiągnięcia:<br/>
+          Osiągnięcia<br/>
         {% for a in achievements %}
         {% if a.player_id == None %}
         <div title="{{ a.achievement.description }}">

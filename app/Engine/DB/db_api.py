@@ -84,6 +84,16 @@ class GameApi:
         self.game.phase = 1
         db.session.commit()
 
+    def revert_game(self):
+        self._set_status('enrollment_closed')
+        self.remove_roles_from_game()
+        for player in self.game.game_players:
+            player.status = 'new'
+            player.order_id = None
+        Game_Phases.query.filter_by(game_id=self.game.id).delete()
+        Job.query.filter_by(game_id=self.game.id).delete()
+        db.session.commit()
+
     def remove_roles_from_game(self):
         Game_Roles.query.filter_by(game_id=self.game.id).delete()
         db.session.commit()
