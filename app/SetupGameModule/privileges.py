@@ -24,7 +24,8 @@ def _get_all_privileges(player, game):
         'block_lynch': BlockLynch(player, game),
         'block_mafia_kill': BlockMafiaKill(player, game),
         'adding_game_guest': AddingGameGuest(player, game),
-        'reverting_game': RevertingGame(player, game)
+        'reverting_game': RevertingGame(player, game),
+        'see_list_of_dead_people': SeeListOfDeadPeople(player, game)
     }
 
 
@@ -290,4 +291,12 @@ class RevertingGame(Privilege):
             self.granted = True
         else:
             self.granted = False
+        return self.granted
+
+
+class SeeListOfDeadPeople(Privilege):
+    description = 'You can see a list of dead people in lobby of the game.'
+
+    def judge_if_deserved(self):
+        self.granted = False
         return self.granted

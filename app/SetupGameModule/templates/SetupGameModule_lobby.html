@@ -60,13 +60,14 @@
           {% endif %}
           </ul>
         </div>
+      {% if data['your_privileges']['see_list_of_dead_people'].granted %}
         <div class="content-box">
-          <h4>Lista martwych mieszkańców:</h4>
+          <h4>Lista martwych:</h4>
           <ul>
           {% if data['dead_players']|length > 0 %}
             {% for player in data['dead_players']  %}
                 <li>{{ player.name }}
-                  {% if data['your_privileges']['see_roles_of_alive_players'].granted %}
+                  {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
                     -
                     {% for role in player.roles %}
                     {{ role.role.visible_name }}
@@ -80,20 +81,45 @@
           {% endif %}
           </ul>
         </div>
+      {% endif %}
       <div class="content-box">
         <h4>Historia miasta</h4>
         <ul>
        {% for history_event in data['history_events'] %}
           {% if history_event.event_type_tbl.name == 'lynch' %}
-          <li>Dnia {{ history_event.day_no }} zlinczowany został <b>{{ history_event.target_player.name }}</b></li>
+          <li>Dnia {{ history_event.day_no }} zlinczowany został <b>{{ history_event.target_player.name }}</b>
+            {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
+              -
+              {% for role in history_event.target_player.roles %}
+              {{ role.role.visible_name }}
+              {% if loop.index < history_event.target_player.roles|length %}, {% endif %}
+              {% endfor %}
+            {% endif %}
+          </li>
           {% elif history_event.event_type_tbl.name == 'mafia_kill' %}
             {% if history_event.target_player.name %}
-              <li>Dnia {{ history_event.day_no }} zabity przez mafię został <b>{{ history_event.target_player.name }}</b></li>
+              <li>Dnia {{ history_event.day_no }} zabity przez mafię został <b>{{ history_event.target_player.name }}</b>
+                {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
+                  -
+                  {% for role in history_event.target_player.roles %}
+                  {{ role.role.visible_name }}
+                  {% if loop.index < history_event.target_player.roles|length %}, {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </li>
             {% else %}
               <li>Dnia {{ history_event.day_no }} noc była spokojna i cicha. Podczas niej nikt nie zginął.</b></li>
             {% endif %}
           {% elif history_event.event_type_tbl.name == 'admin_kill' %}
-          <li>Dnia {{ history_event.day_no }} administrator zabił gracza <b>{{ history_event.target_player.name }}.</b></li>
+          <li>Dnia {{ history_event.day_no }} administrator zabił gracza <b>{{ history_event.target_player.name }}</b>
+            {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
+              -
+              {% for role in history_event.target_player.roles %}
+              {{ role.role.visible_name }}
+              {% if loop.index < history_event.target_player.roles|length %}, {% endif %}
+              {% endfor %}
+            {% endif %}
+          </li>
           {% elif history_event.event_type_tbl.name == 'admin_block_lynch' %}
           <li>Dnia {{ history_event.day_no }} administrator zablokował lincz.</b></li>
           {% elif history_event.event_type_tbl.name == 'admin_block_mafia_kill' %}
