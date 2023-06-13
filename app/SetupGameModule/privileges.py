@@ -25,7 +25,8 @@ def _get_all_privileges(player, game):
         'block_mafia_kill': BlockMafiaKill(player, game),
         'adding_game_guest': AddingGameGuest(player, game),
         'reverting_game': RevertingGame(player, game),
-        'see_list_of_dead_people': SeeListOfDeadPeople(player, game)
+        'see_list_of_dead_people': SeeListOfDeadPeople(player, game),
+        'see_user_names_of_players': SeeUserNamesOfPlayers(player, game)
     }
 
 
@@ -298,5 +299,17 @@ class SeeListOfDeadPeople(Privilege):
     description = 'You can see a list of dead people in lobby of the game.'
 
     def judge_if_deserved(self):
-        self.granted = False
+        if self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+    
+class SeeUserNamesOfPlayers(Privilege):
+    def judge_if_deserved(self):
+        if self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
         return self.granted
