@@ -53,7 +53,7 @@ class GameApi:
         # order players in randomized order due to anonymization
         try:
             self.game.game_players.sort(key=lambda x: x.order_id)
-        except TypeError:
+        except (TypeError, AttributeError):
             pass
         return self.game
 
@@ -305,14 +305,22 @@ class GameApi:
             try:
                 self.game.game_config[configs_dictionary[cfg.name]].value = configuration[cfg.name]
             except KeyError:
-                game_admin_cfg = Game_Configuration(game_id=self.game.id, configuration_id=cfg.id, value=configuration[cfg.name])
-                db.session.add(game_admin_cfg)
+                if configuration[cfg.name] != cfg.default_value:
+                    cfg_obj = Game_Configuration(game_id=self.game.id, configuration_id=cfg.id, value=configuration[cfg.name])
+                    db.session.add(cfg_obj)
         db.session.commit()
 
-    def get_configuration_value(self, cfg_name):
-        value = [config.value for config in self.game.game_config if config.configuration.name == cfg_name]
-        if len(value) > 0:
-            value = value[0]
+    def get_configuration(self, cfg_name: str):
+        privilege = [config.value for config in self.game.game_config if config.configuration.name == cfg_name]
+        if len(privilege) == 1:
+            privilege_value = privilege[0]
+        else:
+            cfg_dict = self._get_configuration_dictionary()
+            privilege_value = [d.default_value for d in cfg_dict if d.name == cfg_name][0]
+        return privilege_value
+
+    def get_configuration_value_boolean(self, cfg_name):
+        value = self.get_configuration(cfg_name)
         return value == '1'
 
     def check_winning_condition(self):

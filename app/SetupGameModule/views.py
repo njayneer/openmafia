@@ -48,6 +48,9 @@ def game_configuration(game_id):
     game_id = int(game_id)
     db_api = GameApi()
     game = db_api.get_game(game_id)
+    if game is None:
+        flash('Nieprawidłowy numer gry!', 'alert-danger')
+        return redirect(url_for('SetupGameModule.game_list'))
     v = Validator(game, current_user)
     form = SetupGameForm()
     forum_form = ForumForm()
@@ -212,7 +215,7 @@ def game_configuration_choose_roles(game_id):
     v = Validator(game, current_user)
     form = ChooseRolesForm()
     players_count = len(game.game_players)
-    game_admin_activated = db_api.get_configuration_value('game_admin')
+    game_admin_activated = db_api.get_configuration_value_boolean('game_admin')
     if game_admin_activated:
         players_count -= 1
     form = form.set_form_parameters(entries=players_count, choices=[role.visible_name for role in roles_api.roles])
@@ -284,19 +287,28 @@ def game_configuration_configuration(game_id):
             detailed_lynch_results = _boolean_to_string(form.detailed_lynch_results.data)
             lynch_voting_history = _boolean_to_string(form.lynch_voting_history.data)
             see_enrolled_user_list = _boolean_to_string(form.see_enrolled_user_list.data)
+            citizen_forum_turned_on = _boolean_to_string(form.citizen_forum_turned_on.data)
+            initial_forum_turned_on = _boolean_to_string(form.initial_forum_turned_on.data)
+            creations_on = _boolean_to_string(form.creations_on.data)
             configuration = {
                 'game_admin': game_admin,
                 'detailed_lynch_results': detailed_lynch_results,
                 'lynch_voting_history': lynch_voting_history,
-                'see_enrolled_user_list': see_enrolled_user_list
+                'see_enrolled_user_list': see_enrolled_user_list,
+                'citizen_forum_turned_on': citizen_forum_turned_on,
+                'initial_forum_turned_on': initial_forum_turned_on,
+                'creations_on': creations_on
             }
             db_api.update_game_configuration(configuration)
             flash('Konfiguracja zapisana!', 'alert-success')
         else:
-            form.game_admin.data = db_api.get_configuration_value('game_admin')
-            form.detailed_lynch_results.data = db_api.get_configuration_value('detailed_lynch_results')
-            form.lynch_voting_history.data = db_api.get_configuration_value('lynch_voting_history')
-            form.see_enrolled_user_list.data = db_api.get_configuration_value('see_enrolled_user_list')
+            form.game_admin.data = db_api.get_configuration_value_boolean('game_admin')
+            form.detailed_lynch_results.data = db_api.get_configuration_value_boolean('detailed_lynch_results')
+            form.lynch_voting_history.data = db_api.get_configuration_value_boolean('lynch_voting_history')
+            form.see_enrolled_user_list.data = db_api.get_configuration_value_boolean('see_enrolled_user_list')
+            form.citizen_forum_turned_on.data = db_api.get_configuration_value_boolean('citizen_forum_turned_on')
+            form.initial_forum_turned_on.data = db_api.get_configuration_value_boolean('initial_forum_turned_on')
+            form.creations_on.data = db_api.get_configuration_value_boolean('creations_on')
         return render_template('SetupGameModule_config.html',
                                game=game,
                                form=form

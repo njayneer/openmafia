@@ -72,13 +72,26 @@ with app.app_context():
 
     # generate configuration
     configs = [db_models.Configuration(name="game_admin",
-                                       description="Twórca zostaje administratorem (mistrzem) gry"),
+                                       description="Twórca zostaje administratorem (mistrzem) gry",
+                                       default_value="1"),
                db_models.Configuration(name="detailed_lynch_results",
-                                       description="Wyniki po linczu szczegółowe (kto na kogo)"),
+                                       description="Wyniki po linczu szczegółowe (kto na kogo)",
+                                       default_value="1"),
                db_models.Configuration(name="lynch_voting_history",
-                                       description="Głosowanie do linczu jawne na żywo"),
+                                       description="Głosowanie do linczu jawne na żywo",
+                                       default_value="0"),
                db_models.Configuration(name="see_enrolled_user_list",
-                                       description="Pokazywanie całej listy zapisanych do gry przed rozpoczęciem.")
+                                       description="Pokazywanie całej listy zapisanych do gry przed rozpoczęciem.",
+                                       default_value="0"),
+               db_models.Configuration(name="citizen_forum_turned_on",
+                                       description="Włącza forum miasta.",
+                                       default_value="1"),
+               db_models.Configuration(name="initial_forum_turned_on",
+                                       description="Włącza forum przed startem gry.",
+                                       default_value="0"),
+               db_models.Configuration(name="creations_on",
+                                       description="Włącza ustawianie indywidualnych dla rozgrywki nazw użytkowników w celu zanonimizowania graczy.",
+                                       default_value="1")
                    ]
     for config in configs:
         db.session.add(config)

@@ -1,4 +1,5 @@
 from app.Engine.DB.models import GamePlayer, Game
+from app.Engine.DB.db_api import GameApi
 def _player_roles(player):
     return [role.role.name for role in player.roles]
 
@@ -28,7 +29,8 @@ def _get_all_privileges(player, game):
         'reverting_game': RevertingGame(player, game),
         'see_list_of_dead_people': SeeListOfDeadPeople(player, game),
         'see_user_names_of_players': SeeUserNamesOfPlayers(player, game),
-        'see_enrolled_user_list': SeeEnrolledUserList(player, game)
+        'see_enrolled_user_list': SeeEnrolledUserList(player, game),
+        'see_creations_form': SeeCreationsForm(player, game)
     }
 
 
@@ -42,6 +44,8 @@ class Privilege:
     description = 'This is generic privilege and should not be used in practical situations.'
 
     def __init__(self, player=None, game=None):
+        self.game_api = GameApi()
+        self.game_api.set_game(game)
         self.granted = False
         if player:
             self.player = player
@@ -72,11 +76,14 @@ class Privilege:
         self.player_is_mafioso = 'mafioso' in _player_roles(self.player)
         self.alive_player = self.player.status == 'alive'
         self.current_phase_is_day = self.game.phase == 1
-        self.cfg_see_detailed_lynch_results = self.game.get_configuration('detailed_lynch_results') == '1'
-        self.cfg_see_history_of_lynch_voting = self.game.get_configuration('lynch_voting_history') == '1'
+        self.cfg_see_detailed_lynch_results = self.game_api.get_configuration('detailed_lynch_results') == '1'
+        self.cfg_see_history_of_lynch_voting = self.game_api.get_configuration('lynch_voting_history') == '1'
         self.game_guest = 'game_guest' in _player_roles(self.player)
-        self.cfg_see_enrolled_user_list = self.game.get_configuration('see_enrolled_user_list') == '1'
-        self.cfg_game_admin = self.game.get_configuration('game_admin') == '1'
+        self.cfg_see_enrolled_user_list = self.game_api.get_configuration('see_enrolled_user_list') == '1'
+        self.cfg_game_admin = self.game_api.get_configuration('game_admin') == '1'
+        self.cfg_citizen_forum_turned_on = self.game_api.get_configuration('citizen_forum_turned_on') == '1'
+        self.cfg_initial_forum_turned_on = self.game_api.get_configuration('initial_forum_turned_on') == '1'
+        self.cfg_creations_on = self.game_api.get_configuration('creations_on') == '1'
 
 class GraveyardVisible(Privilege):
     description = 'You are able to see whole graveyard tab with all that content.'
@@ -115,7 +122,7 @@ class InitialThreadForumRead(Privilege):
     description = 'You are able read in initial thread forum.'
 
     def judge_if_deserved(self):
-        if self.game_not_in_progress:
+        if self.game_not_in_progress and self.cfg_initial_forum_turned_on:
             self.granted = True
         else:
             self.granted = False
@@ -126,7 +133,7 @@ class InitialThreadForumWrite(Privilege):
     description = 'You are able write in initial thread forum.'
 
     def judge_if_deserved(self):
-        if self.game_not_in_progress:
+        if self.game_not_in_progress and self.cfg_initial_forum_turned_on:
             self.granted = True
         else:
             self.granted = False
@@ -159,7 +166,7 @@ class CitizenForumRead(Privilege):
     description = 'You are able read in citizen forum.'
 
     def judge_if_deserved(self):
-        if self.player_in_game:
+        if self.cfg_initial_forum_turned_on:
             self.granted = True
         else:
             self.granted = False
@@ -170,7 +177,7 @@ class CitizenForumWrite(Privilege):
     description = 'You are able write in citizen forum.'
 
     def judge_if_deserved(self):
-        if (self.player_in_game and self.alive_player) or self.game_admin:
+        if ((self.player_in_game and self.alive_player) or self.game_admin) and self.cfg_citizen_forum_turned_on:
             self.granted = True
         else:
             self.granted = False
@@ -319,7 +326,7 @@ class SeeListOfDeadPeople(Privilege):
 class SeeUserNamesOfPlayers(Privilege):
     description = 'You can see user name next to player name in game list of players.'
     def judge_if_deserved(self):
-        if self.game_finished:
+        if self.game_finished or self.game_admin:
             self.granted = True
         else:
             self.granted = False
@@ -332,6 +339,18 @@ class SeeEnrolledUserList(Privilege):
     def judge_if_deserved(self):
         # only with configuration or if you are to be GM.
         if self.cfg_see_enrolled_user_list or (self.cfg_game_admin and self.game.owner_id == self.player.user_id):
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class SeeCreationsForm(Privilege):
+    description = 'You can see form to choose your creation name for incomming game.'
+
+    def judge_if_deserved(self):
+        # only with configuration or if you are to be GM.
+        if self.cfg_creations_on:
             self.granted = True
         else:
             self.granted = False

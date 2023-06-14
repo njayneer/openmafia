@@ -39,7 +39,11 @@ with app.app_context():
 
     # generate configuration
     configs = [db_models.Configuration(name="see_enrolled_user_list",
-                                       description="Pokazywanie całej listy zapisanych do gry przed rozpoczęciem.")
+                                       description="Pokazywanie całej listy zapisanych do gry przed rozpoczęciem."),
+               db_models.Configuration(name="citizen_forum_turned_on",
+                                       description="Włącza forum miasta."),
+               db_models.Configuration(name="initial_forum_turned_on",
+                                       description="Włącza forum przed startem gry.")
                ]
     for config in configs:
         db.session.add(config)

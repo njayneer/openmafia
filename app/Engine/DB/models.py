@@ -22,16 +22,7 @@ class Game(db.Model):
     roles = relationship("Game_Roles")
     phases = relationship("Game_Phases")
     game_config = relationship("Game_Configuration")
-
     game_type = relationship("GameType")
-
-    def get_configuration(self, cfg_name: str):
-        privilege = [config.value for config in self.game_config if config.configuration.name == cfg_name]
-        if len(privilege) == 1:
-            privilege_value = privilege[0]
-        else:
-            privilege_value = None
-        return privilege_value
 
 
 class GameType(db.Model):
@@ -85,6 +76,7 @@ class Configuration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
     description = db.Column(db.String(100))
+    default_value = db.Column(db.String(50))
 
 
 class Status(db.Model):

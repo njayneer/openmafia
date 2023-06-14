@@ -83,16 +83,15 @@
                         {% endif %}
                 {% endif %}
         </div>
-        {% if user_type=='player' or user_type=='admin' %}
+        {% if data['your_privileges']['see_creations_form'].granted %}
         <div class="content-box">
                 <h4>Konfiguracja</h4>
-                Ustaw nazwę gracza:<br />
                 <form action="./game_configuration/set_player_name" method="post" class="form form-horizontal" name="setplayernameform">
                 {{ wtf.form_errors(form,"only") }}
                 {{ form.hidden_tag() }}
                 {{ wtf.form_field(form.name) }}
                 <div class="form-actions">
-                        <button name="action_set_player_name" type="submit" class="btn btn-primary">Ustaw nazwę gracza</button>
+                        <button name="action_set_player_name" type="submit" class="btn btn-primary">Ustaw nazwę kreacji</button>
                 </div>
         </form>
         </div>
@@ -105,6 +104,7 @@
                 {% endfor %}
         </div>
         {% endif %}
+        {% if data['your_privileges']['initial_thread_forum_read'].granted %}
         <div class="content-box">
           <h4>Forum</h4>
             {% for post in data['initial_thread'].items %}
@@ -122,7 +122,7 @@
             </div>
             {% endfor %}
             {{ render_pagination(data['initial_thread']) }}
-            {% if user_type=='player' or user_type=='admin' %}
+            {% if data['your_privileges']['initial_thread_forum_write'].granted %}
             <form action="./add_forum_reply" method="post" class="form form-horizontal" name="addforumreplyform">
                 {{ wtf.form_errors(forum_form,"only") }}
                 {{ forum_form.hidden_tag() }}
@@ -133,7 +133,8 @@
                 </div>
             </form>
             {% endif %}
-      </div>
+          </div>
+        {% endif %}
     </div>
   </div>
 </div>
