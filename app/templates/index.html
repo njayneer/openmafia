@@ -1,12 +1,19 @@
 {% extends "base.html" %}
-
 {%block title%}OpenMafia - strona główna{%endblock%}
 
 {%block main_content%}
 
+<div>
 	<h1>OpenMafia wita!</h1>
-	<div class="row">
-		Spróbuj swoich sił w grze w mafię.
-	</div>
+	<p>Gra w mafię to dynamiczna gra towarzyska, w której uczestnicy wcielają się w postacie przynależące do mafii lub mieszkańców miasteczka. Mafiosi starają się eliminować mieszkańców, podczas gdy ci ostatni próbują odkryć członków mafii. Rozgrywka składa się z faz dnia i nocy, w których gracze dyskutują, podejmują decyzje i próbują rozgryźć, kto jest podejrzany. Gra w mafię wymaga spostrzegawczości, dedukcji i umiejętności przekonywania innych graczy. To wciągające doświadczenie, które dostarcza wiele emocji i radości podczas rozgrywek z przyjaciółmi lub rodziną.</p>
 
+<h2>Zachęcamy do spróbowania!</h2>
+	<p>To niezwykle wciągające i ekscytujące doświadczenie, które pozwoli ci rozwijać umiejętność dedukcji, spostrzegawczości i manipulacji. Będziesz musiał analizować zachowania innych graczy, poszukiwać wskazówek i podejść strategicznie, aby osiągnąć swój cel. Gra w mafię dostarcza wiele rozrywki i jest idealna zarówno na wieczory z przyjaciółmi jak i wielodniowe zawody w społeczności internetowej. Spróbuj tej fascynującej gry i ciesz się niezapomnianymi momentami pełnymi tajemnic i intrygi.</p>
+</div>
+<div>
+	{% if not current_user.is_authenticated %}
+		<div class="register"><a href="/signup">Zarejestruj się już teraz!</a></div>
+		<div class="login"><a href="/login">Zaloguj się</a></div>
+	{% endif %}
+</div>
 {%endblock%}

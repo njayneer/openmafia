@@ -31,7 +31,7 @@
         <tr onclick="document.location = '{{ link }}';">
          <th scope="row">{{ game.id }}</th>
             <td>{{ game.name }}</td>
-            <td>{{ game.status.name }}</td>
+            <td>{{ game.status.visible_name }}</td>
             <td>{{ game.owner.name }}</td>
         </tr>
         {% endfor %}
