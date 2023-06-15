@@ -1,5 +1,5 @@
 
-def do(game_id):
+def do(game_id, source_id):
     from app.Engine.DB.db_api import GameApi, GameEventApi
     from app import app
     from app.Engine.AutomatedTasks.scheduler import GameScheduler
@@ -34,6 +34,7 @@ def do(game_id):
             game_api.process_to_next_phase()
             game_scheduler = GameScheduler()
             game_scheduler.create_lynch_for_actual_day(game_api.game)
+            game_scheduler.create_mafia_kill_for_actual_day(game_api.game)
 
 
 def check_target_from_events(game_api, event_api):

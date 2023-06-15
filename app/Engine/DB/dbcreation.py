@@ -40,7 +40,10 @@ with app.app_context():
                             description='Mistrz gry nie bierze udziału w rozgrywce, ale ma możliwość zarządzania graczami. Ma dostęp do wszystkich czatów, może w nich pisać i zna wszystkie role w grze.'),
              db_models.Role(name="game_guest",
                             visible_name='Gość',
-                            description='Gość może jedynie obserwować grę, nie bierze czynnego udziału w rozgrywce.')
+                            description='Gość może jedynie obserwować grę, nie bierze czynnego udziału w rozgrywce.'),
+             db_models.Role(name="detective",
+                            visible_name='Detektyw',
+                            description='Detektyw każdego dnia może wybrać jednego żyjącego gracza, którego szpieguje. Na koniec nocy otrzymuje informację, czy szpiegowana osoba jest członkiem mafii.')
              ]
     for role in roles:
         db.session.add(role)
@@ -59,12 +62,14 @@ with app.app_context():
                                        description="Miasto wygrywa!"),
                    db_models.EventType(name="mafiosos_win",
                                        description="Mafia wygrywa!"),
-                      db_models.EventType(name="admin_kill",
+                   db_models.EventType(name="admin_kill",
                                       description="Administrator zabił gracza."),
-                      db_models.EventType(name="admin_block_lynch",
+                   db_models.EventType(name="admin_block_lynch",
                                       description="Administrator zablokował dzisiejszy lincz."),
-                      db_models.EventType(name="admin_block_mafia_kill",
+                   db_models.EventType(name="admin_block_mafia_kill",
                                       description="Administrator zablokował dzisiejszy mord."),
+                   db_models.EventType(name="detective_check",
+                                       description="Detektyw sprawdza przynależność gracza."),
                    ]
     for event_type in event_types:
         db.session.add(event_type)

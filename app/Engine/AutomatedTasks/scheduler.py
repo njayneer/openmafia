@@ -59,6 +59,7 @@ class GameScheduler:
             time.sleep(5)  # we assume that in 5 seconds the task will be done
 
         else:
+            jobs_to_do.sort(key=lambda x: (x.trigger_time, x.priority))
             for job in jobs_to_do:
-                getattr(Tasks, job.job_name).__call__(job.game_id)
+                getattr(Tasks, job.job_name).__call__(job.game_id, job.source_id)
                 self.job_api.update_job_status(job.id, 'done')

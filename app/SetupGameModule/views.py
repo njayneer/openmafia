@@ -1,7 +1,7 @@
 from . import SetupGameModule
 from flask import render_template, g, redirect, url_for, request, flash
 from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm, ConfigurationForm
-from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local, UserApi
+from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local, UserApi, JobApi
 from flask_login import current_user, login_required
 from .validators import Validator
 import datetime
@@ -381,6 +381,7 @@ def add_forum_reply(game_id, topic_name='citizen_thread'):
 
 @SetupGameModule.route('<game_id>/lobby', methods=['GET', 'POST'])
 @login_required
+@handle_jobs
 def lobby(game_id):
     game_id = int(game_id)
     lynch_vote_day = request.args.get('lynch_vote_day', default=None)
@@ -474,6 +475,7 @@ def lobby(game_id):
         # current time
         current_time = datetime.datetime.now()
 
+        all_your_events = event_api.get_last_your_events_for_actual_day(game, you.id)
 
         data = {
             'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration),
@@ -491,7 +493,8 @@ def lobby(game_id):
             'mafiosos': mafiosos,
             'vote_results': vote_results,
             'history_events': history_events,
-            'lynch_vote_day': lynch_vote_day
+            'lynch_vote_day': lynch_vote_day,
+            'your_events': all_your_events
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,
@@ -527,6 +530,17 @@ def create_event(game_id, event_name):
                                             event_name,
                                             db_api.get_player_id_for_user_id(current_user.id),
                                             db_api.get_player_id_for_name(form.target.data))
+
+        # events sometimes needs to create a job
+        # events that triggers at mafia kill time
+        if event_name in ['detective_check']:
+            job_api = JobApi()
+            # check if the job for your player already exists. If no, create new one.
+            try:
+                dummy = job_api.get_time_of_active_job(game.id, event_name, you.id)
+            except:
+                trigger_time = job_api.get_time_of_active_job(game.id, 'mafia_kill')
+                job_api.add_job(event_name, game, trigger_time, you.id)
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
 

@@ -1,5 +1,5 @@
 
-def do(game_id):
+def do(game_id, source_id):
 
     from app.Engine.DB.db_api import GameApi, ForumApi
     from app import app
@@ -18,3 +18,4 @@ def do(game_id):
 
         game_scheduler = GameScheduler()
         game_scheduler.create_lynch_for_actual_day(game_api.game)
+        game_scheduler.create_mafia_kill_for_actual_day(game_api.game)

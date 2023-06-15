@@ -1,0 +1,15 @@
+<h4>Śledztwo detektywa</h4>
+{% if data['your_privileges']['detective_check'].granted %}
+<form action="./create_event/detective_check" method="post" class="form form-horizontal" name="citizen_form">
+    {{ wtf.form_errors(form,"only") }}
+    {{ form.hidden_tag() }}
+    Śledzę {{ form.target }}<br />
+    <div class="form-actions">
+        <button name="action_citizen" type="submit" class="btn btn-primary">Wyślij głos</button>
+    </div>
+</form>
+Aktualnie wybrany cel:
+{% if data['your_events']['detective_check'] %}
+{{ data['your_events']['detective_check'].target_player.name }}
+{% endif %}
+{% endif %}

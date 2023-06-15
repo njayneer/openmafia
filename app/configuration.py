@@ -12,6 +12,13 @@ class Config(object):
 	CSRF_ENABLED = True
 	SQLALCHEMY_TRACK_MODIFICATIONS = True
 
+	JOB_PRIORITIES = {
+		'start_game': 10,
+		'lynch': 100,
+		'mafia_kill': 200,
+		'detective_check': 210
+	}
+
 
 
 	#Get your reCaptche key on: https://www.google.com/recaptcha/admin/create

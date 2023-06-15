@@ -30,7 +30,8 @@ def _get_all_privileges(player, game):
         'see_list_of_dead_people': SeeListOfDeadPeople(player, game),
         'see_user_names_of_players': SeeUserNamesOfPlayers(player, game),
         'see_enrolled_user_list': SeeEnrolledUserList(player, game),
-        'see_creations_form': SeeCreationsForm(player, game)
+        'see_creations_form': SeeCreationsForm(player, game),
+        'detective_check': DetectiveCheck(player, game)
     }
 
 
@@ -84,6 +85,7 @@ class Privilege:
         self.cfg_citizen_forum_turned_on = self.game_api.get_configuration('citizen_forum_turned_on') == '1'
         self.cfg_initial_forum_turned_on = self.game_api.get_configuration('initial_forum_turned_on') == '1'
         self.cfg_creations_on = self.game_api.get_configuration('creations_on') == '1'
+        self.role_detective = 'detective' in _player_roles(self.player)
 
 class GraveyardVisible(Privilege):
     description = 'You are able to see whole graveyard tab with all that content.'
@@ -351,6 +353,18 @@ class SeeCreationsForm(Privilege):
     def judge_if_deserved(self):
         # only with configuration or if you are to be GM.
         if self.cfg_creations_on:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class DetectiveCheck(Privilege):
+    description = 'You can use detective ability.'
+
+    def judge_if_deserved(self):
+        # only with configuration or if you are to be GM.
+        if self.role_detective:
             self.granted = True
         else:
             self.granted = False

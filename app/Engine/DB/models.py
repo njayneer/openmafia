@@ -111,11 +111,13 @@ class Event(db.Model):
     target_player = relationship("GamePlayer", foreign_keys=[target])
     event_type_tbl = relationship("EventType")
 
+
 class EventType(db.Model):
     __tablename__ = 'EventType'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(500))
     description = db.Column(db.String(500))
+
 
 class Job(db.Model):
     __tablename__ = 'jobs'
@@ -124,6 +126,8 @@ class Job(db.Model):
     game_id = db.Column(db.Integer, ForeignKey('Game.id'))
     trigger_time = db.Column(db.DateTime(timezone=True))
     status = db.Column(db.String(20), default='new')
+    priority = db.Column(db.Integer, default=100)
+    source_id = db.Column(db.Integer, default=None)
 
 
 class User(db.Model):

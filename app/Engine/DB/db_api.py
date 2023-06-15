@@ -3,6 +3,7 @@ import random
 from flask_login import current_user
 import os
 from dateutil import tz
+from flask import current_app
 
 
 def utc_to_local(utc_dt):
@@ -105,6 +106,15 @@ class GameApi:
             db.session.add(role)
         db.session.commit()
 
+    def add_new_game_role(self, role_name: str, player_id=None):
+        role_id = RolesApi().get_role_id_from_name(role_name)
+        role = Game_Roles(game_id=self.game.id,
+                          role_id=role_id,
+                          player_id=player_id)
+        db.session.add(role)
+        db.session.commit()
+
+
 
     def assign_game_admin(self, player_id):
         admin_role_id = RolesApi().get_role_id_from_name('game_admin')
@@ -166,7 +176,12 @@ class GameApi:
         unassigned_roles = [role for role in self.game.roles if role.player_id is None]
         for role in unassigned_roles:
             role.player_id = next(i_id)
+            self._add_basic_roles_for_specific(role)
         db.session.commit()
+
+    def _add_basic_roles_for_specific(self, role: Game_Roles):
+        if role.role.name in ['detective']:
+            self.add_new_game_role('citizen', role.player_id)
 
     def shuffle_order_of_players(self):
         players = [player for player in self.game.game_players]
@@ -441,6 +456,26 @@ class GameEventApi:
 
         return events
 
+    def get_last_your_events_for_actual_day(self, game, player_id, day_no=None):
+        '''
+        result = {'event_name1':  Event(),
+                  'event_name2': Event()
+                 }
+        '''
+        if day_no is None:
+            day_no = game.day_no
+
+        events = Event.query.filter_by(game_id=game.id, day_no=day_no, player_id=player_id)
+
+        # get last event for each player - newer overrides older one
+        event_dict = {}
+        for ev in events:
+            event_name = ev.event_type_tbl.name
+            if event_name not in event_dict.keys():
+                event_dict[event_name] = {}
+            event_dict[event_name] = ev
+        return event_dict
+
     def get_all_events_for_whole_game(self, game, event_name=None):
         '''
             result = [Event(), Event(), ...]
@@ -466,15 +501,26 @@ class GameEventApi:
 
 
 class JobApi:
-    def add_job(self, job_name, game, trigger_time):
+
+    def add_job(self, job_name, game, trigger_time, source_id = None):
         new_job = Job(job_name=job_name,
-                        game_id=game.id,
-                        trigger_time=trigger_time)
+                      game_id=game.id,
+                      trigger_time=trigger_time,
+                      priority=current_app.config['JOB_PRIORITIES'][job_name],
+                      source_id=source_id)
         db.session.add(new_job)
         db.session.commit()
 
     def list_jobs(self):
         return Job.query.filter(Job.status != 'done').all()
+
+    def get_time_of_active_job(self, game_id, job_name, source: int = None):
+        if source is None:
+            act_job = Job.query.filter(Job.game_id == game_id, Job.status != 'done', Job.job_name == job_name).first()
+        else:
+            act_job = Job.query.filter(Job.game_id == game_id, Job.status != 'done', Job.job_name == job_name, Job.source_id == source).first()
+        result = act_job.trigger_time
+        return result
 
     def list_jobs_for_game(self, game_id, for_update=False):
         if for_update:
