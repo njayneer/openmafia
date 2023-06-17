@@ -1,7 +1,7 @@
 from . import SetupGameModule
-from flask import render_template, g, redirect, url_for, request, flash
+from flask import render_template, g, redirect, url_for, request, flash, Markup
 from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm, ConfigurationForm
-from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local, UserApi, JobApi
+from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local, UserApi, JobApi, NotificationApi
 from flask_login import current_user, login_required
 from .validators import Validator
 import datetime
@@ -477,6 +477,9 @@ def lobby(game_id):
 
         all_your_events = event_api.get_last_your_events_for_actual_day(game, you.id)
 
+        #notifications
+        _display_your_notifications(you)
+
         data = {
             'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration),
             'night_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration)),
@@ -503,6 +506,19 @@ def lobby(game_id):
                                forum_form=forum_form)
     else:
         return redirect(url_for('SetupGameModule.game_list'))
+
+
+def _display_your_notifications(you):
+    notification_api = NotificationApi()
+    your_notifications = notification_api.read_player_notifications(you.id)
+    if your_notifications:
+        for n in your_notifications:
+            parameters = n.parameters.split(';;')
+            notification = n.template.content
+            for p in parameters:
+                notification = notification.replace("%s", p, 1)
+            flash(Markup(notification), 'alert-notification')
+            notification_api.set_notification_read(n)
 
 
 @SetupGameModule.route('<game_id>/create_event/<event_name>', methods=['GET', 'POST'])

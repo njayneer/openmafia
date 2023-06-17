@@ -66,7 +66,6 @@ class Validator:
         if self.game.status.name in ['new', 'enrollment_open', 'enrollment_closed', 'waiting_for_start']:
             return True
         else:
-            flash('Gra już wystartowała lub została anulowana.', 'alert-danger')
             return False
 
     def game_is_started(self):

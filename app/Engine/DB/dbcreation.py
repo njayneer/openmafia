@@ -129,3 +129,30 @@ with app.app_context():
     for gametype in gametypes:
         db.session.add(gametype)
     db.session.commit()
+
+    # notifications
+    notifications = [db_models.NotificationTemplate(name="detective_check",
+                                                    content="Twoje śledztwo detektywa doprowadziło cię do wniosku, że <b>%s</b> należy do frakcji <b>%s</b>!"),
+                     db_models.NotificationTemplate(name="game_started",
+                                                    content="Gra rozpoczęta! Została ci przyznana rola <b>%s</b>. Powodzenia!")
+                     ]
+    for notif in notifications:
+        db.session.add(notif)
+    db.session.commit()
+
+    # user attributes
+    user_attributes = [db_models.UserAttributeType(name='administrator',
+                                                   visible_name='Administrator'),
+                       db_models.UserAttributeType(name='banned',
+                                                   visible_name='Użytkownik zbanowany'),
+                       db_models.UserAttributeType(name='premium_account',
+                                                   visible_name='Użytkownik z kontem premium'),
+                       ]
+    for at in user_attributes:
+        db.session.add(at)
+    db.session.commit()
+
+    admin_attribute = db_models.UserAttribute(user_id=1,
+                                              attribute_id=1)
+    db.session.add(admin_attribute)
+    db.session.commit()

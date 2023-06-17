@@ -1,5 +1,6 @@
 from app.Engine.DB.models import GamePlayer, Game
-from app.Engine.DB.db_api import GameApi
+from app.Engine.DB.db_api import GameApi, UserApi
+from flask_login import current_user
 def _player_roles(player):
     return [role.role.name for role in player.roles]
 
@@ -41,12 +42,16 @@ def judge_privileges(player, game):
         privileges[privilege].judge_if_deserved()
     return privileges
 
+
 class Privilege:
     description = 'This is generic privilege and should not be used in practical situations.'
 
     def __init__(self, player=None, game=None):
         self.game_api = GameApi()
         self.game_api.set_game(game)
+        self.user_api = UserApi()
+        self.user_api.user = current_user
+        self.user_attributes = [ua.attribute.name for ua in self.user_api.get_user_attributes()]
         self.granted = False
         if player:
             self.player = player
@@ -86,12 +91,13 @@ class Privilege:
         self.cfg_initial_forum_turned_on = self.game_api.get_configuration('initial_forum_turned_on') == '1'
         self.cfg_creations_on = self.game_api.get_configuration('creations_on') == '1'
         self.role_detective = 'detective' in _player_roles(self.player)
+        self.admin = 'administrator' in self.user_attributes
 
 class GraveyardVisible(Privilege):
     description = 'You are able to see whole graveyard tab with all that content.'
 
     def judge_if_deserved(self):
-        if self.dead_citizen or self.game_finished or self.game_admin or self.game_guest:
+        if self.dead_citizen or self.game_finished or self.game_admin or self.game_guest or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -102,7 +108,7 @@ class GraveyardForumRead(Privilege):
     description = 'You are able read in graveyard forum.'
 
     def judge_if_deserved(self):
-        if self.dead_citizen or self.game_finished or self.game_admin or self.game_guest:
+        if self.dead_citizen or self.game_finished or self.game_admin or self.game_guest or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -113,7 +119,7 @@ class GraveyardForumWrite(Privilege):
     description = 'You are able write in graveyard forum.'
 
     def judge_if_deserved(self):
-        if (self.player_in_game and self.dead_citizen) or self.game_admin or self.game_guest:
+        if (self.player_in_game and self.dead_citizen) or self.game_admin or self.game_guest or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -124,7 +130,7 @@ class InitialThreadForumRead(Privilege):
     description = 'You are able read in initial thread forum.'
 
     def judge_if_deserved(self):
-        if self.game_not_in_progress and self.cfg_initial_forum_turned_on:
+        if (self.game_not_in_progress and self.cfg_initial_forum_turned_on) or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -135,7 +141,7 @@ class InitialThreadForumWrite(Privilege):
     description = 'You are able write in initial thread forum.'
 
     def judge_if_deserved(self):
-        if self.game_not_in_progress and self.cfg_initial_forum_turned_on:
+        if (self.game_not_in_progress and self.cfg_initial_forum_turned_on) or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -146,7 +152,7 @@ class MafiosoForumRead(Privilege):
     description = 'You are able read in mafioso forum.'
 
     def judge_if_deserved(self):
-        if self.player_is_mafioso or self.game_finished or self.game_admin:
+        if self.player_is_mafioso or self.game_finished or self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -157,7 +163,7 @@ class MafiosoForumWrite(Privilege):
     description = 'You are able write in mafioso forum.'
 
     def judge_if_deserved(self):
-        if (self.player_in_game and self.player_is_mafioso) or self.game_admin:
+        if (self.player_in_game and self.player_is_mafioso) or self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -168,7 +174,7 @@ class CitizenForumRead(Privilege):
     description = 'You are able read in citizen forum.'
 
     def judge_if_deserved(self):
-        if self.cfg_initial_forum_turned_on:
+        if self.cfg_initial_forum_turned_on or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -179,7 +185,7 @@ class CitizenForumWrite(Privilege):
     description = 'You are able write in citizen forum.'
 
     def judge_if_deserved(self):
-        if ((self.player_in_game and self.alive_player) or self.game_admin) and self.cfg_citizen_forum_turned_on:
+        if ((self.player_in_game and self.alive_player) or self.game_admin or self.admin) and self.cfg_citizen_forum_turned_on:
             self.granted = True
         else:
             self.granted = False
@@ -212,7 +218,7 @@ class MafiaTabVisible(Privilege):
     description = 'You are able to see content from mafia tab.'
 
     def judge_if_deserved(self):
-        if (self.player_in_game and self.player_is_mafioso) or self.game_admin:
+        if (self.player_in_game and self.player_is_mafioso) or self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -223,7 +229,7 @@ class SeeRolesOfAlivePlayers(Privilege):
     description = 'You are able to see all roles owned by alive players.'
 
     def judge_if_deserved(self):
-        if self.game_finished or self.game_admin:
+        if self.game_finished or self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -242,7 +248,7 @@ class KillAPlayerAtAnyTime(Privilege):
     description = 'You can kill any player at any time'
 
     def judge_if_deserved(self):
-        if self.game_admin:
+        if self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -253,7 +259,7 @@ class SeeDetailedLynchResults(Privilege):
     description = 'You can see who voted to who in previous days'
 
     def judge_if_deserved(self):
-        if self.cfg_see_detailed_lynch_results or self.game_admin:
+        if self.cfg_see_detailed_lynch_results or self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -264,7 +270,7 @@ class SeeHistoryOfLynchVoting(Privilege):
     description = 'You can see all votes, also changed and outdated, also in current day.'
 
     def judge_if_deserved(self):
-        if self.cfg_see_history_of_lynch_voting or self.game_admin:
+        if self.cfg_see_history_of_lynch_voting or self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -275,7 +281,7 @@ class BlockLynch(Privilege):
     description = 'You can block this day lynch.'
 
     def judge_if_deserved(self):
-        if self.game_admin:
+        if self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -286,7 +292,7 @@ class BlockMafiaKill(Privilege):
     description = 'You can block this day mafia kill.'
 
     def judge_if_deserved(self):
-        if self.game_admin:
+        if self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -297,7 +303,7 @@ class AddingGameGuest(Privilege):
     description = 'You can add an user as a game guest.'
 
     def judge_if_deserved(self):
-        if self.game_admin:
+        if self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -307,7 +313,7 @@ class RevertingGame(Privilege):
     description = 'You can revert the game to state before shuffling roles and start.'
 
     def judge_if_deserved(self):
-        if self.game_admin:
+        if self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -328,7 +334,7 @@ class SeeListOfDeadPeople(Privilege):
 class SeeUserNamesOfPlayers(Privilege):
     description = 'You can see user name next to player name in game list of players.'
     def judge_if_deserved(self):
-        if self.game_finished or self.game_admin:
+        if self.game_finished or self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -340,7 +346,7 @@ class SeeEnrolledUserList(Privilege):
 
     def judge_if_deserved(self):
         # only with configuration or if you are to be GM.
-        if self.cfg_see_enrolled_user_list or (self.cfg_game_admin and self.game.owner_id == self.player.user_id):
+        if self.cfg_see_enrolled_user_list or (self.cfg_game_admin and self.game.owner_id == self.player.user_id) or self.admin:
             self.granted = True
         else:
             self.granted = False
@@ -352,7 +358,7 @@ class SeeCreationsForm(Privilege):
 
     def judge_if_deserved(self):
         # only with configuration or if you are to be GM.
-        if self.cfg_creations_on:
+        if self.cfg_creations_on and self.player_in_game:
             self.granted = True
         else:
             self.granted = False

@@ -1,10 +1,11 @@
 from app.Engine.DB.models import *
 import random
 from flask_login import current_user
-import os
+import os, datetime
 from dateutil import tz
 from flask import current_app
-
+from sqlalchemy import or_
+from sqlalchemy.orm import subqueryload, joinedload
 
 def utc_to_local(utc_dt):
     from_zone = tz.gettz('UTC')
@@ -58,6 +59,7 @@ class GameApi:
             pass
         return self.game
 
+
     def set_game(self, game):
         self.game = game
 
@@ -91,8 +93,11 @@ class GameApi:
         for player in self.game.game_players:
             player.status = 'new'
             player.order_id = None
+            Notification.query.filter_by(player_id=player.id).delete()
         Game_Phases.query.filter_by(game_id=self.game.id).delete()
         Job.query.filter_by(game_id=self.game.id).delete()
+        Event.query.filter_by(game_id=self.game.id).delete()
+
         db.session.commit()
 
     def remove_roles_from_game(self):
@@ -216,6 +221,23 @@ class GameApi:
             if player.status == 'dead':
                 players.append(player)
         return players
+
+    def get_all_players_roles(self, player_id: int = None, visible=False):
+        players_roles = Game_Roles.query.filter(Game_Roles.game_id == self.game.id).all()
+        result = {}
+        if player_id is None:
+            for p_id in [p.id for p in self.game.game_players]:
+                if visible:
+                    result[p_id] = [r.role.visible_name for r in players_roles if r.player_id == p_id]
+                else:
+                    result[p_id] = [r.role.name for r in players_roles if r.player_id == p_id]
+        else:
+            if visible:
+                result = [r.role.visible_name for r in players_roles if r.player_id == player_id]
+            else:
+                result = [r.role.name for r in players_roles if r.player_id == player_id]
+        return result
+
 
     def get_players_with_role(self, role_name):
         players = []
@@ -389,6 +411,13 @@ class RolesApi:
 
     def get_role_id_from_name(self, name):
         return Role.query.filter_by(name=name).first().id
+
+    def get_role_visible_name_from_name(self, name):
+        try:
+            result = [r.visible_name for r in self.roles if r.name == name][0]
+        except:
+            result = None
+        return result
 
     def add_role(self, name, visible_name, description):
         role = Role(name=name, visible_name=visible_name, description=description)
@@ -661,3 +690,40 @@ class UserApi:
 
     def list_achievement_types(self):
         return AchievementTypes.query.all()
+
+    def get_user_attributes(self):
+        result = UserAttribute.query.filter(UserAttribute.user_id == self.user.id,
+                                            or_(UserAttribute.expiration_time is None,
+                                                UserAttribute.expiration_time > datetime.datetime.now())).all()
+        return result
+
+
+class NotificationApi:
+    def __init__(self):
+        pass
+
+    def list_notification_types(self):
+        return NotificationTemplate.query.all()
+
+    def read_player_notifications(self, player_id: int, unread_only=True):
+        if unread_only:
+            return Notification.query.filter(Notification.player_id == player_id, Notification.read != 1).all()
+        else:
+            return Notification.query.filter(Notification.player_id == player_id).all()
+
+    def add_new_notification(self, player_id: int, template_name: str, *args):
+        template = NotificationTemplate.query.filter(NotificationTemplate.name == template_name).first()
+        if template:
+            parameters = ''
+            for arg in args:
+                parameters += arg + ';;'
+
+            new_notification = Notification(player_id=player_id,
+                                            template_id=template.id,
+                                            parameters=parameters)
+            db.session.add(new_notification)
+            db.session.commit()
+
+    def set_notification_read(self, notification: Notification):
+        notification.read = '1'
+        db.session.commit()

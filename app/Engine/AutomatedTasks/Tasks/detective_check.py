@@ -1,6 +1,6 @@
 
 def do(game_id, source_id):
-    from app.Engine.DB.db_api import GameApi, GameEventApi
+    from app.Engine.DB.db_api import GameApi, GameEventApi, NotificationApi, RolesApi
     from app import app
     from app.Engine.AutomatedTasks.scheduler import GameScheduler
     import random
@@ -13,8 +13,17 @@ def do(game_id, source_id):
 
         # Check the target
         if target is not None:
-            #game_api.kill_player(target)
-            pass # TODO: create notification here
+            roles_api = RolesApi()
+            target_roles = game_api.get_all_players_roles(target)
+            # target_roles = [r.role.name for r in target.roles]
+            if 'mafioso' in target_roles:
+                res_role = roles_api.get_role_visible_name_from_name('mafioso')
+            elif 'citizen' in target_roles:
+                res_role = roles_api.get_role_visible_name_from_name('citizen')
+            else:
+                res_role = 'Frakcja neutralna'
+            notif_api = NotificationApi()
+            notif_api.add_new_notification(source_id, 'detective_check', game_api.get_player_name_for_id(target), res_role)
 
 
 def check_target_from_events(game_api, event_api, source_id):
