@@ -9,7 +9,11 @@
     </div>
 </form>
 {% endif %}
-Aktualnie wybrany cel: {{ data['your_actual_citizen_vote'].name }}
+{% if data['your_actual_citizen_vote'] is not none %}
+    Aktualnie wybrany cel: {{ data['your_actual_citizen_vote'].name }}
+{% else %}
+    Brak wysłanego głosu!
+{% endif %}
 
 <h4>Wybieranie celu nocnego morderstwa</h4>
 {% if data['your_privileges']['mafia_kill_vote'].granted %}
@@ -22,6 +26,8 @@ Aktualnie wybrany cel: {{ data['your_actual_citizen_vote'].name }}
     </div>
 </form>
 {% endif %}
-    {% if data['your_actual_citizen_vote'] is not none %}
+{% if data['mafia_actual_target'] is not none %}
     Aktualnie wybrany cel: {{ data['mafia_actual_target'].name }}
-    {% endif %}
+{% else %}
+    Brak aktualnie wybranego celu!
+{% endif %}

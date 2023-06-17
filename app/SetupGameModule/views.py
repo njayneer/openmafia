@@ -480,6 +480,13 @@ def lobby(game_id):
         #notifications
         _display_your_notifications(you)
 
+        # roles
+        roles_data = None
+        if 'detective' in [r.name for r in db_api.get_user_roles(you.user_id)]:
+            notification_api = NotificationApi()
+            your_notifications = notification_api.read_player_notifications(you.id, unread_only = False, specific='detective_check')
+            roles_data = _parse_notifications(your_notifications)
+
         data = {
             'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration),
             'night_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration)),
@@ -497,7 +504,8 @@ def lobby(game_id):
             'vote_results': vote_results,
             'history_events': history_events,
             'lynch_vote_day': lynch_vote_day,
-            'your_events': all_your_events
+            'your_events': all_your_events,
+            'roles_data': roles_data
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,
@@ -508,6 +516,18 @@ def lobby(game_id):
         return redirect(url_for('SetupGameModule.game_list'))
 
 
+def _parse_notifications(notifications):
+    result = None
+    if notifications:
+        result = []
+        for n in notifications:
+            parameters = n.parameters.split(';;')
+            notification = n.template.content
+            for p in parameters:
+                notification = Markup(notification.replace("%s", p, 1))
+            result.append(notification)
+    return result
+
 def _display_your_notifications(you):
     notification_api = NotificationApi()
     your_notifications = notification_api.read_player_notifications(you.id)
@@ -516,8 +536,8 @@ def _display_your_notifications(you):
             parameters = n.parameters.split(';;')
             notification = n.template.content
             for p in parameters:
-                notification = notification.replace("%s", p, 1)
-            flash(Markup(notification), 'alert-notification')
+                notification = Markup(notification.replace("%s", p, 1))
+            flash(notification, 'alert-notification')
             notification_api.set_notification_read(n)
 
 

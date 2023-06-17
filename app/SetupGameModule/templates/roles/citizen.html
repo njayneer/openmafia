@@ -10,5 +10,7 @@
     {% endif %}
     {% if data['your_actual_citizen_vote'] is not none %}
     Aktualnie wybrany cel: {{ data['your_actual_citizen_vote'].name }}
+    {% else %}
+    Brak wysłanego głosu!
     {% endif %}
 </form>

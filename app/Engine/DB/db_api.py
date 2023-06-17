@@ -705,11 +705,20 @@ class NotificationApi:
     def list_notification_types(self):
         return NotificationTemplate.query.all()
 
-    def read_player_notifications(self, player_id: int, unread_only=True):
+    def read_player_notifications(self, player_id: int, unread_only=True, specific: str = False):
         if unread_only:
-            return Notification.query.filter(Notification.player_id == player_id, Notification.read != 1).all()
+            notifications = Notification.query.filter(Notification.player_id == player_id,
+                                                      Notification.read != 1).all()
+            if specific:
+                notifications = [n for n in notifications if n.template.name == specific]
+            return notifications
+
         else:
-            return Notification.query.filter(Notification.player_id == player_id).all()
+            notifications = Notification.query.filter(Notification.player_id == player_id).all()
+            if specific:
+                notifications = [n for n in notifications if n.template.name == specific]
+            return notifications
+
 
     def add_new_notification(self, player_id: int, template_name: str, *args):
         template = NotificationTemplate.query.filter(NotificationTemplate.name == template_name).first()

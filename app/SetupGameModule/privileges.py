@@ -196,7 +196,7 @@ class CitizenVote(Privilege):
     description = 'You are able to vote choosing player to be lynch.'
 
     def judge_if_deserved(self):
-        if self.player_in_game and self.alive_player and self.current_phase_is_day:
+        if self.player_in_game and self.alive_player and self.current_phase_is_day and not self.game_finished:
             self.granted = True
         else:
             self.granted = False
@@ -207,7 +207,7 @@ class MafiaKillVote(Privilege):
     description = 'You are able to choose target for mafia murder.'
 
     def judge_if_deserved(self):
-        if self.player_in_game and self.player_is_mafioso and self.alive_player:
+        if self.player_in_game and self.player_is_mafioso and self.alive_player and not self.game_finished:
             self.granted = True
         else:
             self.granted = False
@@ -370,7 +370,7 @@ class DetectiveCheck(Privilege):
 
     def judge_if_deserved(self):
         # only with configuration or if you are to be GM.
-        if self.role_detective:
+        if self.role_detective and self.alive_player and not self.game_finished:
             self.granted = True
         else:
             self.granted = False
