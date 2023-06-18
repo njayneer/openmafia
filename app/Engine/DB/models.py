@@ -15,7 +15,7 @@ class Game(db.Model):
     status_id = db.Column(db.Integer, ForeignKey('Status.id'), default=1)
     owner_id = db.Column(db.Integer, ForeignKey('User.id'))
     start_time = db.Column(db.DateTime(timezone=True))
-    game_type_id = db.Column(db.Integer, ForeignKey('GameType.id'))
+    game_type_id = db.Column(db.Integer, ForeignKey('GameType.id'), default=1)
     owner = relationship("User", uselist=False)
     status = relationship("Status", uselist=False)
     game_players = relationship("GamePlayer", back_populates='game')
