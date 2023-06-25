@@ -38,11 +38,44 @@
           Koniec fazy nocy: {{ data['night_end'] }}<br />
         </div>
         <div class="content-box">
-          <h4>Lista żyjących mieszkańców:</h4>
+          <h4>Lista żyjących:</h4>
           <ul>
           {% if data['alive_players']|length > 0 %}
+            {% if data['your_privileges']['judge_players'].granted %}
+              <form method="get" action="./judge">
+              <div>
+            {% endif %}
             {% for player in data['alive_players']  %}
-                <li>{{ player.name }}
+                <li>
+                  {% if data['your_privileges']['judge_players'].granted %}
+                  <label class="radio-item">
+                    <input type="radio" class="green" id="1_{{ player.id }}" name="{{ player.id }}" value="1"
+                    {% if data['current_judgements'][player.id] %}
+                      {% if data['current_judgements'][player.id] == 1 %}
+                        checked="checked"
+                      {% endif %}
+                    {% endif %}>
+                  </label>
+
+                  <label class="radio-item">
+                    <input type="radio" class="yellow" id="5_{{ player.id }}" name="{{ player.id }}" value="5"
+                    {% if data['current_judgements'][player.id] %}
+                      {% if data['current_judgements'][player.id] == 5 %}
+                        checked="checked"
+                      {% endif %}
+                    {% endif %}>
+                  </label>
+
+                  <label class="radio-item">
+                    <input type="radio" class="red" id="10_{{ player.id }}" name="{{ player.id }}" value="10"
+                    {% if data['current_judgements'][player.id] %}
+                      {% if data['current_judgements'][player.id] == 10 %}
+                        checked="checked"
+                      {% endif %}
+                    {% endif %}>
+                  </label>
+                  {% endif %}
+                {{ player.name }}
                 {% if data['your_privileges']['see_roles_of_alive_players'].granted %}
                   -
                   {% for role in player.roles %}
@@ -58,6 +91,11 @@
                 {% endif %}
                 </li>
             {% endfor %}
+          {% if data['your_privileges']['judge_players'].granted %}
+              </div>
+              <button type="submit">Zapisz typy</button>
+              </form>
+          {% endif %}
           {% else %}
             Wszyscy zginęli!
           {% endif %}

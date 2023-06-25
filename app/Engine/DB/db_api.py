@@ -401,6 +401,54 @@ class GameApi:
                 user_api.user = winner.user
                 user_api.set_achievement_to_user('classic_winner', winner.id)
 
+    def get_player_judgement(self, player_id: int, day_no:int = None):
+        if day_no:
+            judgements = GameJudgement.query.filter(GameJudgement.player_id == player_id,
+                                                    GameJudgement.day_no == day_no).all()
+        else:
+            judgements = GameJudgement.query.filter(GameJudgement.player_id == player_id).all()
+
+        # format-> judgements = {day_no: {target_id: judgement_db_object}}
+        jud = {}
+        for j in judgements:
+            try:
+                jud[j.day_no][j.target_id] = j
+            except KeyError:
+                jud[j.day_no] = {j.target_id: j}
+        return jud
+
+    def get_judgements_for_actual_day(self, player_id, judgement_day):
+        judgeable_players = [p.id for p in self.game.game_players if p.status == 'alive']
+        judge = {jp: None for jp in judgeable_players}
+        while judgement_day > 0:
+            current_judgements = self.get_player_judgement(player_id, judgement_day)
+            for j in judge:
+                try:
+                    judge[j] = [cj.judgement for cj in current_judgements[judgement_day].values() if cj.target_id == j][0]
+                except:
+                    pass
+            if None in judge.values():
+                judgement_day -= 1
+            else:
+                break
+        return judge
+        # format-> judge = {target_id: judgement_db_object}
+
+    def set_player_judgement(self, player_id: int, day_no:int, judgements):
+        # format -> judgements =  {target_id: judgement}
+        current_judgements = self.get_player_judgement(player_id, day_no)
+        # format-> current_judgements = {day_no: {target_id: judgement_db_object}}
+        for j in judgements:
+            try:
+                current_judgements[day_no][j].judgement = judgements[j]
+            except (AttributeError, KeyError):
+                new_judgement = GameJudgement(player_id=player_id,
+                                              day_no=day_no,
+                                              target_id=j,
+                                              judgement=judgements[j])
+                db.session.add(new_judgement)
+        db.session.commit()
+
 
 class RolesApi:
     def __init__(self):

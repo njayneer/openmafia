@@ -135,3 +135,58 @@ tfoot input {
 .post-bg-graveyard_thread {
     background-color: silver
 }
+
+
+input[type='radio']::after {
+        width: 15px;
+        height: 15px;
+        border-radius: 15px;
+        top: -2px;
+        left: -1px;
+        position: relative;
+        content: '';
+        display: inline-block;
+        visibility: visible;
+        border: 2px solid white;
+    }
+
+input[type='radio']::checked:after {
+    width: 15px;
+    height: 15px;
+    border-radius: 15px;
+    top: -2px;
+    left: -1px;
+    position: relative;
+    content: '';
+    display: inline-block;
+    visibility: visible;
+    border: 2px solid white;
+}
+
+input[type='radio'] {
+  -moz-appearance:initial
+}
+
+.red::after {
+    background-color: wheat;
+}
+
+.yellow::after {
+    background-color: LemonChiffon;
+}
+
+.green::after {
+    background-color: PaleGreen;
+}
+
+.red:checked::after {
+    background-color: red;
+}
+
+.yellow:checked::after {
+    background-color: yellow;
+}
+
+.green:checked::after {
+    background-color: green;
+}

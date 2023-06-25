@@ -15,7 +15,7 @@ class Game(db.Model):
     status_id = db.Column(db.Integer, ForeignKey('Status.id'), default=1)
     owner_id = db.Column(db.Integer, ForeignKey('User.id'))
     start_time = db.Column(db.DateTime(timezone=True))
-    game_type_id = db.Column(db.Integer, ForeignKey('GameType.id'), default=1)
+    game_type_id = db.Column(db.Integer, ForeignKey('GameType.id'))
     owner = relationship("User", uselist=False)
     status = relationship("Status", uselist=False)
     game_players = relationship("GamePlayer", back_populates='game')
@@ -23,6 +23,10 @@ class Game(db.Model):
     phases = relationship("Game_Phases")
     game_config = relationship("Game_Configuration")
     game_type = relationship("GameType")
+
+    def lynch_day(self):
+        lynch_day = self.day_no - 1 + self.phase
+        return lynch_day
 
 
 class GameType(db.Model):
@@ -228,3 +232,12 @@ class NotificationTemplate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
     content = db.Column(db.String(500))
+
+
+class GameJudgement(db.Model):
+    __tablename__ = 'GameJudgement'
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer)
+    target_id = db.Column(db.Integer)
+    day_no = db.Column(db.Integer)
+    judgement = db.Column(db.Integer)

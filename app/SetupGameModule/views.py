@@ -487,6 +487,10 @@ def lobby(game_id):
             your_notifications = notification_api.read_player_notifications(you.id, unread_only = False, specific='detective_check')
             roles_data = _parse_notifications(your_notifications)
 
+        # judgements
+        current_judgements = db_api.get_judgements_for_actual_day(you.id, game.lynch_day())
+        print(db_api.game.lynch_day())
+
         data = {
             'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration),
             'night_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration)),
@@ -505,7 +509,8 @@ def lobby(game_id):
             'history_events': history_events,
             'lynch_vote_day': lynch_vote_day,
             'your_events': all_your_events,
-            'roles_data': roles_data
+            'roles_data': roles_data,
+            'current_judgements': current_judgements
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,
@@ -740,3 +745,26 @@ def revert_game(game_id):
         db_api.revert_game()
 
     return redirect(url_for('SetupGameModule.game_configuration', game_id=game_id))
+
+
+@SetupGameModule.route('<game_id>/judge', methods=['GET', 'POST'])
+@login_required
+def judge(game_id):
+    game_id = int(game_id)
+    db_api = GameApi()
+    game = db_api.get_game(game_id)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    if your_privileges['judge_players'].granted:
+        # format -> judgements =  {target_id: judgement}
+        your_judgements = {}
+        alive_players = db_api.get_alive_players()
+        for p in alive_players:
+            your_judgements[p.id] = request.args.get(str(p.id), default=5)
+        db_api.set_player_judgement(you.id, game.lynch_day(), your_judgements)
+        flash('Ocena zapisana!', 'alert-success')
+
+    return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
