@@ -18,12 +18,13 @@ def do(game_id, source_id):
 
 
         # notifications with roles
-        roles_dictionary = game_api.get_all_players_roles(visible=True)
+        roles_dictionary = game_api.get_all_players_roles()
         for player in game_api.game.game_players:
             roles = roles_dictionary[player.id]
-            roles_string = roles[0]
+            roles_string = roles[0].visible_name
             for role in roles[1:]:
-                roles_string += ', ' + role
+                if role.name not in ['suspect']: # role:suspect remove your role visibility
+                    roles_string += ', ' + role.visible_name
             notif_api = NotificationApi()
             notif_api.add_new_notification(player.id, 'game_started', roles_string)
 

@@ -43,7 +43,11 @@ with app.app_context():
                             description='Gość może jedynie obserwować grę, nie bierze czynnego udziału w rozgrywce.'),
              db_models.Role(name="detective",
                             visible_name='Detektyw',
-                            description='Detektyw każdego dnia może wybrać jednego żyjącego gracza, którego szpieguje. Na koniec nocy otrzymuje informację, czy szpiegowana osoba jest członkiem mafii.')
+                            description='Detektyw każdego dnia może wybrać jednego żyjącego gracza, którego szpieguje. Na koniec nocy otrzymuje informację, czy szpiegowana osoba jest członkiem mafii.'),
+             db_models.Role(name="suspect",
+                            visible_name='Opryszek',
+                            description='Opryszek nie jest świadomy swojej roli. W momencie sprawdzania jego przynależności, ujawnia się jako mafiozo.')
+
              ]
     for role in roles:
         db.session.add(role)

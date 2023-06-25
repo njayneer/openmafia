@@ -396,6 +396,9 @@ def lobby(game_id):
 
     # privileges
     you = db_api.get_player_object_for_user_id(current_user.id)
+    if 'suspect' in [r.role.name for r in you.roles]: # role:suspect remove your role visibility
+        you.roles = [r for r in you.roles if r.role.name != 'suspect']
+
     your_privileges = judge_privileges(you, game)
 
     if v.user_in_game() and v.game_is_started():
@@ -482,7 +485,7 @@ def lobby(game_id):
 
         # roles
         roles_data = None
-        if 'detective' in [r.name for r in db_api.get_user_roles(you.user_id)]:
+        if 'detective' in [r.name for r in db_api.get_user_roles(you.user_id)]: # role:detective
             notification_api = NotificationApi()
             your_notifications = notification_api.read_player_notifications(you.id, unread_only = False, specific='detective_check')
             roles_data = _parse_notifications(your_notifications)

@@ -185,7 +185,7 @@ class GameApi:
         db.session.commit()
 
     def _add_basic_roles_for_specific(self, role: Game_Roles):
-        if role.role.name in ['detective']:
+        if role.role.name in ['detective', 'suspect']:
             self.add_new_game_role('citizen', role.player_id)
 
     def shuffle_order_of_players(self):
@@ -222,20 +222,15 @@ class GameApi:
                 players.append(player)
         return players
 
-    def get_all_players_roles(self, player_id: int = None, visible=False):
+    def get_all_players_roles(self, player_id: int = None):
         players_roles = Game_Roles.query.filter(Game_Roles.game_id == self.game.id).all()
         result = {}
         if player_id is None:
             for p_id in [p.id for p in self.game.game_players]:
-                if visible:
-                    result[p_id] = [r.role.visible_name for r in players_roles if r.player_id == p_id]
-                else:
-                    result[p_id] = [r.role.name for r in players_roles if r.player_id == p_id]
+                result[p_id] = [r.role for r in players_roles if r.player_id == p_id]
         else:
-            if visible:
-                result = [r.role.visible_name for r in players_roles if r.player_id == player_id]
-            else:
-                result = [r.role.name for r in players_roles if r.player_id == player_id]
+            result = [r.role for r in players_roles if r.player_id == player_id]
+
         return result
 
 
