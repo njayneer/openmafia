@@ -1,10 +1,14 @@
 from flask import url_for, redirect, render_template, flash, g
 from flask_login import login_user, logout_user, current_user
 from app import app, lm, db
-from app.forms import LoginForm
-from app.Engine.DB.models import User
+from app.forms import LoginForm, EmailForm, NewPasswordForm
+from app.Engine.DB.models import User, UserToken
 from werkzeug.security import generate_password_hash, check_password_hash
 import app.alert_notifications as alert
+import secrets
+from datetime import datetime, timedelta
+import smtplib
+from email.mime.text import MIMEText
 
 
 @app.route('/')
@@ -85,4 +89,45 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-# ====================
+
+@app.route('/password_reset', methods=['GET', 'POST'])
+def password_reset():
+    form = EmailForm()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = secrets.token_urlsafe(64)
+            new_token = UserToken(user_id=user.id,
+                                  token=token,
+                                  time=datetime.utcnow()+timedelta(hours=1))
+            db.session.add(new_token)
+            db.session.commit()
+
+            content = 'Witaj ' + user.name + '! Na podany adres email została wysłana prośba resetu hasła do twojego ' \
+                                            'konta OpenMafia. Jeśli to nie ty, nie przejmuj się, nikt nie przejął ' \
+                                            'twojego konta. Prosimy nie odpowiadać na ten email. ' \
+                                             'Aby zresetować hasło, kliknij poniższy link: ' \
+                                            + url_for('new_password', token=token, _external=True)
+
+            msg = MIMEText(content)
+
+            msg['Subject'] = 'OpenMafia - przypomnienie hasła'
+            msg['From'] = app.config['EMAIL_PASSWORD_RESET']
+            msg['To'] = user.email
+
+            # Send the message via our own SMTP server, but don't include the
+            # envelope header.
+            s = smtplib.SMTP(app.config['MAIL_SERVER'])
+            s.sendmail(msg['From'], [msg['To']], msg.as_string())
+            s.quit()
+        flash('Link do resetu hasła został wysłany na adres email podany w formularzu (o ile jest prawidłowy).',
+              'alert-success')
+    return render_template('password_reset.html',
+                           title='Reset hasła',
+                           form=form)
+
+@app.route('/new_password/<token>')
+def new_password(token):
+    pass
+    return redirect(url_for('index'))

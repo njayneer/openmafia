@@ -12,8 +12,14 @@ class RoleForm(FlaskForm):
 	role = SelectField('Rola', choices=['a','b','c'], validators=[DataRequired()])
 
 
+class RoleVisibleAfterDeathForm(FlaskForm):
+	role_visible_after_death = BooleanField(default=True)
+
+
 class ChooseRolesForm(FlaskForm):
 	roles = FieldList(FormField(RoleForm), min_entries=2)
+	role_visibility_after_death = FieldList(FormField(RoleVisibleAfterDeathForm), min_entries=1)
+
 
 	def set_form_parameters(self, entries, choices):
 		# overriding forms to workaround dymanic form configuration
@@ -21,10 +27,17 @@ class ChooseRolesForm(FlaskForm):
 			pass
 		LocalRoleForm.role = SelectField('Rola', choices=choices, validators=[DataRequired()])
 
+		class LocalRoleVisibleAfterDeathForm(RoleVisibleAfterDeathForm):
+			pass
+		LocalRoleVisibleAfterDeathForm.role_visible_after_death = BooleanField('Widoczna po śmierci', default=True)
+
 		class LocalChooseRolesForm(ChooseRolesForm):
 			pass
 
 		LocalChooseRolesForm.roles = FieldList(FormField(LocalRoleForm), min_entries=entries, max_entries=entries)
+		LocalChooseRolesForm.role_visibility_after_death = FieldList(FormField(LocalRoleVisibleAfterDeathForm),
+																	 min_entries=len(choices),
+																	 max_entries=len(choices))
 		return LocalChooseRolesForm()
 
 

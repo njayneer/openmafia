@@ -12,6 +12,14 @@ class Config(object):
 	CSRF_ENABLED = True
 	SQLALCHEMY_TRACK_MODIFICATIONS = True
 
+	MAIL_SERVER = 'smtp.gmail.com'
+	MAIL_PORT = 465
+	MAIL_USE_SSL = True
+	MAIL_USERNAME = 'playopenmafia@gmail.com'
+	MAIL_PASSWORD = 'dkenfiei9fn493fjwl0g82245'
+	EMAIL_PASSWORD_RESET = 'playopenmafia+passwordreset@gmail.com'
+
+
 	JOB_PRIORITIES = {
 		'start_game': 10,
 		'lynch': 100,

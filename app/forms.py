@@ -7,5 +7,14 @@ class LoginForm(FlaskForm):
 	password = PasswordField(u'Hasło', validators = [DataRequired()])
 	email = StringField(u'Email')
 
+
 class SetupGameForm(FlaskForm):
 	name = StringField(u'Login', validators=[DataRequired()])
+
+
+class EmailForm(FlaskForm):
+	email = StringField(u'Email', validators=[DataRequired()])
+
+
+class NewPasswordForm(FlaskForm):
+	password = PasswordField(u'Hasło', validators=[DataRequired()])

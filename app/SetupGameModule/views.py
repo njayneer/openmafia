@@ -12,6 +12,8 @@ from app.Engine.AutomatedTasks.Tasks.mafia_kill import check_target_from_events
 from .decorators import handle_jobs
 from .privileges import judge_privileges
 from app.Engine.DB.game_config import GameConfiguration
+import json
+from copy import copy
 
 
 @SetupGameModule.route('', methods=['GET', 'POST'])
@@ -219,7 +221,6 @@ def game_configuration_choose_roles(game_id):
     if game_admin_activated:
         players_count -= 1
     form = form.set_form_parameters(entries=players_count, choices=[role.visible_name for role in roles_api.roles])
-
     if v.user_is_game_admin() and v.enrollment_is_closed():
         if not form.is_submitted():
             return render_template('SetupGameModule_choose_roles.html', game=game, form=form, game_admin_activated=game_admin_activated)
@@ -227,11 +228,22 @@ def game_configuration_choose_roles(game_id):
             # placeholder for form handler
             roles = [role.name for role in roles_api.roles]
             role_ids = []
+            # choosen roles to DB
             for entry in form.roles.entries:
                 role_index = [role.visible_name for role in roles_api.roles].index(entry.data['role'])
                 role_ids.append(roles_api.roles[role_index].id)
                 db_api.remove_roles_from_game()
                 db_api.set_roles_to_game(role_ids)
+
+            # role visibility to DB configuration
+            roles_not_visible = []
+            for role_id, entry in enumerate(form.role_visibility_after_death.entries):
+                if not entry.data['role_visible_after_death']:
+                    roles_not_visible.append(role_id+1) #  +1 due to DB iteration from 1
+            roles_not_visible = json.dumps(roles_not_visible)
+            db_api.update_game_configuration({'roles_not_visible_after_death': roles_not_visible})
+
+
             if game_admin_activated:
                 admin_player_id = db_api.get_player_id_for_user_id(current_user.id)
                 db_api.assign_game_admin(admin_player_id)
@@ -396,8 +408,12 @@ def lobby(game_id):
 
     # privileges
     you = db_api.get_player_object_for_user_id(current_user.id)
-    if 'suspect' in [r.role.name for r in you.roles]: # role:suspect remove your role visibility
-        you.roles = [r for r in you.roles if r.role.name != 'suspect']
+
+    # roles visibility after death
+    try:
+        roles_not_visible_after_death = json.loads(db_api.get_configuration('roles_not_visible_after_death'))
+    except json.decoder.JSONDecodeError:
+        roles_not_visible_after_death = []  # configuration does not exists yet
 
     your_privileges = judge_privileges(you, game)
 
@@ -513,7 +529,8 @@ def lobby(game_id):
             'lynch_vote_day': lynch_vote_day,
             'your_events': all_your_events,
             'roles_data': roles_data,
-            'current_judgements': current_judgements
+            'current_judgements': current_judgements,
+            'roles_not_visible_after_death': roles_not_visible_after_death
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,

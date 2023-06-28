@@ -27,6 +27,12 @@ Rozgrywka bez mistrza gry
     {{ form.hidden_tag() }}
     {% for r in form.roles %}
         {{ r.form.role }}<br/>
+    {% endfor %}<br />
+    <h3>Konfiguracje ról</h3>
+    {% for r in form.role_visibility_after_death %}
+    <h4>{{ form.roles[0].form.role.choices[loop.index0] }}</h4>
+    {{ r.form.role_visible_after_death.label }}
+    {{ r.form.role_visible_after_death }}<br />
     {% endfor %}
     <div class="form-actions">
         <button name="action_choose_roles" type="submit" class="btn btn-primary">Zatwierdź role</button>

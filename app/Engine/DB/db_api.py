@@ -337,9 +337,12 @@ class GameApi:
             try:
                 self.game.game_config[configs_dictionary[cfg.name]].value = configuration[cfg.name]
             except KeyError:
-                if configuration[cfg.name] != cfg.default_value:
-                    cfg_obj = Game_Configuration(game_id=self.game.id, configuration_id=cfg.id, value=configuration[cfg.name])
-                    db.session.add(cfg_obj)
+                try:
+                    if configuration[cfg.name] != cfg.default_value:
+                        cfg_obj = Game_Configuration(game_id=self.game.id, configuration_id=cfg.id, value=configuration[cfg.name])
+                        db.session.add(cfg_obj)
+                except KeyError:  #  not every configuration is necessary in configuration input
+                    pass
         db.session.commit()
 
     def get_configuration(self, cfg_name: str):

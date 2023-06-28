@@ -52,6 +52,7 @@
                     {% for player in game.game_players %}
                             {{ player.user.name }}
                             {% if user_type=='admin' and player.user.id != current_user.id %}
+                                    jako {{ player.name }}
                                     <a href="./game_configuration/throw-user/{{player.user.id}}">Wyrzuć gracza</a>
                             {% endif %}
                             <br/>

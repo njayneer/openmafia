@@ -111,8 +111,9 @@
                   {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
                     -
                     {% for role in player.roles %}
-                    {{ role.role.visible_name }}
-                    {% if loop.index < player.roles|length %}, {% endif %}
+                      {% if role.role.id not in data['roles_not_visible_after_death'] or game.status_id != 5 %}
+                        {{ role.role.visible_name }}
+                      {% endif %}
                     {% endfor %}
                   {% endif %}
                   {% if data['your_privileges']['see_user_names_of_players'].granted %}
@@ -135,8 +136,9 @@
             {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
               -
               {% for role in history_event.target_player.roles %}
-              {{ role.role.visible_name }}
-              {% if loop.index < history_event.target_player.roles|length %}, {% endif %}
+                {% if role.role.id not in data['roles_not_visible_after_death'] or game.status_id != 5 %}
+                  {{ role.role.visible_name }}
+                {% endif %}
               {% endfor %}
             {% endif %}
           </li>
@@ -262,11 +264,13 @@
         </h4>
       </div>
         {% for r in data['you'].roles %}
-        <div class="content-box">
-          <h4>Twoja rola: {{ r.role.visible_name }}</h4>
-          {{ r.role.description }}<br />
-          {% include "roles/" + r.role.name + ".html" ignore missing %}
-        </div>
+          {% if r.role.name not in ['suspect'] %}
+            <div class="content-box">
+              <h4>Twoja rola: {{ r.role.visible_name }}</h4>
+              {{ r.role.description }}<br />
+              {% include "roles/" + r.role.name + ".html" ignore missing %}
+            </div>
+      {% endif %}
         {% endfor %}
     </div>
     {% if data['your_privileges']['mafia_tab_visible'].granted %}
