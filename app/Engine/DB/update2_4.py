@@ -16,3 +16,12 @@ with app.app_context():
     for role in roles:
         db.session.add(role)
     db.session.commit()
+
+# generate configurations
+    roles = [db_models.Configuration(name="roles_not_visible_after_death",
+                                     description='Wybrane role nie będą pojawiać się w wynikach po śmierci właściciela',
+                                     default_value='[]')
+             ]
+    for role in roles:
+        db.session.add(role)
+    db.session.commit()
