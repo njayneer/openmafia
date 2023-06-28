@@ -193,7 +193,7 @@
         {% else %}
         <h4>Aktualne wyniki głosowania</h4>
         {% endif %}
-        {% if (data['your_privileges']['see_history_of_lynch_voting'].granted) or game.phase == 2 or (data['lynch_vote_day'] != game.day_no|string and data['lynch_vote_day']) %}
+        {% if (data['your_privileges']['see_history_of_lynch_voting'].granted) or (game.phase == 2) or (data['lynch_vote_day'] != game.day_no|string and data['lynch_vote_day']) %}
         <table class="table">
           <thead>
             <tr>
