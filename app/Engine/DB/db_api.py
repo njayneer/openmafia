@@ -8,11 +8,12 @@ from sqlalchemy import or_
 from sqlalchemy.orm import subqueryload, joinedload
 
 def utc_to_local(utc_dt):
-    from_zone = tz.gettz('UTC')
-    to_zone = tz.gettz(os.environ["TZ"])
-    utc_dt = utc_dt.replace(tzinfo=from_zone)
-    localized_tz = utc_dt.astimezone(to_zone)
-    return localized_tz
+    # from_zone = tz.gettz('UTC')
+    # to_zone = tz.gettz(os.environ["TZ"])
+    # utc_dt = utc_dt.replace(tzinfo=from_zone)
+    # localized_tz = utc_dt.astimezone(to_zone)
+    # return localized_tz
+    return utc_dt  #  DANGER! Using it causing DB corruption!
 
 
 class GameApi:
