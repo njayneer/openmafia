@@ -148,8 +148,9 @@
                 {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
                   -
                   {% for role in history_event.target_player.roles %}
-                  {{ role.role.visible_name }}
-                  {% if loop.index < history_event.target_player.roles|length %}, {% endif %}
+                    {% if role.role.id not in data['roles_not_visible_after_death'] or game.status_id != 5 %}
+                      {{ role.role.visible_name }}
+                    {% endif %}
                   {% endfor %}
                 {% endif %}
               </li>
@@ -161,8 +162,9 @@
             {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
               -
               {% for role in history_event.target_player.roles %}
-              {{ role.role.visible_name }}
-              {% if loop.index < history_event.target_player.roles|length %}, {% endif %}
+                {% if role.role.id not in data['roles_not_visible_after_death'] or game.status_id != 5 %}
+                  {{ role.role.visible_name }}
+                {% endif %}
               {% endfor %}
             {% endif %}
           </li>
