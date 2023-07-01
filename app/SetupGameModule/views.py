@@ -484,7 +484,7 @@ def lobby(game_id):
         history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_kill'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_lynch'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_mafia_kill'))
-        history_events.sort(key=lambda x: x.timestamp)
+        history_events.sort(key=lambda x: (x.day_no, x.phase_no))
         # for ev in history_events:
         #      ev.timestamp = utc_to_local(ev.timestamp)
 
