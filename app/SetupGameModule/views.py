@@ -530,7 +530,8 @@ def lobby(game_id):
             'your_events': all_your_events,
             'roles_data': roles_data,
             'current_judgements': current_judgements,
-            'roles_not_visible_after_death': roles_not_visible_after_death
+            'roles_not_visible_after_death': roles_not_visible_after_death,
+            'now': datetime.datetime.now()
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,
