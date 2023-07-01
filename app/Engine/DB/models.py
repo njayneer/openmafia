@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from flask import g
 import json
+from datetime import datetime
 
 
 class Game(db.Model):
@@ -110,7 +111,7 @@ class Event(db.Model):
     target = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
     day_no = db.Column(db.Integer)
     phase_no = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime(), server_default=func.now())
+    timestamp = db.Column(db.DateTime(), default=datetime.now())
     source_player = relationship("GamePlayer", foreign_keys=[player_id])
     target_player = relationship("GamePlayer", foreign_keys=[target])
     event_type_tbl = relationship("EventType")
