@@ -2,6 +2,9 @@ import app.Engine.AutomatedTasks.Tasks as Tasks
 from app.Engine.DB.db_api import GameApi, JobApi
 from datetime import timedelta, datetime
 import time
+import os
+from zoneinfo import ZoneInfo
+import pytz
 
 class GameScheduler:
     def __init__(self):
@@ -50,7 +53,7 @@ class GameScheduler:
                 jobs_in_progress.append(job)
         if not jobs_in_progress:
             for job in jobs:
-                if job.status == 'new' and datetime.now() > job.trigger_time:
+                if job.status == 'new' and datetime.now(pytz.timezone(os.environ["TZ"])).replace(tzinfo=None) > job.trigger_time:
                     self.job_api.update_job_status(job.id, 'in_progress')
                     jobs_to_do.append(job)
         self.job_api.unlock_table() # unlock "for update"

@@ -5,6 +5,8 @@ from sqlalchemy.sql import func
 from flask import g
 import json
 from datetime import datetime
+import os
+from zoneinfo import ZoneInfo
 
 
 class Game(db.Model):
@@ -111,7 +113,7 @@ class Event(db.Model):
     target = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
     day_no = db.Column(db.Integer)
     phase_no = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime(), default=datetime.now())
+    timestamp = db.Column(db.DateTime(), default=datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None))
     source_player = relationship("GamePlayer", foreign_keys=[player_id])
     target_player = relationship("GamePlayer", foreign_keys=[target])
     event_type_tbl = relationship("EventType")

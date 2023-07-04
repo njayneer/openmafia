@@ -13,7 +13,9 @@ from .decorators import handle_jobs
 from .privileges import judge_privileges
 from app.Engine.DB.game_config import GameConfiguration
 import json
-from copy import copy
+import os
+from zoneinfo import ZoneInfo
+
 
 
 @SetupGameModule.route('', methods=['GET', 'POST'])
@@ -492,7 +494,7 @@ def lobby(game_id):
         winners = event_api.check_if_someone_wins(game)
 
         # current time
-        current_time = datetime.datetime.now()
+        current_time = datetime.datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None).replace(microsecond=0)
 
         all_your_events = event_api.get_last_your_events_for_actual_day(game, you.id)
 
@@ -530,8 +532,7 @@ def lobby(game_id):
             'your_events': all_your_events,
             'roles_data': roles_data,
             'current_judgements': current_judgements,
-            'roles_not_visible_after_death': roles_not_visible_after_death,
-            'now': datetime.datetime.now()
+            'roles_not_visible_after_death': roles_not_visible_after_death
         }
         return render_template('SetupGameModule_lobby.html',
                                game=game,

@@ -741,7 +741,7 @@ class UserApi:
     def get_user_attributes(self):
         result = UserAttribute.query.filter(UserAttribute.user_id == self.user.id,
                                             or_(UserAttribute.expiration_time is None,
-                                                UserAttribute.expiration_time > datetime.datetime.now())).all()
+                                                UserAttribute.expiration_time > datetime.datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None))).all()
         return result
 
 
