@@ -33,7 +33,8 @@ def _get_all_privileges(player, game):
         'see_enrolled_user_list': SeeEnrolledUserList(player, game),
         'see_creations_form': SeeCreationsForm(player, game),
         'detective_check': DetectiveCheck(player, game),
-        'judge_players': JudgePlayers(player, game)
+        'judge_players': JudgePlayers(player, game),
+        'speeding_up_game': SpeedingUpGame(player, game),
     }
 
 
@@ -384,6 +385,17 @@ class JudgePlayers(Privilege):
 
     def judge_if_deserved(self):
         if self.alive_player and not self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class SpeedingUpGame(Privilege):
+    description = 'You can speed up game to have configured lynch, murder and all game component earlier/later.'
+
+    def judge_if_deserved(self):
+        if self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False

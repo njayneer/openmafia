@@ -37,6 +37,10 @@ class Game(db.Model):
         lynch_day = self.day_no - 1 + self.phase
         return lynch_day
 
+    def get_configuration(self, cfg_name):
+
+        cfg_time_offset = [int(c) for c in db_api.get_configuration('time_offset').split(";")]
+
 
 class GameType(db.Model):
     __tablename__ = 'GameType'

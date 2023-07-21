@@ -45,6 +45,9 @@
                 Długość dnia: {{ '%0.2f'| format(game.phases[0].phase_duration/3600|float) }}h
                 Długość nocy: {{ '%0.2f'| format(game.phases[1].phase_duration/3600|float) }}h
                 {% endif %}
+                {% if data['you'].name %}
+                    Grasz jako {{ data['you'].name }}
+                {% endif %}
         </div>
         <div class="content-box">
         {% if data['your_privileges']['see_enrolled_user_list'].granted %}

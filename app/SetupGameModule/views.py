@@ -1,6 +1,6 @@
 from . import SetupGameModule
 from flask import render_template, g, redirect, url_for, request, flash, Markup
-from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm, ConfigurationForm
+from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm, ConfigurationForm, DurationForm
 from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local, UserApi, JobApi, NotificationApi
 from flask_login import current_user, login_required
 from .validators import Validator
@@ -91,7 +91,8 @@ def game_configuration(game_id):
 
         data = {
             'initial_thread': initial_chat_page_content,
-            'your_privileges': your_privileges
+            'your_privileges': your_privileges,
+            'you': you
         }
 
         return render_template('SetupGameModule_game_configuration.html',
@@ -434,6 +435,7 @@ def lobby(game_id):
         alive_players_names = [player.name for player in alive_players]
         form = CreateEventForm()
         form.target.choices = alive_players_names
+        time_form = DurationForm()
 
         # dead players list
         dead_players = db_api.get_dead_players()
@@ -517,9 +519,16 @@ def lobby(game_id):
         current_judgements = db_api.get_judgements_for_actual_day(you.id, game.lynch_day())
         print(db_api.game.lynch_day())
 
+        # time offset (game speed up)
+        cfg_time_offset = [int(c) for c in db_api.get_configuration('time_offset').split(";")]
+
         data = {
-            'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration),
-            'night_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration)),
+            'day_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration) - night_duration,
+                                                   hours=cfg_time_offset[0],
+                                                   minutes=cfg_time_offset[1]),
+            'night_end': game.start_time + timedelta(seconds=game.day_no * (day_duration + night_duration),
+                                                     hours=cfg_time_offset[0],
+                                                     minutes=cfg_time_offset[1]),
             'you': you,
             'role_ready_to_use': True,
             'alive_players': alive_players,
@@ -543,7 +552,8 @@ def lobby(game_id):
                                game=game,
                                data=data,
                                form=form,
-                               forum_form=forum_form)
+                               forum_form=forum_form,
+                               time_form=time_form)
     else:
         return redirect(url_for('SetupGameModule.game_list'))
 
@@ -793,5 +803,40 @@ def judge(game_id):
             your_judgements[p.id] = request.args.get(str(p.id), default=5)
         db_api.set_player_judgement(you.id, game.lynch_day(), your_judgements)
         flash('Ocena zapisana!', 'alert-success')
+
+    return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+
+@SetupGameModule.route('<game_id>/speed_up_game', methods=['GET', 'POST'])
+@login_required
+@handle_jobs
+def speed_up_game(game_id):
+    game_id = int(game_id)
+    db_api = GameApi()
+    game = db_api.get_game(game_id)
+    roles_api = RolesApi()
+    game_config = GameConfiguration(game)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    form = DurationForm()
+    hour = int(form.duration_hours.data)
+    minute = int(form.duration_minutes.data)
+
+    if your_privileges['speeding_up_game'].granted:
+
+        cfg_time_offset = [int(c) for c in db_api.get_configuration('time_offset').split(";")]
+
+        new_time_offset = []
+        new_time_offset.append(cfg_time_offset[0] + hour)
+        new_time_offset.append(cfg_time_offset[1] + minute)
+
+        new_cfg_time_offset = str(new_time_offset[0]) + ";" + str(new_time_offset[1])
+        db_api.update_game_configuration({'time_offset': new_cfg_time_offset})
+
+        job_api = JobApi()
+        job_api.update_unhandled_jobs_time(datetime.timedelta(hours=hour, minutes=minute))
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))

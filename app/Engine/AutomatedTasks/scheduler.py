@@ -9,6 +9,7 @@ import pytz
 class GameScheduler:
     def __init__(self):
         self.job_api = JobApi()
+        self.game_api = GameApi()
 
     def create_game_start(self, game):
         self.job_api.add_job('start_game', game, game.start_time)
@@ -28,13 +29,21 @@ class GameScheduler:
         day_duration = game.phases[0].phase_duration
         night_duration = game.phases[1].phase_duration
         seconds = int(game.day_no) * (day_duration + night_duration) - night_duration
-        self.job_api.add_job('lynch', game, game.start_time + timedelta(seconds=seconds))
+        self.game_api.game = game
+        cfg_time_offset = [int(c) for c in self.game_api.get_configuration('time_offset').split(";")]
+        self.job_api.add_job('lynch', game, game.start_time + timedelta(seconds=seconds,
+                                                                        minutes=cfg_time_offset[1],
+                                                                        hours=cfg_time_offset[0]))
 
     def create_mafia_kill_for_actual_day(self, game):
         day_duration = game.phases[0].phase_duration
         night_duration = game.phases[1].phase_duration
         seconds = int(game.day_no) * (day_duration + night_duration)
-        self.job_api.add_job('mafia_kill', game, game.start_time + timedelta(seconds=seconds))
+        self.game_api.game = game
+        cfg_time_offset = [int(c) for c in self.game_api.get_configuration('time_offset').split(";")]
+        self.job_api.add_job('mafia_kill', game, game.start_time + timedelta(seconds=seconds,
+                                                                             minutes=cfg_time_offset[1],
+                                                                             hours=cfg_time_offset[0]))
 
     def remove_jobs_for_game(self, game):
         jobs = self.job_api.list_jobs()

@@ -14,3 +14,17 @@
 {% if data['your_privileges']['reverting_game'].granted %}
 <a href="./revert_game">Cofnij grę do stanu sprzed startu</a><br />
 {% endif %}
+{% if data['your_privileges']['speeding_up_game'].granted %}
+Modyfikacja czasu gry (przyspieszanie/opóźnianie zdarzeń). Dodajesz lub odejmujesz od ustawionej daty wszystkich zdarzeń.
+Np. żeby przyspieszyć lincz i mord o 2 godziny, w pierwszym polu musisz wpisać -2. Żeby opóźnić o 2 godziny: 2.
+Uwaga! Żeby przyspieszyć o 1,5 godziny, w pierwszym polu wpisujemy -1, a w drugim -30 (minuty również z minusem!).<br />
+HH:MM
+<form action="./speed_up_game" method="post" class="form form-horizontal" name="speedup_form">
+    {{ wtf.form_errors(time_form,"only") }}
+    {{ time_form.hidden_tag() }}
+    {{ time_form.duration_hours }}:{{ time_form.duration_minutes }}
+    <div class="form-actions">
+        <button name="action_speedup" type="submit" class="btn btn-primary">Przyspiesz grę</button>
+    </div>
+</form>
+{% endif %}

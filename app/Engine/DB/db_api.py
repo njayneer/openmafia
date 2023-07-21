@@ -108,6 +108,7 @@ class GameApi:
         Game_Phases.query.filter_by(game_id=self.game.id).delete()
         Job.query.filter_by(game_id=self.game.id).delete()
         Event.query.filter_by(game_id=self.game.id).delete()
+        self.update_game_configuration({'time_offset': '0;0'})
 
         db.session.commit()
 
@@ -376,6 +377,7 @@ class GameApi:
         value = self.get_configuration(cfg_name)
         return value == '1'
 
+
     def check_winning_condition(self):
         event_api = GameEventApi()
         finished = False
@@ -639,6 +641,12 @@ class JobApi:
     def unlock_table(self):
         db.session.commit()
 
+
+    def update_unhandled_jobs_time(self, time_delta):
+        jobs = Job.query.filter(Job.status == "new").all()
+        for job in jobs:
+            job.trigger_time = job.trigger_time + time_delta
+        db.session.commit()
 
 class ForumApi:
     def __init__(self, game_id, current_user_id):
