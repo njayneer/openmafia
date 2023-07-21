@@ -6,6 +6,16 @@ from dateutil import tz
 from flask import current_app
 from sqlalchemy import or_
 from sqlalchemy.orm import subqueryload, joinedload
+from datetime import datetime
+import os
+from zoneinfo import ZoneInfo
+
+
+def now():
+    now_dt = datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None).replace(microsecond=0)
+    result = now_dt.strftime("%Y-%m-%d %H:%M:%S")
+    return now_dt
+
 
 def utc_to_local(utc_dt):
     # from_zone = tz.gettz('UTC')
@@ -270,6 +280,13 @@ class GameApi:
             player = None
         return player
 
+    def get_player_object_for_player_id(self, player_id):
+        try:
+            player = [player for player in self.game.game_players if player.id == player_id][0]
+        except:
+            player = None
+        return player
+
     def get_player_id_for_name(self, name):
         return [player.id for player in self.game.game_players if player.name == name][0]
 
@@ -480,7 +497,8 @@ class GameEventApi:
                           player_id=player_id,
                           target=target_id,
                           day_no=game.day_no,
-                          phase_no=game.phase)
+                          phase_no=game.phase,
+                          timestamp=now())
         db.session.add(new_event)
         db.session.commit()
 
@@ -655,7 +673,8 @@ class ForumApi:
             reply_id=int(topic.replies),
             content=content,
             author_id=int(player_id),
-            inReplyTo=int(topic.id)
+            inReplyTo=int(topic.id),
+            date=now()
         )  # Add the reply
         db.session.add(thread_reply)
         db.session.commit()
@@ -741,7 +760,7 @@ class UserApi:
     def get_user_attributes(self):
         result = UserAttribute.query.filter(UserAttribute.user_id == self.user.id,
                                             or_(UserAttribute.expiration_time is None,
-                                                UserAttribute.expiration_time > datetime.datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None))).all()
+                                                UserAttribute.expiration_time > datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None))).all()
         return result
 
 
@@ -776,7 +795,8 @@ class NotificationApi:
 
             new_notification = Notification(player_id=player_id,
                                             template_id=template.id,
-                                            parameters=parameters)
+                                            parameters=parameters,
+                                            time=now())
             db.session.add(new_notification)
             db.session.commit()
 

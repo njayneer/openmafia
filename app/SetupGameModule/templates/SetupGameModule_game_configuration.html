@@ -101,7 +101,8 @@
         <div class="content-box">
                 <h4>Role:</h4>
                 {% for role in game.roles %}
-                        {{ role.role.visible_name }}<br />
+                        {{ role.role.visible_name }}
+                        <br />
                 {% endfor %}
         </div>
         {% endif %}

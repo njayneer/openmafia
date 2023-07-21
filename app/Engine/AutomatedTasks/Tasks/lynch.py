@@ -11,7 +11,7 @@ def do(game_id, source_id):
         events = event_api.get_last_events_for_actual_day(game_api.game, 'citizen_vote')
         # game_admin can create event to block lynch. If so, kill noone and proces to next phase
         admin_blocks = len(event_api.get_last_events_for_actual_day(game_api.game, 'admin_block_lynch')) > 0
-        if not admin_blocks:
+        if (not admin_blocks) and game_api.game.status.name == 'in_progress':
             if events == {}:
                 winner = random.choice([player.id for player in game_api.game.game_players if player.status == 'alive'])
             else:

@@ -12,7 +12,7 @@ def do(game_id, source_id):
         # game_admin can create event to block lynch. If so, kill noone and proces to next phase
         admin_blocks = len(event_api.get_last_events_for_actual_day(game_api.game, 'admin_block_mafia_kill')) > 0
 
-        if not admin_blocks:
+        if (not admin_blocks) and game_api.game.status.name == 'in_progress':
             target = check_target_from_events(game_api, event_api)
 
             # Kill the target
@@ -28,13 +28,14 @@ def do(game_id, source_id):
                                            player_id=None,
                                            target_id=None)
 
-        # Winning conditions
-        finished = game_api.check_winning_condition()
-        if not finished:
-            game_api.process_to_next_phase()
-            game_scheduler = GameScheduler()
-            game_scheduler.create_lynch_for_actual_day(game_api.game)
-            game_scheduler.create_mafia_kill_for_actual_day(game_api.game)
+        if game_api.game.status.name == 'in_progress':
+            # Winning conditions
+            finished = game_api.check_winning_condition()
+            if not finished:
+                game_api.process_to_next_phase()
+                game_scheduler = GameScheduler()
+                game_scheduler.create_lynch_for_actual_day(game_api.game)
+                game_scheduler.create_mafia_kill_for_actual_day(game_api.game)
 
 
 def check_target_from_events(game_api, event_api):

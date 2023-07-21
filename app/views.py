@@ -9,6 +9,13 @@ import secrets
 from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
+from zoneinfo import ZoneInfo
+import os
+
+def now():
+    now_dt = datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None).replace(microsecond=0)
+    result = now_dt.strftime("%Y-%m-%d %H:%M:%S")
+    return now_dt
 
 
 @app.route('/')
@@ -100,7 +107,7 @@ def password_reset():
             token = secrets.token_urlsafe(64)
             new_token = UserToken(user_id=user.id,
                                   token=token,
-                                  time=datetime.utcnow()+timedelta(hours=1))
+                                  time=now()+timedelta(hours=1))
             db.session.add(new_token)
             db.session.commit()
 

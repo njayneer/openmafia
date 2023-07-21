@@ -9,6 +9,12 @@ import os
 from zoneinfo import ZoneInfo
 
 
+def now():
+    now_dt = datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None).replace(microsecond=0)
+    result = now_dt.strftime("%Y-%m-%d %H:%M:%S")
+    return now_dt
+
+
 class Game(db.Model):
     __tablename__ = 'Game'
     id = db.Column(db.Integer, primary_key=True)
@@ -113,7 +119,7 @@ class Event(db.Model):
     target = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
     day_no = db.Column(db.Integer)
     phase_no = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime(), default=datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None))
+    timestamp = db.Column(db.DateTime(), default=now())
     source_player = relationship("GamePlayer", foreign_keys=[player_id])
     target_player = relationship("GamePlayer", foreign_keys=[target])
     event_type_tbl = relationship("EventType")
@@ -183,8 +189,8 @@ class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
     content = db.Column(db.Text)
-    date = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    lastActivity = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    date = db.Column(db.DateTime(timezone=True), default=now())
+    lastActivity = db.Column(db.DateTime(timezone=True), default=now())
     author = db.Column(db.Integer, ForeignKey('User.id'))
     game_id = db.Column(db.Integer, ForeignKey('Game.id'))
     replies = db.Column(db.Integer, default=0)
@@ -195,7 +201,7 @@ class Reply(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     reply_id = db.Column(db.Integer)
     content = db.Column(db.Text)
-    date = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    date = db.Column(db.DateTime(timezone=True), default=now())
     author_id = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
     inReplyTo = db.Column(db.Integer, ForeignKey('Topic.id'))
     author = relationship("GamePlayer")
@@ -223,7 +229,7 @@ class Notification(db.Model):
     __tablename__ = 'Notification'
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
-    time = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    time = db.Column(db.DateTime(timezone=True), default=now())
     template_id = db.Column(db.Integer, ForeignKey('NotificationTemplate.id'))
     template = relationship("NotificationTemplate")
     parameters = db.Column(db.String(500))
@@ -251,5 +257,5 @@ class UserToken(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey('User.id'))
     token = db.Column(db.String(100))
-    time = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    time = db.Column(db.DateTime(timezone=True), default=now())
 

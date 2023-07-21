@@ -13,17 +13,20 @@ def do(game_id, source_id):
 
         # Check the target
         if target is not None:
-            roles_api = RolesApi()
-            target_roles = [r.name for r in game_api.get_all_players_roles(target)]
-            # target_roles = [r.role.name for r in target.roles]
-            if 'mafioso' in target_roles or 'suspect' in target_roles:  # role:suspect show to detective as mafioso
-                res_role = roles_api.get_role_visible_name_from_name('mafioso')
-            elif 'citizen' in target_roles:
-                res_role = roles_api.get_role_visible_name_from_name('citizen')
-            else:
-                res_role = 'Frakcja neutralna'
-            notif_api = NotificationApi()
-            notif_api.add_new_notification(source_id, 'detective_check', game_api.get_player_name_for_id(target), res_role)
+            source = game_api.get_player_object_for_player_id(source_id)
+            if source:
+                if source.status == 'alive' and game_api.game.status.name == 'in_progress':
+                    roles_api = RolesApi()
+                    target_roles = [r.name for r in game_api.get_all_players_roles(target)]
+                    # target_roles = [r.role.name for r in target.roles]
+                    if 'mafioso' in target_roles or 'suspect' in target_roles:  # role:suspect show to detective as mafioso
+                        res_role = roles_api.get_role_visible_name_from_name('mafioso')
+                    elif 'citizen' in target_roles:
+                        res_role = roles_api.get_role_visible_name_from_name('citizen')
+                    else:
+                        res_role = 'Frakcja neutralna'
+                    notif_api = NotificationApi()
+                    notif_api.add_new_notification(source_id, 'detective_check', game_api.get_player_name_for_id(target), res_role)
 
 
 def check_target_from_events(game_api, event_api, source_id):

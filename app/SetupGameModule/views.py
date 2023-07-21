@@ -17,6 +17,11 @@ import os
 from zoneinfo import ZoneInfo
 
 
+def now():
+    now_dt = datetime.datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None).replace(microsecond=0)
+    result = now_dt.strftime("%Y-%m-%d %H:%M:%S")
+    return now_dt
+
 
 @SetupGameModule.route('', methods=['GET', 'POST'])
 @SetupGameModule.route('create', methods=['GET', 'POST'])
@@ -381,7 +386,7 @@ def add_forum_reply(game_id, topic_name='citizen_thread'):
                 last_reply_date = datetime.datetime(1970, 1, 1)
             else:
                 last_reply_date = last_reply.date
-            if datetime.datetime.utcnow() - last_reply_date < timedelta(seconds=60): # TODO: remove hardcoded confituration
+            if now() - last_reply_date < timedelta(seconds=60): # TODO: remove hardcoded confituration
                 flash('Nie możesz tak szybko pisać kolejnych postów (blokada trwa 60 sekund). Spróbuj ponownie za chwilę.', 'alert-danger')
             else:
                 forum_api.create_reply(forums[topic_name].id, post_content, you.id)
