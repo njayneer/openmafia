@@ -35,6 +35,7 @@ def _get_all_privileges(player, game):
         'detective_check': DetectiveCheck(player, game),
         'judge_players': JudgePlayers(player, game),
         'speeding_up_game': SpeedingUpGame(player, game),
+        'priest_prayer': PriestPrayer(player, game)
     }
 
 
@@ -93,6 +94,7 @@ class Privilege:
         self.cfg_initial_forum_turned_on = self.game_api.get_configuration('initial_forum_turned_on') == '1'
         self.cfg_creations_on = self.game_api.get_configuration('creations_on') == '1'
         self.role_detective = 'detective' in _player_roles(self.player)
+        self.role_priest = 'priest' in _player_roles(self.player)
         self.admin = 'administrator' in self.user_attributes
 
 
@@ -374,6 +376,18 @@ class DetectiveCheck(Privilege):
     def judge_if_deserved(self):
         # only with configuration or if you are to be GM.
         if self.role_detective and self.alive_player and not self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class PriestPrayer(Privilege):
+    description = 'You can use priest ability.'
+
+    def judge_if_deserved(self):
+        # only with configuration or if you are to be GM.
+        if self.role_priest and self.alive_player and not self.game_finished:
             self.granted = True
         else:
             self.granted = False

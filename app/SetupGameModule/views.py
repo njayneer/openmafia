@@ -604,23 +604,45 @@ def create_event(game_id, event_name):
         form.target.choices = alive_players_names
         if form.validate_on_submit():
             game_event_api = GameEventApi()
-            game_event_api.create_new_event(game,
-                                            event_name,
-                                            db_api.get_player_id_for_user_id(current_user.id),
-                                            db_api.get_player_id_for_name(form.target.data))
+            form_target = form.target.data
 
-        # events sometimes needs to create a job
-        # events that triggers at mafia kill time
-        if event_name in ['detective_check']:
-            job_api = JobApi()
-            # check if the job for your player already exists. If no, create new one.
-            try:
-                dummy = job_api.get_time_of_active_job(game.id, event_name, you.id)
-            except:
-                trigger_time = job_api.get_time_of_active_job(game.id, 'mafia_kill')
-                job_api.add_job(event_name, game, trigger_time, you.id)
+            event_validated = validate_event(event_name, form_target, game, you, game_event_api)
+
+            if event_validated:
+                game_event_api.create_new_event(game,
+                                                event_name,
+                                                you.id,
+                                                db_api.get_player_id_for_name(form_target))
+
+                create_job_for_event(event_name, game, you)
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+
+def create_job_for_event(event_name, game, you):
+    # events sometimes needs to create a job
+    # events that triggers at mafia kill time
+    if event_name in ['detective_check']:
+        job_api = JobApi()
+        # check if the job for your player already exists. If no, create new one.
+        try:
+            dummy = job_api.get_time_of_active_job(game.id, event_name, you.id)
+        except:
+            trigger_time = job_api.get_time_of_active_job(game.id, 'mafia_kill')
+            job_api.add_job(event_name, game, trigger_time, you.id)
+
+
+def validate_event(event_name, form_target, game, you, game_event_api):
+    """ some events have additional conditions
+    """
+    event_validated = True
+    if event_name == 'priest_prayer':  # role:priest check if the last time target wasnt the same
+        last_event = game_event_api.get_last_events_for_actual_day(game, 'priest_prayer', game.day_no - 1)
+        if last_event:
+            if last_event['priest_prayer'][you.id].target_player.name == form_target:
+                event_validated = False
+                flash('Nie możesz dwa razy z rzędu modlić się za tę samą osobę!', 'alert-danger')
+    return event_validated
 
 
 # @SetupGameModule.route('<game_id>/forum/<forum_name>/<page>', methods=['GET', 'POST'])

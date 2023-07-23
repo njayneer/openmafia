@@ -1,0 +1,17 @@
+<h4>Modlitwa księdza</h4>
+{% if data['your_privileges']['priest_prayer'].granted %}
+    <form action="./create_event/priest_prayer" method="post" class="form form-horizontal" name="citizen_form">
+        {{ wtf.form_errors(form,"only") }}
+        {{ form.hidden_tag() }}
+        Modlę się za {{ form.target }}<br />
+        <div class="form-actions">
+            <button name="action_citizen" type="submit" class="btn btn-primary">Wyślij głos</button>
+        </div>
+    </form>
+
+    {% if data['your_events']['priest_prayer'] %}
+        Aktualnie wybrany cel: {{ data['your_events']['priest_prayer'].target_player.name }}
+    {% else %}
+        Brak ustawionego celu modlitwy!
+    {% endif %}
+{% endif %}

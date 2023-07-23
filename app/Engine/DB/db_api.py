@@ -193,12 +193,16 @@ class GameApi:
         unassigned_roles = [role for role in self.game.roles if role.player_id is None]
         for role in unassigned_roles:
             role.player_id = next(i_id)
-            self._add_basic_roles_for_specific(role)
+            self._add_basic_roles_for_specific(role)  # Development: Add a new role fraction here!
         db.session.commit()
 
     def _add_basic_roles_for_specific(self, role: Game_Roles):
-        if role.role.name in ['detective', 'suspect']:
+        '''
+        Development: Add a new role fraction here!
+        '''
+        if role.role.name in ['detective', 'suspect', 'priest']:
             self.add_new_game_role('citizen', role.player_id)
+        #TODO in the future add here mafioso roles
 
     def shuffle_order_of_players(self):
         players = [player for player in self.game.game_players]

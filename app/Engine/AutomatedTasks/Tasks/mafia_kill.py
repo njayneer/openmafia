@@ -1,6 +1,6 @@
 
 def do(game_id, source_id):
-    from app.Engine.DB.db_api import GameApi, GameEventApi
+    from app.Engine.DB.db_api import GameApi, GameEventApi, NotificationApi
     from app import app
     from app.Engine.AutomatedTasks.scheduler import GameScheduler
     import random
@@ -14,6 +14,19 @@ def do(game_id, source_id):
 
         if (not admin_blocks) and game_api.game.status.name == 'in_progress':
             target = check_target_from_events(game_api, event_api)
+
+            # role:priest - check if there is no prayer events for current day
+            priest_prayer = event_api.get_last_events_for_actual_day(game_api.game, 'priest_prayer')
+            if len(priest_prayer) > 0:
+                priest_prayer = priest_prayer['priest_prayer']
+                priest_result = False
+                for p_source in priest_prayer:
+                    p = priest_prayer[p_source]
+                    p_target = p.target
+                    if p_target == target:  # prayer target equals mafia target
+                        priest_result = True
+                if priest_result:
+                    target = None
 
             # Kill the target
             if target is not None:
