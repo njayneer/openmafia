@@ -108,6 +108,7 @@ class GameApi:
         Game_Phases.query.filter_by(game_id=self.game.id).delete()
         Job.query.filter_by(game_id=self.game.id).delete()
         Event.query.filter_by(game_id=self.game.id).delete()
+        GameItems.query.filter_by(game_id=self.game.id).delete()
         self.update_game_configuration({'time_offset': '0;0'})
 
         db.session.commit()
