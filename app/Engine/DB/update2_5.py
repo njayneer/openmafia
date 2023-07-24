@@ -58,6 +58,6 @@ with app.app_context():
                              visible_name="pistolet",
                              description="Pistolet służy do zabijania innych graczy. Wybór celu następuje w dowolnej chwili, ale cel zostaje zabity dopiero w momencie mordu.")
                      ]
-    for notif in notifications:
-        db.session.add(notif)
+    for item in items:
+        db.session.add(item)
     db.session.commit()
