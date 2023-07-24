@@ -12,6 +12,7 @@ def do(game_id, source_id):
         game_api.shuffle_order_of_players()
         game_api.make_all_players_alive()
         game_api.make_special_players_status_special()
+        game_api.give_items_to_roles()
         game_api.start_game()
         forum_api = ForumApi(game_api.game.id, current_user.id)
         forum_api.get_or_create_topics_for_game()

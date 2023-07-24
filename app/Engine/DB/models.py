@@ -37,10 +37,6 @@ class Game(db.Model):
         lynch_day = self.day_no - 1 + self.phase
         return lynch_day
 
-    def get_configuration(self, cfg_name):
-
-        cfg_time_offset = [int(c) for c in db_api.get_configuration('time_offset').split(";")]
-
 
 class GameType(db.Model):
     __tablename__ = 'GameType'
@@ -59,6 +55,7 @@ class GamePlayer(db.Model):
     user = relationship("User")
     winner = db.Column(db.Integer)
     game = relationship("Game", back_populates='game_players')
+    items = relationship("GameItems")
 
 
 class Game_Roles(db.Model):
@@ -263,3 +260,21 @@ class UserToken(db.Model):
     token = db.Column(db.String(100))
     time = db.Column(db.DateTime(timezone=True), default=now())
 
+
+class GameItems(db.Model):
+    __tablename__ = 'GameItems'
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, ForeignKey('Game.id'))
+    item_id = db.Column(db.Integer, ForeignKey('Items.id'))
+    player_id = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
+    distributable = db.Column(db.Integer)
+    usages_left = db.Column(db.Integer)
+    item = relationship("Items")
+
+
+class Items(db.Model):
+    __tablename__ = 'Items'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    visible_name = db.Column(db.String(100))
+    description = db.Column(db.String(300))

@@ -25,10 +25,10 @@ def utc_to_local(utc_dt):
     # return localized_tz
     return utc_dt  #  DANGER! Using it causing DB corruption!
 
-
 class GameApi:
     def __init__(self):
         self.game = None
+        self.items = None
 
     def list_games(self, game_type='all', user=None):
         if game_type == 'all':
@@ -200,7 +200,7 @@ class GameApi:
         '''
         Development: Add a new role fraction here!
         '''
-        if role.role.name in ['detective', 'suspect', 'priest']:
+        if role.role.name in ['detective', 'suspect', 'priest', 'sniper']:
             self.add_new_game_role('citizen', role.player_id)
         #TODO in the future add here mafioso roles
 
@@ -223,6 +223,57 @@ class GameApi:
                 player.status = 'special'
         db.session.commit()
 
+    def give_items_to_roles(self):
+        for r in self.game.roles:
+            if r.role.name == 'sniper':  # role:sniper
+                try:
+                    items_to_give = int(self.get_configuration('sniper_shots'))
+                except:
+                    items_to_give = 1
+                self.create_game_item('gun', player_id=r.player_id, usages_left=items_to_give)
+
+    def select_items(self):
+        if not self.items:
+            self.items = Items.query.all()
+        return self.items
+
+    def get_item(self, item_name):
+        item = [i for i in self.select_items() if i.name == item_name]
+        if len(item) > 0:
+            item = item[0]
+        else:
+            item = None
+        return item
+
+    def create_game_item(self, item_name: str, player_id=None, distributable=False, usages_left=1):
+        item_object = self.get_item(item_name)
+        item = GameItems(item_id=item_object.id,
+                         game_id=self.game.id,
+                         player_id=player_id,
+                         distributable=distributable,
+                         usages_left=usages_left)
+        db.session.add(item)
+        db.session.commit()
+
+    def select_game_items(self, item_name=None, player_id=None, not_consumed_only=False):
+        items = GameItems.query.filter_by(game_id=self.game.id).all()
+        if item_name:
+            items = [i for i in items if i.item.name == item_name]
+        if player_id:
+            items = [i for i in items if i.player_id == player_id]
+        if not_consumed_only:
+            items = [i for i in items if i.usages_left != 0]
+        return items
+
+
+    def remove_items_from_game(self):
+        GameItems.query.filter_by(game_id=self.game.id).delete()
+        db.session.commit()
+
+    def decrease_item_usages(self, item):
+        if item.usages_left > 0:
+            item.usages_left -= 1
+            db.session.commit()
 
     def get_alive_players(self):
         players = []

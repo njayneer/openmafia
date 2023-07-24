@@ -35,7 +35,8 @@ def _get_all_privileges(player, game):
         'detective_check': DetectiveCheck(player, game),
         'judge_players': JudgePlayers(player, game),
         'speeding_up_game': SpeedingUpGame(player, game),
-        'priest_prayer': PriestPrayer(player, game)
+        'priest_prayer': PriestPrayer(player, game),
+        'gun_shot': GunShot(player, game)
     }
 
 
@@ -95,6 +96,7 @@ class Privilege:
         self.cfg_creations_on = self.game_api.get_configuration('creations_on') == '1'
         self.role_detective = 'detective' in _player_roles(self.player)
         self.role_priest = 'priest' in _player_roles(self.player)
+        self.item_gun = len(self.game_api.select_game_items('gun', self.player.id, not_consumed_only=True)) > 0
         self.admin = 'administrator' in self.user_attributes
 
 
@@ -410,6 +412,17 @@ class SpeedingUpGame(Privilege):
 
     def judge_if_deserved(self):
         if self.game_admin or self.admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class GunShot(Privilege):
+    description = 'You can shot from gun'
+
+    def judge_if_deserved(self):
+        if self.item_gun:
             self.granted = True
         else:
             self.granted = False

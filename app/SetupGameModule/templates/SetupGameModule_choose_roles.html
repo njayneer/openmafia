@@ -33,6 +33,10 @@ Rozgrywka bez mistrza gry
     <h4>{{ form.roles[0].form.role.choices[loop.index0] }}</h4>
     {{ r.form.role_visible_after_death.label }}
     {{ r.form.role_visible_after_death }}<br />
+    {% if roles[loop.index0] == 'sniper' %}
+        {{ form.sniper_shots.label }}
+        {{ form.sniper_shots }}
+    {% endif %}
     {% endfor %}
     <div class="form-actions">
         <button name="action_choose_roles" type="submit" class="btn btn-primary">Zatwierdź role</button>

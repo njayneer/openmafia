@@ -231,7 +231,11 @@ def game_configuration_choose_roles(game_id):
     form = form.set_form_parameters(entries=players_count, choices=[role.visible_name for role in roles_api.roles])
     if v.user_is_game_admin() and v.enrollment_is_closed():
         if not form.is_submitted():
-            return render_template('SetupGameModule_choose_roles.html', game=game, form=form, game_admin_activated=game_admin_activated)
+            return render_template('SetupGameModule_choose_roles.html',
+                                   game=game,
+                                   form=form,
+                                   game_admin_activated=game_admin_activated,
+                                   roles=[role.name for role in roles_api.roles])
         else:
             # placeholder for form handler
             roles = [role.name for role in roles_api.roles]
@@ -251,6 +255,9 @@ def game_configuration_choose_roles(game_id):
             roles_not_visible = json.dumps(roles_not_visible)
             db_api.update_game_configuration({'roles_not_visible_after_death': roles_not_visible})
 
+            # role configurations
+            if [r.id for r in roles_api.roles if r.name == 'sniper'][0] in role_ids:  # if sniper is chosen
+                db_api.update_game_configuration({'sniper_shots': str(form.sniper_shots.data)})
 
             if game_admin_activated:
                 admin_player_id = db_api.get_player_id_for_user_id(current_user.id)
@@ -488,6 +495,7 @@ def lobby(game_id):
         # get all events for history
         history_events = list(event_api.get_all_events_for_whole_game(game, 'lynch'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'mafia_kill'))
+        history_events += list(event_api.get_all_events_for_whole_game(game, 'gun_shot_kill'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'citizens_win'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'mafiosos_win'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_kill'))
@@ -622,7 +630,7 @@ def create_event(game_id, event_name):
 def create_job_for_event(event_name, game, you):
     # events sometimes needs to create a job
     # events that triggers at mafia kill time
-    if event_name in ['detective_check']:
+    if event_name in ['detective_check', 'gun_shot']:
         job_api = JobApi()
         # check if the job for your player already exists. If no, create new one.
         try:

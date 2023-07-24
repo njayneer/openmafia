@@ -1,0 +1,18 @@
+<h4>Snajperski strzał</h4>
+Pozostało strzałów: {{ i.usages_left }}<br />
+{% if data['your_privileges']['gun_shot'].granted %}
+    <form action="./create_event/gun_shot" method="post" class="form form-horizontal" name="citizen_form">
+        {{ wtf.form_errors(form,"only") }}
+        {{ form.hidden_tag() }}
+        Strzelam w {{ form.target }}<br />
+        <div class="form-actions">
+            <button name="action_citizen" type="submit" class="btn btn-primary">Wyślij głos</button>
+        </div>
+    </form>
+
+    {% if data['your_events']['gun_shot'] %}
+        Aktualnie wybrany cel: {{ data['your_events']['gun_shot'].target_player.name }}
+    {% else %}
+        Brak ustawionego celu do strzału!
+    {% endif %}
+{% endif %}

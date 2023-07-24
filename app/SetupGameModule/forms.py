@@ -20,6 +20,8 @@ class ChooseRolesForm(FlaskForm):
 	roles = FieldList(FormField(RoleForm), min_entries=2)
 	role_visibility_after_death = FieldList(FormField(RoleVisibleAfterDeathForm), min_entries=1)
 
+	# here custom fields for roles
+	sniper_shots = IntegerField('Dostępnych strzałów', default=1)
 
 	def set_form_parameters(self, entries, choices):
 		# overriding forms to workaround dymanic form configuration
