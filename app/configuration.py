@@ -17,7 +17,7 @@ class Config(object):
 	MAIL_USE_SSL = True
 	MAIL_USERNAME = 'playopenmafia@gmail.com'
 	MAIL_PASSWORD = 'dkenfiei9fn493fjwl0g82245'
-	EMAIL_PASSWORD_RESET = 'playopenmafia+passwordreset@gmail.com'
+	EMAIL_PASSWORD_RESET = 'playopenmafia@gmail.com'
 
 
 	JOB_PRIORITIES = {

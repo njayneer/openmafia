@@ -125,7 +125,9 @@ def password_reset():
 
             # Send the message via our own SMTP server, but don't include the
             # envelope header.
-            s = smtplib.SMTP(app.config['MAIL_SERVER'])
+            s = smtplib.SMTP_SSL(app.config['MAIL_SERVER'], app.config['MAIL_PORT'])
+            #s.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+            s.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
             s.sendmail(msg['From'], [msg['To']], msg.as_string())
             s.quit()
         flash('Link do resetu hasła został wysłany na adres email podany w formularzu (o ile jest prawidłowy).',
