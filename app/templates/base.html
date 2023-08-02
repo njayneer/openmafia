@@ -10,7 +10,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/base_scripts.js') }}"></script>
 {%endblock%}
 {% block header %}
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.ico') }}">
 {% endblock %}
 {%block title%}Base{%endblock%}
 
@@ -25,7 +25,7 @@
 		  <span class="icon-bar"></span>
 		  <span class="icon-bar"></span>
 		</button>
-		<a class="navbar-brand" href="/">OpenMafia 2.0</a>
+		<a href="/"><img height="50" style="padding-right: 32px" src="{{ url_for('static', filename='images/logo.png') }}"/></a>
 	  </div>
 
 	  <!-- Collect the nav links, forms, and other content for toggling -->
@@ -81,7 +81,7 @@
 
 </div>
 {% block footer %}
-<div class="footer">&copy; 2023 OpenMafia 2.5</div>
+<div class="footer">&copy; 2023 OpenMafia 2.5 <a href="{{ url_for('credentials')}}" >credentials</a></div>
 {%- endblock footer %}
 {%endblock%}
 

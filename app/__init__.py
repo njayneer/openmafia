@@ -4,7 +4,7 @@ Python Aplication Template
 Licence: GPLv3
 """
 
-from flask import Flask
+from flask import Flask, url_for
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -18,6 +18,7 @@ app = Flask(__name__)
 #app.config.from_object('app.configuration.ProductionConfig')
 app.config.from_object('app.configuration.DevelopmentConfig')
 #app.config.from_object('app.configuration.TestingConfig')
+
 
 bs = Bootstrap(app) #flask-bootstrap
 db = SQLAlchemy(app, session_options={"expire_on_commit": False}) #flask-sqlalchemy
@@ -39,6 +40,8 @@ else:
     app.register_blueprint(setupgamemodule_blueprint)
     app.register_blueprint(usermodule_blueprint)
 
+
     from app import views
     from app.Engine.DB import models
     from app import Engine
+

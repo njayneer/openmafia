@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/styles.css') }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('SetupGameModule.static', filename='js/scripts.js') }}"></script>
+{%endblock%}
+
+{%block title%}OpenMafia - historia zdarzeń{%endblock%}
+{%block main_content%}
+
+<div class="content-box">
+  <h4>Lista zdarzeń:</h4>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Nazwa</th>
+      <th scope="col">Opis</th>
+      <th scope="col">Czas</th>
+      <th scope="col">Źródło</th>
+      <th scope="col">Cel</th>
+      <th scope="col">Akcje</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for event in events %}
+    <tr>
+     <th scope="row">{{ event.id }}</th>
+        <td>{{ event.event_type_tbl.name }}</td>
+        <td>{{ event.event_type_tbl.description }}</td>
+        <td>{{ event.timestamp }}</td>
+        <td>{% if event.source_player %}{{ event.source_player.name }}{% endif %}</td>
+        <td>{% if event.target_player %}{{ event.target_player.name }}{% endif %}</td>
+        <td><a href="./event_history_delete/{{ event.id }}">Usuń zdarzenie</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+</div>
+
+{%endblock%}

@@ -36,7 +36,9 @@ def _get_all_privileges(player, game):
         'judge_players': JudgePlayers(player, game),
         'speeding_up_game': SpeedingUpGame(player, game),
         'priest_prayer': PriestPrayer(player, game),
-        'gun_shot': GunShot(player, game)
+        'gun_shot': GunShot(player, game),
+        'event_history_read': EventHistoryRead(player, game),
+        'event_remove': EventRemove(player, game)
     }
 
 
@@ -423,6 +425,28 @@ class GunShot(Privilege):
 
     def judge_if_deserved(self):
         if self.item_gun:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class EventHistoryRead(Privilege):
+    description = 'You can read event history for the game'
+
+    def judge_if_deserved(self):
+        if self.game_admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class EventRemove(Privilege):
+    description = 'You can remove any event from the game'
+
+    def judge_if_deserved(self):
+        if self.game_admin:
             self.granted = True
         else:
             self.granted = False

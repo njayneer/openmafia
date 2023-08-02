@@ -870,3 +870,51 @@ def speed_up_game(game_id):
         job_api.update_unhandled_jobs_time(datetime.timedelta(hours=hour, minutes=minute))
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+
+@SetupGameModule.route('<game_id>/event_history', methods=['GET', 'POST'])
+@login_required
+def event_history(game_id):
+    game_id = int(game_id)
+
+    db_api = GameApi()
+    event_api = GameEventApi()
+    game = db_api.get_game(game_id)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    if your_privileges['event_history_read'].granted:
+
+        events = event_api.get_all_events_for_whole_game(game)
+        return render_template('event_history.html',
+                               events=events)
+    else:
+        return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+
+@SetupGameModule.route('<game_id>/event_history_delete/<event_id>', methods=['GET', 'POST'])
+@login_required
+def event_history_delete(game_id, event_id):
+    game_id = int(game_id)
+    event_id = int(event_id)
+
+    db_api = GameApi()
+    event_api = GameEventApi()
+    game = db_api.get_game(game_id)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    if your_privileges['event_remove'].granted:
+        event = event_api.get_event_from_id(event_id)
+        if event:
+            if event.game_id == game.id:
+                event_api.remove_event_from_id(event_id)
+            else:
+                flash('Próbujesz usunąć zdarzenie, które nie jest przypisane do tej gry.', 'alert-danger')
+        else:
+            flash('Próbujesz usunąć zdarzenie, które nie istnieje.', 'alert-danger')
+    return redirect(url_for('SetupGameModule.event_history', game_id=game_id))

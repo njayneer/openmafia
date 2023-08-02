@@ -651,6 +651,14 @@ class GameEventApi:
                 winners.append('mafioso')
         return winners
 
+    def get_event_from_id(self, event_id):
+        event = Event.query.filter_by(id=event_id).first()
+        return event
+
+    def remove_event_from_id(self, event_id):
+        event = Event.query.filter_by(id=event_id).delete()
+        db.session.commit()
+
 
 class JobApi:
 

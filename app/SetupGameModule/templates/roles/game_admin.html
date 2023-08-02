@@ -28,3 +28,6 @@ HH:MM
     </div>
 </form>
 {% endif %}
+{% if data['your_privileges']['event_history_read'].granted %}
+<a href="./event_history"><b>Przeglądaj historię zdarzeń w grze</b></a><br />
+{% endif %}

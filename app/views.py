@@ -1,4 +1,4 @@
-from flask import url_for, redirect, render_template, flash, g
+from flask import url_for, redirect, render_template, flash, g, send_from_directory
 from flask_login import login_user, logout_user, current_user
 from app import app, lm, db
 from app.forms import LoginForm, EmailForm, NewPasswordForm
@@ -140,3 +140,13 @@ def password_reset():
 def new_password(token):
     pass
     return redirect(url_for('index'))
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'images/favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/credentials/')
+def credentials():
+    return render_template('credentials.html')
