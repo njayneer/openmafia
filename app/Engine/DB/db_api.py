@@ -276,6 +276,10 @@ class GameApi:
             item.usages_left -= 1
             db.session.commit()
 
+    def destroy_item(self, item):
+        item.usages_left = 0
+        db.session.commit()
+
     def get_alive_players(self):
         players = []
         for player in self.game.game_players:

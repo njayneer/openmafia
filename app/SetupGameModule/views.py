@@ -256,8 +256,9 @@ def game_configuration_choose_roles(game_id):
             db_api.update_game_configuration({'roles_not_visible_after_death': roles_not_visible})
 
             # role configurations
-            if [r.id for r in roles_api.roles if r.name == 'sniper'][0] in role_ids:  # if sniper is chosen
-                db_api.update_game_configuration({'sniper_shots': str(form.sniper_shots.data)})
+            if [r.id for r in roles_api.roles if r.name == 'sniper'][0] in role_ids:  # role:sniper if sniper is chosen
+                db_api.update_game_configuration({'sniper_shots': str(form.sniper_shots.data),
+                                                  'sniper_blocked_after_missed_shot': str(form.sniper_blocked_after_missed_shot.data)})
 
             if game_admin_activated:
                 admin_player_id = db_api.get_player_id_for_user_id(current_user.id)

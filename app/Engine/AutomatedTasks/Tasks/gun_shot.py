@@ -13,7 +13,8 @@ def do(game_id, source_id):
         # Check the target
         if target is not None:
             source = game_api.get_player_object_for_player_id(source_id)
-            target_object = game_api.get_player_name_for_id(target)
+            event_source = None # Event source empty if no specific condition
+            target_object = game_api.get_player_object_for_player_id(target)
             if source:
                 gun_used = game_api.select_game_items('gun', source_id, True)
                 if len(gun_used) > 0:
@@ -25,12 +26,23 @@ def do(game_id, source_id):
 
                 if (source.status == 'alive' or source_is_killed) and game_api.game.status.name == 'in_progress' and gun_used:
                     # Kill the target
-                    event_api.create_new_event(game=game_api.game,
-                                               event_name='gun_shot_kill',
-                                               player_id=None,
-                                               target_id=target)
                     game_api.kill_player(target)
                     game_api.decrease_item_usages(gun_used)
+
+                    # specific conditions for roles
+                    source_roles = [role.name for role in game_api.get_user_roles(source.user_id)]
+                    if 'sniper' in source_roles:  # role: sniper
+                        if game_api.get_configuration('sniper_blocked_after_missed_shot') == 'True':
+                            target_roles = [role.name for role in game_api.get_user_roles(target_object.user_id)]
+                            if 'mafioso' not in target_roles:
+                                game_api.destroy_item(gun_used)
+                                event_source = source.id
+
+                    event_api.create_new_event(game=game_api.game,
+                                               event_name='gun_shot_kill',
+                                               player_id=event_source,
+                                               target_id=target)
+
                     game_api.check_winning_condition()
 
 

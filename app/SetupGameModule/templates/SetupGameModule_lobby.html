@@ -187,6 +187,9 @@
                   {% endif %}
                 {% endfor %}
               {% endif %}
+              {% if history_event.source_player %}
+              - zabójcą jest <b>{{ history_event.source_player.name }}</b>
+              {% endif %}
             </li>
           {% endif %}
         {% endfor %}

@@ -35,7 +35,9 @@ Rozgrywka bez mistrza gry
     {{ r.form.role_visible_after_death }}<br />
     {% if roles[loop.index0] == 'sniper' %}
         {{ form.sniper_shots.label }}
-        {{ form.sniper_shots }}
+        {{ form.sniper_shots }}<br />
+        {{ form.sniper_blocked_after_missed_shot.label }}
+        {{ form.sniper_blocked_after_missed_shot }}
     {% endif %}
     {% endfor %}
     <div class="form-actions">
