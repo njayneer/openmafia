@@ -58,7 +58,7 @@ def check_if_source_is_killed_by_other_gun_shot(event_api, game_api, source_id):
 def check_target_from_events(game_api, event_api, source_id):
     # day_no - 1 due to be fired after mafia kill
     events = event_api.get_last_events_for_actual_day(game_api.game, 'gun_shot', day_no=game_api.game.day_no)
-    if events is None:
+    if events == {}:
         target = None
     elif source_id not in events['gun_shot']:
         target = None
