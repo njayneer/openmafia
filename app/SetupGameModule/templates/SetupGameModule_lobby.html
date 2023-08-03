@@ -85,7 +85,7 @@
                   {% endfor %}
                 {% endif %}
                 {% if data['your_privileges']['see_user_names_of_players'].granted %}
-                  - {{ player.user.name }}
+                  - <a href="{{url_for('User.user_main', user_id=player.user.id)}}">{{ player.user.name }}</a>
                 {% endif %}
                 {% if data['your_privileges']['kill_a_player_at_any_time'].granted %}
                   <a href="./kill_player/{{ player.id }}"><b>zabij</b></a>
@@ -118,7 +118,7 @@
                     {% endfor %}
                   {% endif %}
                   {% if data['your_privileges']['see_user_names_of_players'].granted %}
-                    - {{ player.user.name }}
+                    - <a href="{{url_for('User.user_main', user_id=player.user.id)}}">{{ player.user.name }}</a>
                   {% endif %}
                 </li>
             {% endfor %}

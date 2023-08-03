@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('User.static', filename='css/styles.css') }}">
+{% endblock %}
+{% macro render_pagination(pagination) %}
+  <div class=page-items>
+    {{ pagination.first }} - {{ pagination.last }} of {{ pagination.total }}
+  </div>
+  <div class=pagination>
+    {% for page in pagination.iter_pages() %}
+      {% if page %}
+        {% if page != pagination.page %}
+          <a href='{{url_for("User.user_list", page=page)}}'>{{ page }}</a>
+        {% else %}
+          <strong>{{ page }}</strong>
+        {% endif %}
+      {% else %}
+        <span class=ellipsis>…</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endmacro %}
+{% block scripts %}
+{{ super() }}
+{%endblock%}
+
+{%block title%}OpenMafia - użytkownicy{%endblock%}
+{%block main_content%}
+
+<div class="tabs">
+  <div class="tab-content">
+    <div id="general" class="active">
+      <div class="content-box">
+
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">User</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for user in users %}
+            <tr>
+             <th scope="row">{{ user.id }}</th>
+                <td><a href="{{url_for('User.user_main', user_id=user.id)}}">{{ user.name }}</a></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {{ render_pagination(users) }}
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{%endblock%}

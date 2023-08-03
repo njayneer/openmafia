@@ -56,6 +56,7 @@ class GamePlayer(db.Model):
     winner = db.Column(db.Integer)
     game = relationship("Game", back_populates='game_players')
     items = relationship("GameItems")
+    achievements = relationship("Achievements")
 
 
 class Game_Roles(db.Model):

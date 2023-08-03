@@ -34,7 +34,14 @@
 			<li {{ 'class=active' if request.endpoint == 'SetupGameModule.setup_game' }} ><a href="{{ url_for('SetupGameModule.setup_game')}}">Załóż grę</a></li>
 			<li><a href="{{ url_for('SetupGameModule.game_list')}}/my_games">Moje gry</a></li>
 			<li><a href="{{ url_for('SetupGameModule.game_list')}}/open_games">Otwarte gry</a></li>
-			<li><a href="{{ url_for('User.user_main')}}">Użytkownicy</a></li>
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Użytkownicy <span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="{{ url_for('User.user_main')}}">Twój profil</a></li>
+					<li><a href="{{ url_for('User.user_list')}}">Lista graczy</a></li>
+					<li><a href="{{ url_for('User.user_toplist')}}">Ranking</a></li>
+				</ul>
+			</li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
 		  <li><a href="#"></a></li>

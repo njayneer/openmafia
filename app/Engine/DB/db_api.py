@@ -527,6 +527,12 @@ class GameApi:
                 db.session.add(new_judgement)
         db.session.commit()
 
+    def get_game_players(self):
+        ''' It returns query of GamePlayer objects for finished games '''
+        game_players = GamePlayer.query.all()
+        game_players = [gp for gp in game_players if gp.game.status.name == 'finished' and gp.game.game_type.name == 'classic']
+        return game_players
+
 
 class RolesApi:
     def __init__(self):
@@ -810,6 +816,10 @@ class UserApi:
     def get_user_for_user_id(self, user_id: int):
         self.user = User.query.filter(User.id == user_id).first()
         return self.user
+
+    def get_all_users(self, page=1, per_page=100):
+        result = User.query.order_by(User.name.asc()).paginate(page=page, per_page=per_page)
+        return result
 
     def get_user_achievements(self):
         self.user_achievements = Achievements.query.filter(Achievements.user_id == self.user.id).all()
