@@ -90,6 +90,9 @@
                 {% if data['your_privileges']['kill_a_player_at_any_time'].granted %}
                   <a href="./kill_player/{{ player.id }}"><b>zabij</b></a>
                 {% endif %}
+                {% if data['your_privileges']['choose_mvp'].granted %}
+                    - <a href="{{url_for('SetupGameModule.choose_mvp', game_id=game.id, player_id=player.id)}}">Wybierz jako MVP</a>
+                {% endif %}
                 </li>
             {% endfor %}
           {% if data['your_privileges']['judge_players'].granted %}
@@ -119,6 +122,9 @@
                   {% endif %}
                   {% if data['your_privileges']['see_user_names_of_players'].granted %}
                     - <a href="{{url_for('User.user_main', user_id=player.user.id)}}">{{ player.user.name }}</a>
+                  {% endif %}
+                  {% if data['your_privileges']['choose_mvp'].granted %}
+                    - <a href="{{url_for('SetupGameModule.choose_mvp', game_id=game.id, player_id=player.id)}}">Wybierz jako MVP</a>
                   {% endif %}
                 </li>
             {% endfor %}
@@ -177,6 +183,8 @@
           <li>Dnia {{ history_event.day_no }} grę wygrywa <b>miasto!</b></li>
           {% elif history_event.event_type_tbl.name == 'mafiosos_win' %}
           <li>Dnia {{ history_event.day_no }} grę wygrywa <b>mafia!</b></li>
+          {% elif history_event.event_type_tbl.name == 'mvp_chosen' %}
+          <li>Na MVP wybrany został {{ history_event.target_player.name }}</b>!</li>
           {% elif history_event.event_type_tbl.name == 'gun_shot_kill' %}
             <li>Dnia {{ history_event.day_no }} zabity przez strzał z pistoletu został <b>{{ history_event.target_player.name }}</b>
               {% if data['your_privileges']['see_roles_of_dead_players'].granted %}

@@ -5,6 +5,8 @@ def _player_roles(player):
     return [role.role.name for role in player.roles]
 
 
+
+
 def _get_all_privileges(player, game):
     return {
         'graveyard_visible': GraveyardVisible(player, game),
@@ -38,7 +40,8 @@ def _get_all_privileges(player, game):
         'priest_prayer': PriestPrayer(player, game),
         'gun_shot': GunShot(player, game),
         'event_history_read': EventHistoryRead(player, game),
-        'event_remove': EventRemove(player, game)
+        'event_remove': EventRemove(player, game),
+        'choose_mvp': ChooseMVP(player, game)
     }
 
 
@@ -100,8 +103,10 @@ class Privilege:
         self.role_priest = 'priest' in _player_roles(self.player)
         self.item_gun = len(self.game_api.select_game_items('gun', self.player.id, not_consumed_only=True)) > 0
         self.admin = 'administrator' in self.user_attributes
+        self.mvp_not_asigned = 'mvp' not in [a.achievement.name for a in self._get_achievements()]
 
-
+    def _get_achievements(self):
+        return self.user_api.get_game_achievements([gp.id for gp in self.game.game_players])
 class GraveyardVisible(Privilege):
     description = 'You are able to see whole graveyard tab with all that content.'
 
@@ -447,6 +452,17 @@ class EventRemove(Privilege):
 
     def judge_if_deserved(self):
         if self.game_admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class ChooseMVP(Privilege):
+    description = 'You can asign a player the MVP badge'
+
+    def judge_if_deserved(self):
+        if self.game_admin and self.mvp_not_asigned and self.game_finished:
             self.granted = True
         else:
             self.granted = False

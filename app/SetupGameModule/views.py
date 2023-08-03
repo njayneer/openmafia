@@ -502,6 +502,7 @@ def lobby(game_id):
         history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_kill'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_lynch'))
         history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_mafia_kill'))
+        history_events += list(event_api.get_all_events_for_whole_game(game, 'mvp_chosen'))
         history_events.sort(key=lambda x: (x.day_no, x.phase_no))
         # for ev in history_events:
         #      ev.timestamp = utc_to_local(ev.timestamp)
@@ -919,3 +920,26 @@ def event_history_delete(game_id, event_id):
         else:
             flash('Próbujesz usunąć zdarzenie, które nie istnieje.', 'alert-danger')
     return redirect(url_for('SetupGameModule.event_history', game_id=game_id))
+
+
+@SetupGameModule.route('<game_id>/choose_mvp/<player_id>', methods=['GET', 'POST'])
+@login_required
+def choose_mvp(game_id, player_id):
+    game_id = int(game_id)
+    player_id = int(player_id)
+
+    db_api = GameApi()
+    game = db_api.get_game(game_id)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    if your_privileges['choose_mvp'].granted and player_id in [p.id for p in db_api.game.game_players]:
+        user_api = UserApi()
+        user_id = db_api.get_player_object_for_player_id(player_id).user_id
+        user_api.get_user_for_user_id(user_id)
+        user_api.set_achievement_to_user('mvp', player_id)
+        ge_api = GameEventApi()
+        ge_api.create_new_event(game, 'mvp_chosen', None, player_id)
+    return redirect(url_for('SetupGameModule.lobby', game_id=game_id))

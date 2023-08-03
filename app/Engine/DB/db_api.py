@@ -825,6 +825,9 @@ class UserApi:
         self.user_achievements = Achievements.query.filter(Achievements.user_id == self.user.id).all()
         return self.user_achievements
 
+    def get_game_achievements(self, player_id_list):
+        return Achievements.query.filter(Achievements.player_id.in_(player_id_list)).all()
+
     def get_achievement_id_for_name(self, achievement_name: str):
         achievement = AchievementTypes.query.filter(AchievementTypes.name == achievement_name).first()
         if achievement:
