@@ -495,6 +495,31 @@ class GameApi:
                 jud[j.day_no] = {j.target_id: j}
         return jud
 
+    def get_all_judgements(self, player_ids_list):
+        # format-> judgements = {day_id: {player_no: {target_id: judgement_db_object}}}
+        judgements = GameJudgement.query.filter(GameJudgement.player_id.in_(player_ids_list)).order_by(GameJudgement.day_no.asc()).all()
+
+        jud = {}
+        for judgement in judgements:
+            if judgement.day_no not in jud:
+                jud[judgement.day_no] = {}
+            try: # next vote
+                jud[judgement.day_no][judgement.player_id][judgement.target_id] = judgement
+            except KeyError: # first vote of player for a day
+                jud[judgement.day_no][judgement.player_id] = {judgement.target_id: judgement}
+        return jud
+
+    def get_players_fraction(self):
+        # result = {player_id: 'mafioso'}
+        result = {}
+        for p in self.game.game_players:
+            if 'mafioso' in [r.role.name for r in p.roles]:
+                result[p.id] = 'mafioso'
+            elif 'citizen' in [r.role.name for r in p.roles]:
+                result[p.id] = 'citizen'
+            else:
+                result[p.id] = 'unspecified'
+        return result
     def get_judgements_for_actual_day(self, player_id, judgement_day):
         judgeable_players = [p.id for p in self.game.game_players if p.status == 'alive']
         judge = {jp: None for jp in judgeable_players}

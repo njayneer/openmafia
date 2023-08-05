@@ -41,7 +41,8 @@ def _get_all_privileges(player, game):
         'gun_shot': GunShot(player, game),
         'event_history_read': EventHistoryRead(player, game),
         'event_remove': EventRemove(player, game),
-        'choose_mvp': ChooseMVP(player, game)
+        'choose_mvp': ChooseMVP(player, game),
+        'show_judgement_summary': ShowJudgementSummary(player, game)
     }
 
 
@@ -463,6 +464,17 @@ class ChooseMVP(Privilege):
 
     def judge_if_deserved(self):
         if self.game_admin and self.mvp_not_asigned and self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class ShowJudgementSummary(Privilege):
+    description = 'You can see judgement summary of whole game'
+
+    def judge_if_deserved(self):
+        if self.game_finished or self.game_admin:
             self.granted = True
         else:
             self.granted = False
