@@ -66,7 +66,6 @@ class JudgementSummary:
                             step_points = 0.0
 
                         # points for citizen
-                        judgement_results[day][player]['points'] += step_points
                         info_string = player_names[target]\
                                       + ': '\
                                       + str(round(step_points, 1))\
@@ -75,8 +74,10 @@ class JudgementSummary:
                                       + ') <br />'
                         if judgement_results[day][player]['info'] in ('Brak oceny', 'Brak nowej oceny'):
                             judgement_results[day][player]['info'] = info_string
+                            judgement_results[day][player]['points'] = step_points
                         else:
                             judgement_results[day][player]['info'] += info_string
+                            judgement_results[day][player]['points'] += step_points
 
                         # points for mafioso
                         if player_fractions[vote.target_id] == 'mafioso':
@@ -88,7 +89,6 @@ class JudgementSummary:
                             else:
                                 mafioso_step_points = 0
 
-                            judgement_results[day][vote.target_id]['points'] += mafioso_step_points
                             info_string = player_names[player] \
                                           + ': ' \
                                           + str(round(mafioso_step_points, 1)) \
@@ -97,8 +97,10 @@ class JudgementSummary:
                                           + ') <br />'
                             if judgement_results[day][vote.target_id]['info'] in ('Brak oceny', 'Brak nowej oceny'):
                                 judgement_results[day][vote.target_id]['info'] = info_string
+                                judgement_results[day][vote.target_id]['points'] = mafioso_step_points
                             else:
                                 judgement_results[day][vote.target_id]['info'] += info_string
+                                judgement_results[day][vote.target_id]['points'] += mafioso_step_points
 
                     # round value after each vote result addition
                     judgement_results[day][player]['points'] = round(judgement_results[day][player]['points'], 1)
