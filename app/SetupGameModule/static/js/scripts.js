@@ -92,3 +92,15 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+
+function showDetailedInfo(detailedInfoText) {
+    const detailedInfoBox = document.getElementById('detailedInfoBox');
+    const detailedInfoContent = document.getElementById('detailedInfoContent');
+    detailedInfoContent.innerHTML = detailedInfoText;
+    detailedInfoBox.classList.remove('hidden');
+}
+
+function hideDetailedInfo() {
+    const detailedInfoBox = document.getElementById('detailedInfoBox');
+    detailedInfoBox.classList.add('hidden');
+}

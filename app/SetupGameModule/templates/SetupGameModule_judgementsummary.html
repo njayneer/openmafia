@@ -14,22 +14,59 @@
 {%block main_content%}
 
 <div class="content-box">
+    <div id="detailedInfoBox" class="hidden">
+        <span id="detailedInfoContent"></span><br />
+        <button onclick="hideDetailedInfo()">Zamknij</button>
+    </div>
+
   <h4>Najlepsi detektywi:</h4>
+  <a href="#" onclick="showDetailedInfo('Algorytm liczenia: <br />Każdy gracz jest warty tyle punktów, ile wynosi liczba wszystkich żyjących graczy danego dnia do liczby żyjących graczy z jego frakcji. Jeżeli głos w takiego gracza jest trafiony, wówczas punkty są przyznawane. Jeśli nietrafiony, punkty są odejmowane. Wybranie głosu żółtego nie powoduje zmiany liczby punktów.')">Pomoc</a>
 <table class="table table-hover">
   <thead>
     <tr>
       <th scope="col">#</th>
-      {% for day in data['judgement_results'] %}
+      {% for day in data['judgement_citizen_results'] %}
         <th scope="col">Dzień {{ day }}</th>
       {% endfor %}
     </tr>
   </thead>
   <tbody>
-  {% for player in data['judgement_results'][1] %}
+  {% for player in data['judgement_citizen_results'][1] %}
     <tr>
-     <th scope="row">{{ data['judgement_results'][1][player]['player_name'] }}</th>
-     {% for day in data['judgement_results'] %}
-        <td title="{{ data['judgement_results'][day][player]['info'] }}">{{ '%0.1f' % data['judgement_results'][day][player]['points'] }}</td>
+     <th scope="row">{{ data['judgement_citizen_results'][1][player]['player_name'] }}</th>
+     {% for day in data['judgement_citizen_results'] %}
+        <td>
+            <a href="#" onclick="showDetailedInfo(`{{ data['judgement_citizen_results'][day][player]['info'] }}`)">
+                {{ '%0.1f' % data['judgement_citizen_results'][day][player]['points'] }}
+            </a>
+        </td>
+     {% endfor %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<h4>Najlepsi mafiozi:</h4>
+<a href="#" onclick="showDetailedInfo('Algorytm liczenia: <br />Punkty mafioza generowane są na podstawie głosów innych graczy. Jeśli oceniający uzna gracza za niewinnego, gracz otrzymuje punkty przypadające za niewinnego w danym dniu. Jeśli uzna go za winnego, gracz traci punkty przypadające za mafiozę w danym dniu. Punkty za niewinnego/mafiozę liczone są wg algorytmu opisanego w sekcji detektywów.')">Pomoc</a>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      {% for day in data['judgement_mafioso_results'] %}
+        <th scope="col">Dzień {{ day }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+  {% for player in data['judgement_mafioso_results'][1] %}
+    <tr>
+     <th scope="row">{{ data['judgement_mafioso_results'][1][player]['player_name'] }}</th>
+     {% for day in data['judgement_mafioso_results'] %}
+        <td>
+            <a href="#" onclick="showDetailedInfo(`{{ data['judgement_mafioso_results'][day][player]['info'] }}`)">
+                {{ '%0.1f' % data['judgement_mafioso_results'][day][player]['points'] }}
+            </a>
+        </td>
      {% endfor %}
     </tr>
   {% endfor %}

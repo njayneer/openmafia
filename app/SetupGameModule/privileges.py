@@ -408,7 +408,7 @@ class JudgePlayers(Privilege):
     description = 'You can send judgement of all alive players.'
 
     def judge_if_deserved(self):
-        if self.alive_player and not self.game_finished:
+        if self.alive_player and not self.game_finished and not self.player_is_mafioso:
             self.granted = True
         else:
             self.granted = False
@@ -474,7 +474,7 @@ class ShowJudgementSummary(Privilege):
     description = 'You can see judgement summary of whole game'
 
     def judge_if_deserved(self):
-        if self.game_finished or self.game_admin:
+        if self.game_finished or self.game_admin or self.admin:
             self.granted = True
         else:
             self.granted = False

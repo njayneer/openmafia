@@ -54,20 +54,9 @@ class JudgementSummary:
             judgement_results = {}
             for i, (day, player_votes) in enumerate(all_judgements.items()):
                 # rewrite points if there is no vote that day
-                if day == 1:
-                    judgement_results[day] = {gp.id: {'player_id': gp.id,
-                                                      'fraction': player_fractions[gp.id],
-                                                      'player_name': gp.name,
-                                                      'points': 0.0,
-                                                      'info': 'Brak oceny'} for gp in game.game_players}
-                else: # rewrite previous day points
-                    judgement_results[day] = {gp.id: {'player_id': gp.id,
-                                                      'fraction': player_fractions[gp.id],
-                                                      'player_name': gp.name,
-                                                      'points': judgement_results[day-1][gp.id]['points'],
-                                                      'info': 'Brak nowej oceny'} for gp in game.game_players}
+                self.initialize_judgement_result_for_day(day, game, judgement_results, player_fractions)
 
-                # calculate sum of points value for players for that day votes
+                # we are counting for one specific day now. Calculate sum of points value for all players in loop
                 for player, votes in player_votes.items():
                     for target, vote in votes.items():
                         points_from_vote = judgement_lookup_table[vote.judgement]
@@ -75,24 +64,56 @@ class JudgementSummary:
                         step_points = points_from_vote * wage_from_fraction
                         if step_points == -0.0:
                             step_points = 0.0
+
+                        # points for citizen
                         judgement_results[day][player]['points'] += step_points
                         info_string = player_names[target]\
                                       + ': '\
                                       + str(round(step_points, 1))\
                                       + 'p ('\
                                       + color_lookup_table[vote.judgement]\
-                                      + ')\n'
+                                      + ') <br />'
                         if judgement_results[day][player]['info'] in ('Brak oceny', 'Brak nowej oceny'):
                             judgement_results[day][player]['info'] = info_string
                         else:
                             judgement_results[day][player]['info'] += info_string
+
+                        # points for mafioso
+                        if player_fractions[vote.target_id] == 'mafioso':
+                            # if accurate vote, subtract mafioso points, if not accurate, add citizen points
+                            if color_lookup_table[vote.judgement] == 'czerwony':
+                                mafioso_step_points = - mafioso_points[i]
+                            elif color_lookup_table[vote.judgement] == 'zielony':
+                                mafioso_step_points = - citizen_points[i]
+                            else:
+                                mafioso_step_points = 0
+
+                            judgement_results[day][vote.target_id]['points'] += mafioso_step_points
+                            info_string = player_names[player] \
+                                          + ': ' \
+                                          + str(round(mafioso_step_points, 1)) \
+                                          + 'p ( ' \
+                                          + color_lookup_table[vote.judgement] \
+                                          + ') <br />'
+                            if judgement_results[day][vote.target_id]['info'] in ('Brak oceny', 'Brak nowej oceny'):
+                                judgement_results[day][vote.target_id]['info'] = info_string
+                            else:
+                                judgement_results[day][vote.target_id]['info'] += info_string
 
                     # round value after each vote result addition
                     judgement_results[day][player]['points'] = round(judgement_results[day][player]['points'], 1)
                     if judgement_results[day][player]['points'] == -0.0:
                         judgement_results[day][player]['points'] = 0.0
 
+            judgement_citizen_results = {}
+            judgement_mafioso_results = {}
+            for d, jr in judgement_results.items():
+                judgement_citizen_results[d] = {p: j for p, j in jr.items() if player_fractions[p] == 'citizen'}
+                judgement_mafioso_results[d] = {p: j for p, j in jr.items() if player_fractions[p] == 'mafioso'}
+
             data = {'judgement_results': judgement_results,
+                    'judgement_citizen_results': judgement_citizen_results,
+                    'judgement_mafioso_results': judgement_mafioso_results,
                     'judgement_full': all_judgements
                     }
 
@@ -100,6 +121,20 @@ class JudgementSummary:
                                    data=data)
         else:
             return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
+    def initialize_judgement_result_for_day(self, day, game, judgement_results, player_fractions):
+        if day == 1:
+            judgement_results[day] = {gp.id: {'player_id': gp.id,
+                                              'fraction': player_fractions[gp.id],
+                                              'player_name': gp.name,
+                                              'points': 0.0,
+                                              'info': 'Brak oceny'} for gp in game.game_players}
+        else:  # rewrite previous day points
+            judgement_results[day] = {gp.id: {'player_id': gp.id,
+                                              'fraction': player_fractions[gp.id],
+                                              'player_name': gp.name,
+                                              'points': judgement_results[day - 1][gp.id]['points'],
+                                              'info': 'Brak nowej oceny'} for gp in game.game_players}
 
     def get_player_count(self, all_judgements, player_fractions, fraction):
         mafioso_count = []
