@@ -204,3 +204,15 @@ input[type='radio'] {
 #detailedInfoBox button {
     margin-top: 10px;
 }
+
+.positive {
+    color: green;
+}
+
+.judgement {
+    font-weight: bold;
+}
+
+.negative {
+    color: red;
+}

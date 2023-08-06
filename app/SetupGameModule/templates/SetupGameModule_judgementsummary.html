@@ -36,8 +36,8 @@
      <th scope="row">{{ data['judgement_citizen_results'][1][player]['player_name'] }}</th>
      {% for day in data['judgement_citizen_results'] %}
         <td>
-            <a href="#" onclick="showDetailedInfo(`{{ data['judgement_citizen_results'][day][player]['info'] }}`)">
-                {{ '%0.1f' % data['judgement_citizen_results'][day][player]['points'] }}
+            <a href="#" class="judgement {% if data['judgement_citizen_results'][day][player]['points'] > 0 %}positive{% else %}negative{% endif %}" onclick="showDetailedInfo(`{{ data['judgement_citizen_results'][day][player]['info'] }}`)">
+                {% if data['judgement_citizen_results'][day][player]['points'] > 0 %}+{% endif %}{{ '%0.1f' % data['judgement_citizen_results'][day][player]['points'] }}
             </a>
         </td>
      {% endfor %}
@@ -63,8 +63,8 @@
      <th scope="row">{{ data['judgement_mafioso_results'][1][player]['player_name'] }}</th>
      {% for day in data['judgement_mafioso_results'] %}
         <td>
-            <a href="#" onclick="showDetailedInfo(`{{ data['judgement_mafioso_results'][day][player]['info'] }}`)">
-                {{ '%0.1f' % data['judgement_mafioso_results'][day][player]['points'] }}
+            <a href="#" class="judgement {% if data['judgement_mafioso_results'][day][player]['points'] > 0 %}positive{% else %}negative{% endif %}" onclick="showDetailedInfo(`{{ data['judgement_mafioso_results'][day][player]['info'] }}`)">
+                {% if data['judgement_mafioso_results'][day][player]['points'] > 0 %}+{% endif %}{{ '%0.1f' % data['judgement_mafioso_results'][day][player]['points'] }}
             </a>
         </td>
      {% endfor %}
