@@ -56,7 +56,7 @@ class GamePlayer(db.Model):
     winner = db.Column(db.Integer)
     game = relationship("Game", back_populates='game_players')
     items = relationship("GameItems")
-    achievements = relationship("Achievements")
+    achievements = relationship("Achievements", back_populates='player')
 
 
 class Game_Roles(db.Model):
@@ -214,7 +214,7 @@ class Achievements(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey('User.id'))
     player_id = db.Column(db.Integer, ForeignKey('GamePlayer.id'))
-    player = relationship("GamePlayer")
+    player = relationship("GamePlayer", back_populates='achievements')
     achievement_id = db.Column(db.Integer, ForeignKey('AchievementTypes.id'))
     achievement = relationship("AchievementTypes")
 

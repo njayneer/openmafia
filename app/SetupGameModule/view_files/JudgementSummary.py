@@ -123,18 +123,17 @@ class JudgementSummary:
             return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
 
     def initialize_judgement_result_for_day(self, day, game, judgement_results, player_fractions):
-        if day == 1:
-            judgement_results[day] = {gp.id: {'player_id': gp.id,
-                                              'fraction': player_fractions[gp.id],
-                                              'player_name': gp.name,
-                                              'points': 0.0,
-                                              'info': 'Brak oceny'} for gp in game.game_players}
-        else:  # rewrite previous day points
-            judgement_results[day] = {gp.id: {'player_id': gp.id,
-                                              'fraction': player_fractions[gp.id],
-                                              'player_name': gp.name,
-                                              'points': judgement_results[day - 1][gp.id]['points'],
-                                              'info': 'Brak nowej oceny'} for gp in game.game_players}
+
+        previous_day_judgement = None
+        for d in range(day - 1, 0, -1):
+            if judgement_results[d]:
+                previous_day_judgement = judgement_results[d]
+                break
+        judgement_results[day] = {gp.id: {'player_id': gp.id,
+                                          'fraction': player_fractions[gp.id],
+                                          'player_name': gp.name,
+                                          'points': previous_day_judgement[gp.id]['points'] if previous_day_judgement else 0.0,
+                                          'info': 'Brak oceny'} for gp in game.game_players}
 
     def get_player_count(self, all_judgements, player_fractions, fraction):
         mafioso_count = []
