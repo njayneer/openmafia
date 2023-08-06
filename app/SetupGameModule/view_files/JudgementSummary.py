@@ -126,7 +126,7 @@ class JudgementSummary:
 
         previous_day_judgement = None
         for d in range(day - 1, 0, -1):
-            if judgement_results[d]:
+            if d in judgement_results:
                 previous_day_judgement = judgement_results[d]
                 break
         judgement_results[day] = {gp.id: {'player_id': gp.id,
