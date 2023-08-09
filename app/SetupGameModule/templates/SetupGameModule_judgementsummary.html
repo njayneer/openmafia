@@ -18,9 +18,9 @@
         <span id="detailedInfoContent"></span><br />
         <button onclick="hideDetailedInfo()">Zamknij</button>
     </div>
-
+<a href="{{ url_for('SetupGameModule.lobby', game_id=game_id) }}">Powrót do lobby</a>
   <h4>Najlepsi detektywi:</h4>
-  <a href="#" onclick="showDetailedInfo('Algorytm liczenia: <br />Każdy gracz jest warty tyle punktów, ile wynosi liczba wszystkich żyjących graczy danego dnia do liczby żyjących graczy z jego frakcji. Jeżeli głos w takiego gracza jest trafiony, wówczas punkty są przyznawane. Jeśli nietrafiony, punkty są odejmowane. Wybranie głosu żółtego nie powoduje zmiany liczby punktów.')">Pomoc</a>
+  <a href="#" onclick="showDetailedInfo('Algorytm liczenia: <br />Poprawne odgadnięcie całej frakcji daje 5 punktów. Każdy gracz z frakcji jest warty 5 punktów dzielone przez liczbę żyjących graczy w tej frakcji w danym dniu. Jeżeli głos w takiego gracza jest trafiony, wówczas punkty są przyznawane. Jeśli nietrafiony, punkty są odejmowane. Wybranie głosu żółtego nie powoduje zmiany liczby punktów.')">Pomoc</a>
 <table class="table table-hover">
   <thead>
     <tr>
@@ -36,8 +36,10 @@
      <th scope="row">{{ data['judgement_citizen_results'][1][player]['player_name'] }}</th>
      {% for day in data['judgement_citizen_results'] %}
         <td>
-            <a href="#" class="judgement {% if data['judgement_citizen_results'][day][player]['points'] > 0 %}positive{% else %}negative{% endif %}" onclick="showDetailedInfo(`{{ data['judgement_citizen_results'][day][player]['info'] }}`)">
+            <a href="#" class="{% if data['judgement_citizen_results'][day][player]['points'] > 0 %}positive{% else %}negative{% endif %}" onclick="showDetailedInfo(`{{ data['judgement_citizen_results'][day][player]['info'] }}`)">
+                {% if data['judgement_citizen_results'][day][player]['player_status'] == 'alive' %}<b>{% else %}<i>{% endif %}
                 {% if data['judgement_citizen_results'][day][player]['points'] > 0 %}+{% endif %}{{ '%0.1f' % data['judgement_citizen_results'][day][player]['points'] }}
+                {% if data['judgement_citizen_results'][day][player]['player_status'] == 'alive' %}</b>{% else %}</i>{% endif %}
             </a>
         </td>
      {% endfor %}

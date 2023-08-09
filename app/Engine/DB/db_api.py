@@ -110,6 +110,7 @@ class GameApi:
         Event.query.filter_by(game_id=self.game.id).delete()
         GameItems.query.filter_by(game_id=self.game.id).delete()
         self.update_game_configuration({'time_offset': '0;0'})
+        self.remove_all_judgements([p.id for p in self.game.game_players])
 
         db.session.commit()
 
@@ -508,6 +509,10 @@ class GameApi:
             except KeyError: # first vote of player for a day
                 jud[judgement.day_no][judgement.player_id] = {judgement.target_id: judgement}
         return jud
+
+    def remove_all_judgements(self, player_ids_list):
+        GameJudgement.query.filter(GameJudgement.player_id.in_(player_ids_list)).delete()
+        db.session.commit()
 
     def get_players_fraction(self):
         # result = {player_id: 'mafioso'}
