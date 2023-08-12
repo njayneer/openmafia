@@ -66,15 +66,15 @@
 @media (min-width: 768px) {
 body  {
       font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
+      background-color: rgb(230, 212, 188);
       margin: 0;
       padding: 20px;
       /*background-image: url(/static/images/base-background.jpg);
       background-repeat: no-repeat;
-      background-size: auto 100%;
-      background-position: center top;
-      background-attachment: fixed;*/
-      background-color: rgb(230, 212, 188);
+      background-size: 100%;
+      background-position: center;
+      background-attachment: fixed;
+      background-color: black;*/
       height: 100vh;
     }
     .container {
@@ -83,21 +83,21 @@ body  {
       border-radius: 5px;
       padding: 20px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      opacity: 0.8;
+      opacity: 0.9;
     }
 }
 @media (max-width: 768px) {
 body  {
       font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
+      background-color: rgb(230, 212, 188);
       margin: 0;
       padding: 5px;
       /*background-image: url(/static/images/base-background.jpg);
       background-repeat: no-repeat;
-      background-size: auto 100%;
-      background-position: 70% top;
-      background-attachment: fixed;*/
-      background-color: rgb(230, 212, 188);
+      background-size: 100%;
+      background-position: center;
+      background-attachment: fixed;
+      background-color: black;*/
       height: 100vh;
     }
     .container {
@@ -106,7 +106,7 @@ body  {
       border-radius: 5px;
       padding: 5px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      opacity: 0.8;
+      opacity: 0.9;
       font-size: smaller;
     }
 }
@@ -143,6 +143,10 @@ body  {
       font-weight: bold;
     }
 
+    .register a{
+    color: black;
+    }
+
     .login {
       background-color: #333333;
       color: #ffffff;
@@ -151,6 +155,9 @@ body  {
       border-radius: 5px;
       text-transform: uppercase;
       font-weight: bold;
+    }
+    .login a{
+    color: black;
     }
 
 a .navbar-brand {
@@ -177,4 +184,17 @@ padding: 0px;
     .ref-links a {
       color: black;
       font-weight: bold;
+    }
+
+.main_page {
+opacity: 0.7 !important;
+}
+
+.container-mainpage {
+display: flex;
+align-items: flex-start;
+}
+
+.container-mainpage > * {
+        flex: 1;
     }

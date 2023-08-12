@@ -74,6 +74,7 @@ tfoot input {
   border-radius: 15px;
   padding: 10px;
   margin-bottom: 10px;
+  opacity: 80%
 }
 
 .tab-content .content-box:last-of-type {
@@ -215,4 +216,52 @@ input[type='radio'] {
 
 .negative {
     color: red;
+}
+
+.lobby_day {
+      background-image: url(/static/images/lobby_day.jpg);
+      background-repeat: no-repeat;
+      background-size: auto 100%;
+      background-position: 100% top;
+      background-attachment: fixed;
+}
+
+.lobby_night {
+      background-image: url(/static/images/lobby_night.jpg);
+      background-repeat: no-repeat;
+      background-size: auto 100%;
+      background-position: 100% top;
+      background-attachment: fixed;
+}
+
+.city {
+      background-repeat: no-repeat;
+      background-size: 100%;
+      background-position: 100% top;
+      height: 400px;
+      padding: 0px !important;
+}
+
+.role {
+      background-image: url(/static/images/role.jpg);
+      background-repeat: no-repeat;
+      background-size: auto 100%;
+      background-position: 100% top;
+      background-attachment: fixed;
+}
+
+.mafia {
+      background-image: url(/static/images/mafia.jpg);
+      background-repeat: no-repeat;
+      background-size: auto 100%;
+      background-position: 100% top;
+      background-attachment: fixed;
+}
+
+.graveyard {
+      background-image: url(/static/images/graveyard.jpg);
+      background-repeat: no-repeat;
+      background-size: auto 100%;
+      background-position: 100% top;
+      background-attachment: fixed;
 }

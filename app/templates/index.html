@@ -3,21 +3,24 @@
 
 {%block main_content%}
 
-<div>
+<div class="main_page">
 	<h1>Poznaj razem z nami wspaniały świat OpenMafii!</h1>
 	<p>Gra w mafię to dynamiczna gra towarzyska, w której uczestnicy wcielają się w postacie przynależące do mafii lub mieszkańców miasteczka. Mafiosi starają się eliminować mieszkańców, podczas gdy ci ostatni próbują odkryć członków mafii. Rozgrywka składa się z faz dnia i nocy, w których gracze dyskutują, podejmują decyzje i próbują rozgryźć, kto jest podejrzany. Gra w mafię wymaga spostrzegawczości, dedukcji i umiejętności przekonywania innych graczy. To wciągające doświadczenie, które dostarcza wiele emocji i radości podczas rozgrywek z ludźmi z całej Polski.</p>
 
 <h2>Poznaj nas bliżej!</h2>
-	<p class="ref-links">
-		<a href="https://discord.gg/3xqJ7v3K"><img class="discord" src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0b5061df290f5892d944_full_logo_black_RGB.svg" /></a>
-		<a href="https://mafiacorner.boards.net/forum"><img class="mafiacorner" src="https://storage.proboards.com/7134169/images/BlKklTquqNFKPhhEHgea.ico" />Mafia Corner</a>
-		<a href="https://zrzutka.pl/gnbrsm"><img class="zrzutka" src="https://cdn.zrzutka.pl/build/images/ios-homescreen-popup-logo.png" />Wesprzyj rozwój</a>
-	</p>
+	<div class="container-mainpage">
+		<div class="ref-links">
+			<a href="https://discord.gg/3xqJ7v3K"><img class="discord" src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0b5061df290f5892d944_full_logo_black_RGB.svg" /></a><br />
+			<a href="https://mafiacorner.boards.net/forum"><img class="mafiacorner" src="https://storage.proboards.com/7134169/images/BlKklTquqNFKPhhEHgea.ico" />Mafia Corner</a><br />
+			<a href="https://zrzutka.pl/gnbrsm"><img class="zrzutka" src="https://cdn.zrzutka.pl/build/images/ios-homescreen-popup-logo.png" />Podziękuj i wesprzyj rozwój</a><br />
+		</div>
+		<div>
+			{% if not current_user.is_authenticated %}
+				<div class="register"><a href="/signup">Zarejestruj się już teraz!</a></div>
+				<div class="login"><a href="/login">Zaloguj się</a></div>
+			{% endif %}
+		</div>
+	</div>
 </div>
-<div>
-	{% if not current_user.is_authenticated %}
-		<div class="register"><a href="/signup">Zarejestruj się już teraz!</a></div>
-		<div class="login"><a href="/login">Zaloguj się</a></div>
-	{% endif %}
-</div>
+
 {%endblock%}
