@@ -738,11 +738,12 @@ def event_history_delete(game_id, event_id):
     return redirect(url_for('SetupGameModule.event_history', game_id=game_id))
 
 
-@SetupGameModule.route('<game_id>/choose_mvp/<player_id>', methods=['GET', 'POST'])
+@SetupGameModule.route('<game_id>/choose_mvp/<player_id>/<place>', methods=['GET', 'POST'])
 @login_required
-def choose_mvp(game_id, player_id):
+def choose_mvp(game_id, player_id, place):
     game_id = int(game_id)
     player_id = int(player_id)
+    place = int(place)
 
     db_api = GameApi()
     game = db_api.get_game(game_id)

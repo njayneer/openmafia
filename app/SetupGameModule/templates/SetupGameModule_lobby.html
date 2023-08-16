@@ -12,6 +12,10 @@
 
 {%block title%}OpenMafia - {{ game.name }}{%endblock%}
 {%block main_content%}
+<div id="detailedInfoBox" class="hidden">
+  <span id="detailedInfoContent"></span><br />
+  <button onclick="hideDetailedInfo()">Zamknij</button>
+</div>
 
 <h2>Witaj <b>{{ data['you'].name }}</b> w grze {{ game.name }}</h2>
 <div class="tabs">
@@ -91,10 +95,11 @@
                   - <a href="{{url_for('User.user_main', user_id=player.user.id)}}">{{ player.user.name }}</a>
                 {% endif %}
                 {% if data['your_privileges']['kill_a_player_at_any_time'].granted %}
-                  <a href="./kill_player/{{ player.id }}"><b>zabij</b></a>
+                  <a href="#" onclick='showDetailedInfo(`Czy na pewno chcesz go zabić?<br /><br /><a href="./kill_player/{{ player.id }}"><b>zabij</b></a>`)'>Zabij</a>
+
                 {% endif %}
                 {% if data['your_privileges']['choose_mvp'].granted %}
-                    - <a href="{{url_for('SetupGameModule.choose_mvp', game_id=game.id, player_id=player.id)}}">Wybierz jako MVP</a>
+                    - <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /> <a href="{{url_for("SetupGameModule.choose_mvp", game_id=game.id, player_id=player.id)}}">Wybierz jako MVP</a>`)'>Wybierz jako MVP</a>
                 {% endif %}
                 </li>
             {% endfor %}
