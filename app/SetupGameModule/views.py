@@ -738,12 +738,12 @@ def event_history_delete(game_id, event_id):
     return redirect(url_for('SetupGameModule.event_history', game_id=game_id))
 
 
-@SetupGameModule.route('<game_id>/choose_mvp/<player_id>/<place>', methods=['GET', 'POST'])
+@SetupGameModule.route('<game_id>/choose_mvp/<player_id>/<rank>', methods=['GET', 'POST'])
 @login_required
-def choose_mvp(game_id, player_id, place):
+def choose_mvp(game_id, player_id, rank):
     game_id = int(game_id)
     player_id = int(player_id)
-    place = int(place)
+    rank = int(rank)
 
     db_api = GameApi()
     game = db_api.get_game(game_id)
@@ -751,14 +751,27 @@ def choose_mvp(game_id, player_id, place):
     # privileges
     you = db_api.get_player_object_for_user_id(current_user.id)
     your_privileges = judge_privileges(you, game)
+    if rank == 1:
+        privilege = your_privileges['choose_mvp'].granted
+        achievement_name = 'mvp'
+    elif rank == 2:
+        privilege = your_privileges['choose_mvp2'].granted
+        achievement_name = 'mvp2'
+    elif rank == 3:
+        privilege = your_privileges['choose_mvp3'].granted
+        achievement_name = 'mvp3'
+    else:
+        privilege = False
+        achievement_name = None # not used after
 
-    if your_privileges['choose_mvp'].granted and player_id in [p.id for p in db_api.game.game_players]:
+    if privilege and player_id in [p.id for p in db_api.game.game_players]:
         user_api = UserApi()
         user_id = db_api.get_player_object_for_player_id(player_id).user_id
         user_api.get_user_for_user_id(user_id)
-        user_api.set_achievement_to_user('mvp', player_id)
+        user_api.set_achievement_to_user(achievement_name, player_id)
         ge_api = GameEventApi()
-        ge_api.create_new_event(game, 'mvp_chosen', None, player_id)
+        achievement_name = achievement_name + '_chosen'
+        ge_api.create_new_event(game, achievement_name, None, player_id)
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
 
 

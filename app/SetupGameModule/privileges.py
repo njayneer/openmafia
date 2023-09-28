@@ -42,6 +42,8 @@ def _get_all_privileges(player, game):
         'event_history_read': EventHistoryRead(player, game),
         'event_remove': EventRemove(player, game),
         'choose_mvp': ChooseMVP(player, game),
+        'choose_mvp2': ChooseMVP2(player, game),
+        'choose_mvp3': ChooseMVP3(player, game),
         'show_judgement_summary': ShowJudgementSummary(player, game)
     }
 
@@ -105,6 +107,8 @@ class Privilege:
         self.item_gun = len(self.game_api.select_game_items('gun', self.player.id, not_consumed_only=True)) > 0
         self.admin = 'administrator' in self.user_attributes
         self.mvp_not_asigned = 'mvp' not in [a.achievement.name for a in self._get_achievements()]
+        self.mvp2_not_asigned = 'mvp2' not in [a.achievement.name for a in self._get_achievements()]
+        self.mvp3_not_asigned = 'mvp3' not in [a.achievement.name for a in self._get_achievements()]
 
     def _get_achievements(self):
         return self.user_api.get_game_achievements([gp.id for gp in self.game.game_players])
@@ -464,6 +468,26 @@ class ChooseMVP(Privilege):
 
     def judge_if_deserved(self):
         if self.game_admin and self.mvp_not_asigned and self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+class ChooseMVP2(Privilege):
+    description = 'You can asign a player the vice MVP badge'
+
+    def judge_if_deserved(self):
+        if self.game_admin and self.mvp2_not_asigned and self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+class ChooseMVP3(Privilege):
+    description = 'You can asign a player the 2nd vice MVP badge'
+
+    def judge_if_deserved(self):
+        if self.game_admin and self.mvp3_not_asigned and self.game_finished:
             self.granted = True
         else:
             self.granted = False

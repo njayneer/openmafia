@@ -99,7 +99,11 @@
 
                 {% endif %}
                 {% if data['your_privileges']['choose_mvp'].granted %}
-                    - <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /> <a href="{{url_for("SetupGameModule.choose_mvp", game_id=game.id, player_id=player.id)}}">Wybierz jako MVP</a>`)'>Wybierz jako MVP</a>
+                    - <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /> <a href="{{url_for("SetupGameModule.choose_mvp", game_id=game.id, player_id=player.id, rank=1)}}">Wybierz jako MVP</a>`)'>Wybierz jako MVP</a>
+                {% elif data['your_privileges']['choose_mvp2'].granted %}
+                  - <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /> <a href="{{url_for("SetupGameModule.choose_mvp", game_id=game.id, player_id=player.id, rank=2)}}">Wybierz jako vice MVP</a>`)'>Wybierz jako vice MVP</a>
+                {% elif data['your_privileges']['choose_mvp3'].granted %}
+                  - <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /> <a href="{{url_for("SetupGameModule.choose_mvp", game_id=game.id, player_id=player.id, rank=3)}}">Wybierz jako drugi vice MVP</a>`)'>Wybierz jako drugi vice MVP</a>
                 {% endif %}
                 </li>
             {% endfor %}
@@ -132,7 +136,11 @@
                     - <a href="{{url_for('User.user_main', user_id=player.user.id)}}">{{ player.user.name }}</a>
                   {% endif %}
                   {% if data['your_privileges']['choose_mvp'].granted %}
-                    - <a href="{{url_for('SetupGameModule.choose_mvp', game_id=game.id, player_id=player.id)}}">Wybierz jako MVP</a>
+                    - <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /> <a href="{{url_for("SetupGameModule.choose_mvp", game_id=game.id, player_id=player.id, rank=1)}}">Wybierz jako MVP</a>`)'>Wybierz jako MVP</a>
+                  {% elif data['your_privileges']['choose_mvp2'].granted %}
+                    - <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /> <a href="{{url_for("SetupGameModule.choose_mvp", game_id=game.id, player_id=player.id, rank=2)}}">Wybierz jako vice MVP</a>`)'>Wybierz jako vice MVP</a>
+                  {% elif data['your_privileges']['choose_mvp3'].granted %}
+                    - <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /> <a href="{{url_for("SetupGameModule.choose_mvp", game_id=game.id, player_id=player.id, rank=3)}}">Wybierz jako drugi vice MVP</a>`)'>Wybierz jako drugi vice MVP</a>
                   {% endif %}
                 </li>
             {% endfor %}
@@ -193,6 +201,10 @@
           <li>Dnia {{ history_event.day_no }} grę wygrywa <b>mafia!</b></li>
           {% elif history_event.event_type_tbl.name == 'mvp_chosen' %}
           <li>Na MVP wybrany został {{ history_event.target_player.name }}</b>!</li>
+          {% elif history_event.event_type_tbl.name == 'mvp2_chosen' %}
+          <li>Na vice MVP wybrany został {{ history_event.target_player.name }}</b>!</li>
+          {% elif history_event.event_type_tbl.name == 'mvp3_chosen' %}
+          <li>Na drugiego vice MVP wybrany został {{ history_event.target_player.name }}</b>!</li>
           {% elif history_event.event_type_tbl.name == 'gun_shot_kill' %}
             <li>Dnia {{ history_event.day_no }} zabity przez strzał z pistoletu został <b>{{ history_event.target_player.name }}</b>
               {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
@@ -240,10 +252,7 @@
           <tr>
             <td>{{ citizen_actual_vote.name }}</td>
             <td>{{ data['vote_results'][citizen_actual_vote]|length }}</td>
-            <td>{% for vote in data['vote_results'][citizen_actual_vote] %}
-              {% if not loop.first %}, {% endif %}
-              {{ vote }}
-              {% endfor %}</td>
+            <td>{% for vote in data['vote_results'][citizen_actual_vote] %}{% if not loop.first %}, {% endif %}{{ vote }}{% endfor %}</td>
           </tr>
           {% endfor %}
           </tbody>

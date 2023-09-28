@@ -6,13 +6,13 @@
 
 <h4>Uwaga! Ten panel umożliwia dokonywanie krytycznych wyborów z punktu widzenia gry. Korzytaj z niego bardzo ostrożnie!</h4>
 {% if data['your_privileges']['block_lynch'].granted %}
-    <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /><a href="./block_event/lynch">Zablokuj dzisiejszy lincz</a><br />`)'>Zablokuj dzisiejszy lincz</a>
+    <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /><a href="./block_event/lynch">Zablokuj dzisiejszy lincz</a><br />`)'>Zablokuj dzisiejszy lincz</a><br />
 {% endif %}
 {% if data['your_privileges']['block_mafia_kill'].granted %}
-    <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /><<a href="./block_event/mafia_kill">Zablokuj dzisiejszy mord</a><br />`)'>Zablokuj dzisiejszy mord</a>
+    <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /><a href="./block_event/mafia_kill">Zablokuj dzisiejszy mord</a><br />`)'>Zablokuj dzisiejszy mord</a><br />
 {% endif %}
 {% if data['your_privileges']['reverting_game'].granted %}
-    <a href="./revert_game">Cofnij grę do stanu sprzed startu</a><br />
+    <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /><a href="./revert_game">Cofnij grę do stanu sprzed startu</a><br />`)'>Cofnij grę do stanu sprzed startu</a><br />
 {% endif %}
 {% if data['your_privileges']['speeding_up_game'].granted %}
 Modyfikacja czasu gry (przyspieszanie/opóźnianie zdarzeń). Dodajesz lub odejmujesz od ustawionej daty wszystkich zdarzeń.

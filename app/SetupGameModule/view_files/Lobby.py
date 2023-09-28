@@ -97,6 +97,7 @@ class Lobby():
                 for vote in vote_results_id:
                     target_name = [player for player in game.game_players if player.id == vote][0]
                     target_value = vote_results_id[vote]
+                    target_value.sort()
                     vote_results[target_name] = target_value
 
             # get all events for history
@@ -109,6 +110,8 @@ class Lobby():
             history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_lynch'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_mafia_kill'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'mvp_chosen'))
+            history_events += list(event_api.get_all_events_for_whole_game(game, 'mvp2_chosen'))
+            history_events += list(event_api.get_all_events_for_whole_game(game, 'mvp3_chosen'))
             history_events.sort(key=lambda x: (x.day_no, x.phase_no))
             # for ev in history_events:
             #      ev.timestamp = utc_to_local(ev.timestamp)
