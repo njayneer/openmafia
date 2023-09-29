@@ -150,6 +150,30 @@
           </ul>
         </div>
       {% endif %}
+      {% if data['your_privileges']['see_list_of_special_people'].granted %}
+        <div class="content-box">
+          <h4>Lista pozostałych:</h4>
+          <ul>
+          {% if data['special_players']|length > 0 %}
+            {% for player in data['special_players']  %}
+                <li>{{ player.name }}
+                  -
+                  {% for role in player.roles %}
+                    {% if role.role.id not in data['roles_not_visible_after_death'] or game.status_id != 5 %}
+                      {{ role.role.visible_name }}
+                    {% endif %}
+                  {% endfor %}
+                  {% if data['your_privileges']['see_user_names_of_players'].granted %}
+                    - <a href="{{url_for('User.user_main', user_id=player.user.id)}}">{{ player.user.name }}</a>
+                  {% endif %}
+                </li>
+            {% endfor %}
+          {% else %}
+            Wszyscy żyją!
+          {% endif %}
+          </ul>
+        </div>
+      {% endif %}
       <div class="content-box">
         <h4>Historia miasta</h4>
         <ul>
@@ -219,6 +243,10 @@
               - zabójcą jest <b>{{ history_event.source_player.name }}</b>
               {% endif %}
             </li>
+          {% elif history_event.event_type_tbl.name == 'lynch_draw_noone' %}
+          <li>Dnia {{ history_event.day_no }} przez remis w głosowaniu nikt nie został zlinczowany.</b></li>
+          {% elif history_event.event_type_tbl.name == 'lynch_draw_mafia_choice' %}
+          <li>Dnia {{ history_event.day_no }} przez remis w głosowaniu mafia zadecyduje, kto zostanie zlinczowany.</b></li>
           {% endif %}
         {% endfor %}
         </ul>

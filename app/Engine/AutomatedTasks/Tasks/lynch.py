@@ -13,7 +13,7 @@ def do(game_id, source_id):
         admin_blocks = len(event_api.get_last_events_for_actual_day(game_api.game, 'admin_block_lynch')) > 0
         if (not admin_blocks) and game_api.game.status.name == 'in_progress':
             if events == {}:
-                winner = random.choice([player.id for player in game_api.game.game_players if player.status == 'alive'])
+                winners = [player.id for player in game_api.game.game_players if player.status == 'alive']
             else:
                 # Count votes
                 vote_results = {}
@@ -24,17 +24,33 @@ def do(game_id, source_id):
 
                 max_vote_value = max(vote_results.values())
                 winners = [candidate for candidate in vote_results if vote_results[candidate] == max_vote_value]
-                if len(winners) > 1:
+            if len(winners) > 1:
+                lynch_draw_config = game_api.get_configuration('lynch_draw')
+                if lynch_draw_config == 'random':
                     winner = random.choice(winners)
-                else:
-                    winner = winners[0]
-
-            # Kill winner
-            event_api.create_new_event(game=game_api.game,
-                                       event_name='lynch',
-                                       player_id=None,
-                                       target_id=winner)
-            game_api.kill_player(winner)
+                    event_api.create_new_event(game=game_api.game,
+                                               event_name='lynch',
+                                               player_id=None,
+                                               target_id=winner)
+                    game_api.kill_player(winner)
+                elif lynch_draw_config == 'noone':
+                    event_api.create_new_event(game=game_api.game,
+                                               event_name='lynch_draw_noone',
+                                               player_id=None,
+                                               target_id=None)
+                elif lynch_draw_config == 'mafia_choice':
+                    event_api.create_new_event(game=game_api.game,
+                                               event_name='lynch_draw_mafia_choice',
+                                               player_id=None,
+                                               target_id=None)
+                    #TODO new voting system for mafia, not available yet. Use "noone" and manual kill
+            else:
+                winner = winners[0]
+                event_api.create_new_event(game=game_api.game,
+                                           event_name='lynch',
+                                           player_id=None,
+                                           target_id=winner)
+                game_api.kill_player(winner)
 
         # Winning conditions
         finished = game_api.check_winning_condition()

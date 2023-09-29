@@ -27,6 +27,11 @@
     {{ form.initial_forum_turned_on() }} Włącz forum przed startem gry<br/>
     {{ form.citizen_forum_turned_on() }} Włącz forum miasta<br/>
     {{ form.creations_on() }} Włącz możliwość ustawiania kreacji (indywidualnych nazw graczy dla gry)<br/>
+    <br />{{ form.lynch_draw.label }}<br />
+    {% for subfield in form.lynch_draw %}
+    {{ subfield }}
+    {{ subfield.label }}<br />
+    {% endfor %}
     <div class="form-actions">
         <button name="action_game_config" type="submit" class="btn btn-primary">Zatwierdź</button>
     </div>

@@ -295,6 +295,13 @@ class GameApi:
                 players.append(player)
         return players
 
+    def get_special_players(self):
+        players = []
+        for player in self.game.game_players:
+            if player.status == 'special':
+                players.append(player)
+        return players
+
     def get_all_players_roles(self, player_id: int = None):
         players_roles = Game_Roles.query.filter(Game_Roles.game_id == self.game.id).all()
         result = {}

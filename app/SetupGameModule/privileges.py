@@ -44,7 +44,8 @@ def _get_all_privileges(player, game):
         'choose_mvp': ChooseMVP(player, game),
         'choose_mvp2': ChooseMVP2(player, game),
         'choose_mvp3': ChooseMVP3(player, game),
-        'show_judgement_summary': ShowJudgementSummary(player, game)
+        'show_judgement_summary': ShowJudgementSummary(player, game),
+        'see_list_of_special_people': SeeListOfSpecialPeople(player, game)
     }
 
 
@@ -343,7 +344,18 @@ class SeeListOfDeadPeople(Privilege):
     description = 'You can see a list of dead people in lobby of the game.'
 
     def judge_if_deserved(self):
-        if self.game_finished:
+        #if self.game_finished or self.game_admin:
+        if True:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+class SeeListOfSpecialPeople(Privilege):
+    description = 'You can see a list of other people than players in lobby of the game.'
+
+    def judge_if_deserved(self):
+        if self.game_finished or self.game_admin:
             self.granted = True
         else:
             self.granted = False

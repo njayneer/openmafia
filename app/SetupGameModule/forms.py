@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FieldList, SelectField, FormField, HiddenField, IntegerField, BooleanField
+from wtforms import StringField, FieldList, SelectField, FormField, HiddenField, IntegerField, BooleanField, RadioField
 from wtforms.validators import DataRequired
 from wtforms.fields import DateField, TimeField
 from wtforms.widgets import TextArea
@@ -73,3 +73,5 @@ class ConfigurationForm(FlaskForm):
 	citizen_forum_turned_on = BooleanField()
 	initial_forum_turned_on = BooleanField()
 	creations_on = BooleanField()
+	lynch_draw = RadioField('Zachowanie w przypadku remisu w głosowaniu linczowym.',
+							choices=[('random', 'Gnie losowa osoba'), ('noone', 'Nikt nie ginie')])

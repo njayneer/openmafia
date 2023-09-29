@@ -53,6 +53,9 @@ class Lobby():
             # dead players list
             dead_players = db_api.get_dead_players()
 
+            # dead players list
+            special_players = db_api.get_special_players()
+
             # mafiosos
             mafiosos = db_api.get_players_with_role('mafioso')
 
@@ -112,6 +115,8 @@ class Lobby():
             history_events += list(event_api.get_all_events_for_whole_game(game, 'mvp_chosen'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'mvp2_chosen'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'mvp3_chosen'))
+            history_events += list(event_api.get_all_events_for_whole_game(game, 'lynch_draw_noone'))
+            history_events += list(event_api.get_all_events_for_whole_game(game, 'lynch_draw_mafia_choice'))
             history_events.sort(key=lambda x: (x.day_no, x.phase_no))
             # for ev in history_events:
             #      ev.timestamp = utc_to_local(ev.timestamp)
@@ -154,6 +159,7 @@ class Lobby():
                 'role_ready_to_use': True,
                 'alive_players': alive_players,
                 'dead_players': dead_players,
+                'special_players': special_players,
                 'mafia_actual_target': mafia_actual_target,
                 'your_actual_citizen_vote': your_citizen_vote,
                 'citizen_votes': citizen_votes,

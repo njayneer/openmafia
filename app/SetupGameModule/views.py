@@ -320,7 +320,8 @@ def game_configuration_configuration(game_id):
                 'see_enrolled_user_list': see_enrolled_user_list,
                 'citizen_forum_turned_on': citizen_forum_turned_on,
                 'initial_forum_turned_on': initial_forum_turned_on,
-                'creations_on': creations_on
+                'creations_on': creations_on,
+                'lynch_draw': form.lynch_draw.data
             }
             db_api.update_game_configuration(configuration)
             flash('Konfiguracja zapisana!', 'alert-success')
@@ -332,6 +333,7 @@ def game_configuration_configuration(game_id):
             form.citizen_forum_turned_on.data = db_api.get_configuration_value_boolean('citizen_forum_turned_on')
             form.initial_forum_turned_on.data = db_api.get_configuration_value_boolean('initial_forum_turned_on')
             form.creations_on.data = db_api.get_configuration_value_boolean('creations_on')
+            form.lynch_draw.data = db_api.get_configuration('lynch_draw')
         return render_template('SetupGameModule_config.html',
                                game=game,
                                form=form

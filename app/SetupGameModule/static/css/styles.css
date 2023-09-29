@@ -267,3 +267,7 @@ input[type='radio'] {
       background-position: 100% top;
       background-attachment: fixed;
 }
+
+label {
+  font-weight: normal
+}

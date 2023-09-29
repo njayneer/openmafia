@@ -13,7 +13,11 @@ with app.app_context():
     event_types = [db_models.EventType(name="mvp2_chosen",
                                       description="vice MVP został wybrany"),
                    db_models.EventType(name="mvp3_chosen",
-                                       description="vice MVP został wybrany")
+                                       description="vice MVP został wybrany"),
+                   db_models.EventType(name="lynch_draw_noone",
+                                       description="Przez remis w głosowaniu nikt nie został zlinczowany!"),
+                   db_models.EventType(name="lynch_draw_mafia_choice",
+                                       description="Przez remis w głosowaniu nikt nie został zlinczowany, cel wybierze mafia!")
                    ]
     for event_type in event_types:
         db.session.add(event_type)
@@ -42,4 +46,14 @@ with app.app_context():
                    ]
     for achievement in achievements:
         db.session.add(achievement)
+    db.session.commit()
+
+
+# generate configurations
+    roles = [db_models.Configuration(name="lynch_draw",
+                                     description='Algorytm uruchamiany w przypadku remisu w linczu. Możliwe: random, noone, mafia_choice',
+                                     default_value='random')
+             ]
+    for role in roles:
+        db.session.add(role)
     db.session.commit()
