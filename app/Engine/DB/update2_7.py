@@ -17,7 +17,9 @@ with app.app_context():
                    db_models.EventType(name="lynch_draw_noone",
                                        description="Przez remis w głosowaniu nikt nie został zlinczowany!"),
                    db_models.EventType(name="lynch_draw_mafia_choice",
-                                       description="Przez remis w głosowaniu nikt nie został zlinczowany, cel wybierze mafia!")
+                                       description="Przez remis w głosowaniu nikt nie został zlinczowany, cel wybierze mafia!"),
+                   db_models.EventType(name="admin_revive",
+                                       description="Administrator ożywił gracza!")
                    ]
     for event_type in event_types:
         db.session.add(event_type)

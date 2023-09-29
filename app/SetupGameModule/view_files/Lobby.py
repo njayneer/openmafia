@@ -110,6 +110,7 @@ class Lobby():
             history_events += list(event_api.get_all_events_for_whole_game(game, 'citizens_win'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'mafiosos_win'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_kill'))
+            history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_revive'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_lynch'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'admin_block_mafia_kill'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'mvp_chosen'))

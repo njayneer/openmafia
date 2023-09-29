@@ -562,6 +562,30 @@ def kill_player(game_id, player_id):
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
 
+@SetupGameModule.route('<game_id>/revive_player/<player_id>', methods=['GET', 'POST'])
+@login_required
+def revive_player(game_id, player_id):
+    game_id = int(game_id)
+    db_api = GameApi()
+    event_api = GameEventApi()
+
+    game = db_api.get_game(game_id)
+    v = Validator(game, current_user)
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    if your_privileges['revive_a_player_at_any_time'].granted:
+        db_api.revive_player(int(player_id))
+        event_api.create_new_event(game, 'admin_revive', you.id, int(player_id))
+        flash('Pomyślnie ożywiono gracza.', 'alert-success')
+
+        # Winning conditions
+        finished = db_api.check_winning_condition()
+
+    return redirect(url_for('SetupGameModule.lobby', game_id=game_id))
+
 
 @SetupGameModule.route('<game_id>/block_event/<event_type>', methods=['GET', 'POST'])
 @login_required

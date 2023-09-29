@@ -24,6 +24,7 @@ def _get_all_privileges(player, game):
         'see_roles_of_alive_players': SeeRolesOfAlivePlayers(player, game),
         'see_roles_of_dead_players': SeeRolesOfDeadPlayers(player, game),
         'kill_a_player_at_any_time': KillAPlayerAtAnyTime(player, game),
+        'revive_a_player_at_any_time': ReviveAPlayerAtAnyTime(player, game),
         'see_detailed_lynch_results': SeeDetailedLynchResults(player, game),
         'see_history_of_lynch_voting': SeeHistoryOfLynchVoting(player, game),
         'block_lynch': BlockLynch(player, game),
@@ -274,6 +275,15 @@ class KillAPlayerAtAnyTime(Privilege):
             self.granted = False
         return self.granted
 
+class ReviveAPlayerAtAnyTime(Privilege):
+    description = 'You can revive any player at any time'
+
+    def judge_if_deserved(self):
+        if self.game_admin or self.admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
 
 class SeeDetailedLynchResults(Privilege):
     description = 'You can see who voted to who in previous days'

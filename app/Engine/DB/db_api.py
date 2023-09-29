@@ -367,6 +367,11 @@ class GameApi:
         player.status = 'dead'
         db.session.commit()
 
+    def revive_player(self, player_id: int):
+        player = [player for player in self.game.game_players if player.id == player_id][0]
+        player.status = 'alive'
+        db.session.commit()
+
     def process_to_next_phase(self):
         if self.game.phase == len(self.game.phases):
             # last phase - process to next day

@@ -135,6 +135,9 @@
                   {% if data['your_privileges']['see_user_names_of_players'].granted %}
                     - <a href="{{url_for('User.user_main', user_id=player.user.id)}}">{{ player.user.name }}</a>
                   {% endif %}
+                  {% if data['your_privileges']['revive_a_player_at_any_time'].granted %}
+                    <a href="#" onclick='showDetailedInfo(`Czy na pewno chcesz go ożywić?<br /><br /><a href="./revive_player/{{ player.id }}"><b>ożyw</b></a>`)'>Ożyw</a>
+                  {% endif %}
                   {% if data['your_privileges']['choose_mvp'].granted %}
                     - <a href="#" onclick='showDetailedInfo(`Czy na pewno?<br /><br /> <a href="{{url_for("SetupGameModule.choose_mvp", game_id=game.id, player_id=player.id, rank=1)}}">Wybierz jako MVP</a>`)'>Wybierz jako MVP</a>
                   {% elif data['your_privileges']['choose_mvp2'].granted %}
@@ -152,7 +155,7 @@
       {% endif %}
       {% if data['your_privileges']['see_list_of_special_people'].granted %}
         <div class="content-box">
-          <h4>Lista pozostałych:</h4>
+          <h4>Lista gości specjalnych:</h4>
           <ul>
           {% if data['special_players']|length > 0 %}
             {% for player in data['special_players']  %}
@@ -215,6 +218,8 @@
               {% endfor %}
             {% endif %}
           </li>
+          {% elif history_event.event_type_tbl.name == 'admin_revive' %}
+          <li>Dnia {{ history_event.day_no }} administrator ożywił gracza <b>{{ history_event.target_player.name }}</b></li>
           {% elif history_event.event_type_tbl.name == 'admin_block_lynch' %}
           <li>Dnia {{ history_event.day_no }} administrator zablokował lincz.</b></li>
           {% elif history_event.event_type_tbl.name == 'admin_block_mafia_kill' %}
