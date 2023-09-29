@@ -24,7 +24,6 @@ class Lobby():
         forum_form = ForumForm()
         db_api = GameApi()
         game = db_api.get_game(game_id)
-        v = Validator(game, current_user)
         event_api = GameEventApi()
 
         # privileges
@@ -38,7 +37,8 @@ class Lobby():
 
         your_privileges = judge_privileges(you, game)
 
-        if v.user_in_game() and v.game_is_started():
+        #if v.user_in_game() and v.game_is_started():
+        if your_privileges['show_lobby'].granted:
             # day and night duration
             day_duration = game.phases[0].phase_duration
             night_duration = game.phases[1].phase_duration
@@ -47,7 +47,7 @@ class Lobby():
             alive_players = db_api.get_alive_players()
             alive_players_names = [player.name for player in alive_players]
             form = CreateEventForm()
-            form.target.choices = alive_players_names
+            form.target.choices = ['-'] + alive_players_names
             time_form = DurationForm()
 
             # dead players list
@@ -77,7 +77,7 @@ class Lobby():
             try:
                 your_citizen_vote = last_citizen_votes['citizen_vote'][you.id]
                 your_citizen_vote = [player for player in game.game_players if player.id == your_citizen_vote.target][0]
-            except KeyError:
+            except (KeyError, IndexError):
                 your_citizen_vote = None
 
             # Count votes
@@ -98,10 +98,11 @@ class Lobby():
                 vote_results_id = {k: vote_results_id[k] for k in vote_results_len}
 
                 for vote in vote_results_id:
-                    target_name = [player for player in game.game_players if player.id == vote][0]
-                    target_value = vote_results_id[vote]
-                    target_value.sort()
-                    vote_results[target_name] = target_value
+                    if vote:
+                        target_name = [player for player in game.game_players if player.id == vote][0]
+                        target_value = vote_results_id[vote]
+                        target_value.sort()
+                        vote_results[target_name] = target_value
 
             # get all events for history
             history_events = list(event_api.get_all_events_for_whole_game(game, 'lynch'))
@@ -128,7 +129,11 @@ class Lobby():
             # current time
             current_time = datetime.datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None).replace(microsecond=0)
 
-            all_your_events = event_api.get_last_your_events_for_actual_day(game, you.id)
+            try:
+                all_your_events = event_api.get_last_your_events_for_actual_day(game, you.id)
+            except AttributeError:
+                all_your_events = {}
+
 
             # notifications
             self._display_your_notifications(you)

@@ -18,12 +18,15 @@ def do(game_id, source_id):
                 # Count votes
                 vote_results = {}
                 for event in events['citizen_vote']:
-                    if events['citizen_vote'][event].target not in vote_results.keys():
-                        vote_results[events['citizen_vote'][event].target] = 0
-                    vote_results[events['citizen_vote'][event].target] += 1
-
-                max_vote_value = max(vote_results.values())
-                winners = [candidate for candidate in vote_results if vote_results[candidate] == max_vote_value]
+                    if events['citizen_vote'][event].target:
+                        if events['citizen_vote'][event].target not in vote_results.keys():
+                            vote_results[events['citizen_vote'][event].target] = 0
+                        vote_results[events['citizen_vote'][event].target] += 1
+                if vote_results == {}:
+                    winners = [player.id for player in game_api.game.game_players if player.status == 'alive']
+                else:
+                    max_vote_value = max(vote_results.values())
+                    winners = [candidate for candidate in vote_results if vote_results[candidate] == max_vote_value]
             if len(winners) > 1:
                 lynch_draw_config = game_api.get_configuration('lynch_draw')
                 if lynch_draw_config == 'random':

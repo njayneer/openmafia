@@ -429,18 +429,25 @@ def create_event(game_id, event_name):
         alive_players = db_api.get_alive_players()
         alive_players_names = [player.name for player in alive_players]
         form = CreateEventForm()
-        form.target.choices = alive_players_names
+        form.target.choices = ['-'] + alive_players_names
         if form.validate_on_submit():
             game_event_api = GameEventApi()
-            form_target = form.target.data
+            if form.target.data != '-':
+                form_target = form.target.data
+            else:
+                form_target = None
 
             event_validated = validate_event(event_name, form_target, game, you, game_event_api)
 
             if event_validated:
+                if form_target:
+                    target_player = db_api.get_player_id_for_name(form_target)
+                else:
+                    target_player = None
                 game_event_api.create_new_event(game,
                                                 event_name,
                                                 you.id,
-                                                db_api.get_player_id_for_name(form_target))
+                                                target_player)
 
                 create_job_for_event(event_name, game, you)
 

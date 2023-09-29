@@ -46,7 +46,8 @@ def _get_all_privileges(player, game):
         'choose_mvp2': ChooseMVP2(player, game),
         'choose_mvp3': ChooseMVP3(player, game),
         'show_judgement_summary': ShowJudgementSummary(player, game),
-        'see_list_of_special_people': SeeListOfSpecialPeople(player, game)
+        'see_list_of_special_people': SeeListOfSpecialPeople(player, game),
+        'show_lobby': ShowLobby(player, game)
     }
 
 
@@ -93,6 +94,7 @@ class Privilege:
         self.game_admin = 'game_admin' in _player_roles(self.player)
         self.player_in_game = self.player.game_id == self.game.id
         self.game_not_in_progress = self.game.status.name != 'in_progress'
+        self.game_started = self.game.status.name in ['in_progress', 'finished']
         self.player_is_mafioso = 'mafioso' in _player_roles(self.player)
         self.alive_player = self.player.status == 'alive'
         self.current_phase_is_day = self.game.phase == 1
@@ -521,6 +523,16 @@ class ShowJudgementSummary(Privilege):
 
     def judge_if_deserved(self):
         if self.game_finished or self.game_admin or self.admin:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+class ShowLobby(Privilege):
+    description = 'You can see lobby of a game'
+
+    def judge_if_deserved(self):
+        if (self.player_in_game or self.game_admin or self.admin) and self.game_started:
             self.granted = True
         else:
             self.granted = False
