@@ -1,3 +1,15 @@
+{% if data['your_privileges']['spy_allow_change_owner'].granted %}
+<h4>Szpieg - Zmiana właściciela roli</h4>
+<form action="./change_mafia_role/spy" method="post" class="form form-horizontal" name="mafia_kill_form">
+    {{ wtf.form_errors(data['mafia_form'],"only") }}
+    {{ data['mafia_form'].hidden_tag() }}
+    Wybieram {{ data['mafia_form'].target }}<br />
+    <div class="form-actions">
+        <button name="change_spy" type="submit" class="btn btn-primary">Zmień</button>
+    </div>
+</form>
+{% endif %}
+
 <h4>Głosowanie miasta w sprawie linczu</h4>
 {% if data['your_privileges']['citizen_vote'].granted %}
 <form action="./create_event/citizen_vote" method="post" class="form form-horizontal" name="citizen_form">

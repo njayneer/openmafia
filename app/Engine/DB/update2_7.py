@@ -56,7 +56,13 @@ with app.app_context():
 # generate configurations
     roles = [db_models.Configuration(name="lynch_draw",
                                      description='Algorytm uruchamiany w przypadku remisu w linczu. Możliwe: random, noone, mafia_choice',
-                                     default_value='random')
+                                     default_value='random'),
+             db_models.Configuration(name="spy_specific_roles",
+                                     description='Szpieg otrzymuje dokładną informację o rolach, zamiast suchego "rolny"/"bezrolny"',
+                                     default_value='False'),
+             db_models.Configuration(name="spy_allow_change_owner",
+                                     description='Właściciel roli szpiega może być zmieniony do końca pierwszego dnia."',
+                                     default_value='False')
              ]
     for role in roles:
         db.session.add(role)

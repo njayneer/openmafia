@@ -1,6 +1,6 @@
 from . import SetupGameModule
 from flask import render_template, g, redirect, url_for, request, flash, Markup
-from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm, ConfigurationForm, DurationForm
+from .forms import SetupGameForm, ChooseRolesForm, ChooseStartTimeForm, CreateEventForm, ForumForm, ConfigurationForm, DurationForm, CreateEventForm
 from app.Engine.DB.db_api import GameApi, RolesApi, GameEventApi, ForumApi, utc_to_local, UserApi, JobApi, NotificationApi
 from flask_login import current_user, login_required
 from .validators import Validator
@@ -255,7 +255,8 @@ def game_configuration_choose_roles(game_id):
                 db_api.update_game_configuration({'sniper_shots': str(form.sniper_shots.data),
                                                   'sniper_blocked_after_missed_shot': str(form.sniper_blocked_after_missed_shot.data)})
             if [r.id for r in roles_api.roles if r.name == 'spy'][0] in role_ids:  # role:spy if spy is chosen
-                db_api.update_game_configuration({'spy_specific_roles': str(form.spy_specific_roles.data)})
+                db_api.update_game_configuration({'spy_specific_roles': str(form.spy_specific_roles.data),
+                                                  'spy_allow_change_owner': str(form.spy_allow_change_owner.data)})
 
             if game_admin_activated:
                 admin_player_id = db_api.get_player_id_for_user_id(current_user.id)
@@ -815,3 +816,31 @@ def choose_mvp(game_id, player_id, rank):
 @handle_jobs
 def judgement_summary(game_id):
     return JudgementSummary.JudgementSummary().view(game_id)
+
+
+@SetupGameModule.route('<game_id>/change_mafia_role/<role>', methods=['GET', 'POST'])
+@login_required
+def change_mafia_role(game_id, role):
+    game_id = int(game_id)
+    db_api = GameApi()
+    game = db_api.get_game(game_id)
+    mafia_form = CreateEventForm()
+    new_owner_name = mafia_form.target.data
+
+    # privileges
+    you = db_api.get_player_object_for_user_id(current_user.id)
+    your_privileges = judge_privileges(you, game)
+
+    if role == 'spy' and your_privileges['spy_allow_change_owner'].granted:
+        mafiosos = db_api.get_players_with_role('mafioso')
+        mafia_form = CreateEventForm()
+        mafia_form.target.choices = ['-'] + [m.name for m in mafiosos]
+        new_owner_id = db_api.get_player_id_for_name(new_owner_name)
+        fractions = db_api.get_players_fraction()
+        if fractions[new_owner_id] == 'mafioso':
+            db_api.set_role_owner(role, new_owner_id)
+            flash('Pomyślnie zmieniono właściciela roli.', 'alert-success')
+    else:
+        flash('Próbujesz coś tu mieszać w linkach?', 'alert-danger')
+
+    return redirect(url_for('SetupGameModule.lobby', game_id=game_id))

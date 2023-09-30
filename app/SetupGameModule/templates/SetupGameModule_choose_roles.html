@@ -41,7 +41,9 @@ Rozgrywka bez mistrza gry
     {% endif %}
     {% if roles[loop.index0] == 'spy' %}
         {{ form.spy_specific_roles.label }}
-        {{ form.spy_specific_roles }}
+        {{ form.spy_specific_roles }}<br />
+        {{ form.spy_allow_change_owner.label }}
+        {{ form.spy_allow_change_owner }}
     {% endif %}
     {% endfor %}
     <div class="form-actions">

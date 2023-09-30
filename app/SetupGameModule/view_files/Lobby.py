@@ -67,6 +67,12 @@ class Lobby():
             else:
                 mafia_actual_target = None
 
+            if your_privileges['spy_allow_change_owner'].granted:  #role:spy
+                mafia_form = CreateEventForm()
+                mafia_form.target.choices = ['-'] + [m.name for m in mafiosos]
+            else:
+                mafia_form = None
+
             # citizen votes, your actual vote and actual results
             citizen_votes = event_api.get_all_events_for_actual_day(game, 'citizen_vote', day_no=lynch_vote_day)
             citizen_votes = sorted(citizen_votes, key=lambda d: d.timestamp)
@@ -185,7 +191,8 @@ class Lobby():
                 'your_events': all_your_events,
                 'roles_data': roles_data,
                 'current_judgements': current_judgements,
-                'roles_not_visible_after_death': roles_not_visible_after_death
+                'roles_not_visible_after_death': roles_not_visible_after_death,
+                'mafia_form': mafia_form
             }
             return render_template('SetupGameModule_lobby.html',
                                    game=game,

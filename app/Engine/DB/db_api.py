@@ -198,6 +198,17 @@ class GameApi:
             self._add_basic_roles_for_specific(role)  # Development: Add a new role fraction here!
         db.session.commit()
 
+    def set_role_owner(self, role_name, owner_id):
+        roles = [role for role in self.game.roles if role.role.name == role_name]
+        if len(roles) == 1:
+            role = roles[0]
+            role.player_id = owner_id
+            db.session.commit()
+        else:
+            role = None
+            raise Exception('More than 1 role is not handled in changing owners')
+
+
     def _add_basic_roles_for_specific(self, role: Game_Roles):
         '''
         Development: Add a new role fraction here!

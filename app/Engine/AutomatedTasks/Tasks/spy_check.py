@@ -1,9 +1,8 @@
 
 def do(game_id, source_id):
-    from app.Engine.DB.db_api import GameApi, GameEventApi, NotificationApi, RolesApi
+    from app.Engine.DB.db_api import GameApi, GameEventApi, NotificationApi
     from app import app
-    from app.Engine.AutomatedTasks.scheduler import GameScheduler
-    import random
+
     with app.app_context():
         game_api = GameApi()
         game_api.get_game(game_id)
@@ -15,7 +14,8 @@ def do(game_id, source_id):
         if target is not None:
             source = game_api.get_player_object_for_player_id(source_id)
             if source:
-                if source.status == 'alive' and game_api.game.status.name == 'in_progress':
+                spy_player_ids = [p.id for p in game_api.get_players_with_role('spy')]
+                if source.status == 'alive' and game_api.game.status.name == 'in_progress' and source.id in spy_player_ids:
                     if game_api.get_configuration('spy_specific_roles') == 'True':
                         target_roles_visible = [r.visible_name for r in game_api.get_all_players_roles(target)]
                         res_role = ', '.join(target_roles_visible)

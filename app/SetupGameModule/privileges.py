@@ -48,7 +48,8 @@ def _get_all_privileges(player, game):
         'show_judgement_summary': ShowJudgementSummary(player, game),
         'see_list_of_special_people': SeeListOfSpecialPeople(player, game),
         'show_lobby': ShowLobby(player, game),
-        'spy_check': SpyCheck(player, game)
+        'spy_check': SpyCheck(player, game),
+        'spy_allow_change_owner': SpyAllowChangeOwner(player, game)
     }
 
 
@@ -115,6 +116,7 @@ class Privilege:
         self.mvp_not_asigned = 'mvp' not in [a.achievement.name for a in self._get_achievements()]
         self.mvp2_not_asigned = 'mvp2' not in [a.achievement.name for a in self._get_achievements()]
         self.mvp3_not_asigned = 'mvp3' not in [a.achievement.name for a in self._get_achievements()]
+        self.cfg_spy_allow_change_owner = self.game_api.get_configuration('spy_allow_change_owner') == 'True'
 
     def _get_achievements(self):
         return self.user_api.get_game_achievements([gp.id for gp in self.game.game_players])
@@ -551,3 +553,14 @@ class ShowLobby(Privilege):
         else:
             self.granted = False
         return self.granted
+
+class SpyAllowChangeOwner(Privilege):
+    description = 'You can see lobby of a game'
+
+    def judge_if_deserved(self):
+        if self.cfg_spy_allow_change_owner and self.player_is_mafioso and self.current_phase_is_day and self.game.day_no == 1:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
