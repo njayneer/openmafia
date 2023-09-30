@@ -39,6 +39,10 @@ Rozgrywka bez mistrza gry
         {{ form.sniper_blocked_after_missed_shot.label }}
         {{ form.sniper_blocked_after_missed_shot }}
     {% endif %}
+    {% if roles[loop.index0] == 'spy' %}
+        {{ form.spy_specific_roles.label }}
+        {{ form.spy_specific_roles }}
+    {% endif %}
     {% endfor %}
     <div class="form-actions">
         <button name="action_choose_roles" type="submit" class="btn btn-primary">Zatwierdź role</button>

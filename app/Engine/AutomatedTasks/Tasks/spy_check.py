@@ -16,21 +16,24 @@ def do(game_id, source_id):
             source = game_api.get_player_object_for_player_id(source_id)
             if source:
                 if source.status == 'alive' and game_api.game.status.name == 'in_progress':
-                    roles_api = RolesApi()
-                    target_roles = [r.name for r in game_api.get_all_players_roles(target)]
-                    # do not consider mafioso and citizen roles, only others
-                    try:
-                        target_roles.remove('mafioso')
-                    except ValueError:
-                        pass
-                    try:
-                        target_roles.remove('citizen')
-                    except ValueError:
-                        pass
-                    if len(target_roles) == 0:
-                        res_role = 'bezrolny'
+                    if game_api.get_configuration('spy_specific_roles') == 'True':
+                        target_roles_visible = [r.visible_name for r in game_api.get_all_players_roles(target)]
+                        res_role = ', '.join(target_roles_visible)
                     else:
-                        res_role = 'rolny (posiada rolę)'
+                        # do not consider mafioso and citizen roles, only others
+                        target_roles = [r.name for r in game_api.get_all_players_roles(target)]
+                        try:
+                            target_roles.remove('mafioso')
+                        except ValueError:
+                            pass
+                        try:
+                            target_roles.remove('citizen')
+                        except ValueError:
+                            pass
+                        if len(target_roles) == 0:
+                            res_role = 'bezrolny'
+                        else:
+                            res_role = 'rolny (posiada rolę)'
 
                     notif_api = NotificationApi()
                     notif_api.add_new_notification(source_id, 'spy_check', game_api.get_player_name_for_id(target), res_role)
