@@ -47,7 +47,8 @@ def _get_all_privileges(player, game):
         'choose_mvp3': ChooseMVP3(player, game),
         'show_judgement_summary': ShowJudgementSummary(player, game),
         'see_list_of_special_people': SeeListOfSpecialPeople(player, game),
-        'show_lobby': ShowLobby(player, game)
+        'show_lobby': ShowLobby(player, game),
+        'spy_check': SpyCheck(player, game)
     }
 
 
@@ -107,6 +108,7 @@ class Privilege:
         self.cfg_initial_forum_turned_on = self.game_api.get_configuration('initial_forum_turned_on') == '1'
         self.cfg_creations_on = self.game_api.get_configuration('creations_on') == '1'
         self.role_detective = 'detective' in _player_roles(self.player)
+        self.role_spy = 'spy' in _player_roles(self.player)
         self.role_priest = 'priest' in _player_roles(self.player)
         self.item_gun = len(self.game_api.select_game_items('gun', self.player.id, not_consumed_only=True)) > 0
         self.admin = 'administrator' in self.user_attributes
@@ -414,6 +416,18 @@ class DetectiveCheck(Privilege):
     def judge_if_deserved(self):
         # only with configuration or if you are to be GM.
         if self.role_detective and self.alive_player and not self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+
+class SpyCheck(Privilege):
+    description = 'You can use spy ability.'
+
+    def judge_if_deserved(self):
+        # only with configuration or if you are to be GM.
+        if self.role_spy and self.alive_player and not self.game_finished:
             self.granted = True
         else:
             self.granted = False

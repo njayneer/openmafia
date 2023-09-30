@@ -19,7 +19,9 @@ with app.app_context():
                    db_models.EventType(name="lynch_draw_mafia_choice",
                                        description="Przez remis w głosowaniu nikt nie został zlinczowany, cel wybierze mafia!"),
                    db_models.EventType(name="admin_revive",
-                                       description="Administrator ożywił gracza!")
+                                       description="Administrator ożywił gracza!"),
+                   db_models.EventType(name="spy_check",
+                                       description="Szpieg wybiera cel śledzenia!")
                    ]
     for event_type in event_types:
         db.session.add(event_type)
@@ -58,4 +60,21 @@ with app.app_context():
              ]
     for role in roles:
         db.session.add(role)
+    db.session.commit()
+
+# generate roles
+    roles = [db_models.Role(name="spy",
+                            visible_name='Szpieg',
+                            description='Szpieg wybiera gracza i sprawdza, czy ma rolę. W zależności od konfiguracji otrzymuje informację o dokładnej roli lub ogólnie - ma/nie ma.')
+             ]
+    for role in roles:
+        db.session.add(role)
+    db.session.commit()
+
+# generate notification types
+    notifications = [db_models.NotificationTemplate(name="spy_check",
+                                                    content="Twoje śledztwo szpiega doprowadziło Cię do wniosku, że  <b>%s</b>  posiada rolę  <b>%s</b>.")
+                     ]
+    for notif in notifications:
+        db.session.add(notif)
     db.session.commit()

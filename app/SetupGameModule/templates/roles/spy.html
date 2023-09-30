@@ -1,0 +1,25 @@
+<h4>Śledztwo szpiega</h4>
+{% if data['your_privileges']['spy_check'].granted %}
+    <form action="./create_event/spy_check" method="post" class="form form-horizontal" name="citizen_form">
+        {{ wtf.form_errors(form,"only") }}
+        {{ form.hidden_tag() }}
+        Śledzę {{ form.target }}<br />
+        <div class="form-actions">
+            <button name="action_citizen" type="submit" class="btn btn-primary">Wyślij głos</button>
+        </div>
+    </form>
+
+    {% if data['your_events']['spy_check'] %}
+        Aktualnie wybrany cel: {{ data['your_events']['spy_check'].target_player.name }}
+    {% else %}
+        Brak ustawionego celu do śledzenia!
+    {% endif %}
+{% endif %}<br />
+Wszystkie śledzenia:<br />
+{% if data['roles_data'] %}
+    {% for notification in data['roles_data'] %}
+        {{ notification }}<br />
+    {% endfor %}
+{% else %}
+Brak śledzeń
+{% endif %}

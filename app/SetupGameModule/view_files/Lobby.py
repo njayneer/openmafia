@@ -146,6 +146,12 @@ class Lobby():
                                                                                 specific='detective_check')
                 roles_data = self._parse_notifications(your_notifications)
 
+            if 'spy' in [r.name for r in db_api.get_user_roles(you.user_id)]:  # role:spy
+                notification_api = NotificationApi()
+                your_notifications = notification_api.read_player_notifications(you.id, unread_only=False,
+                                                                                specific='spy_check')
+                roles_data = self._parse_notifications(your_notifications)
+
             # judgements
             current_judgements = db_api.get_judgements_for_actual_day(you.id, game.lynch_day())
             print(db_api.game.lynch_day())

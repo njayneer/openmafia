@@ -25,7 +25,8 @@ class Config(object):
 		'lynch': 100,
 		'gun_shot': 190,
 		'mafia_kill': 200,
-		'detective_check': 210
+		'detective_check': 210,
+		'spy_check': 220
 	}
 
 

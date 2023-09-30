@@ -457,7 +457,7 @@ def create_event(game_id, event_name):
 def create_job_for_event(event_name, game, you):
     # events sometimes needs to create a job
     # events that triggers at mafia kill time
-    if event_name in ['detective_check', 'gun_shot']:
+    if event_name in ['detective_check', 'gun_shot', 'spy_check']:
         job_api = JobApi()
         # check if the job for your player already exists. If no, create new one.
         try:
