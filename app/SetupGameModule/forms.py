@@ -24,7 +24,7 @@ class ChooseRolesForm(FlaskForm):
 	sniper_shots = IntegerField('Dostępnych strzałów', default=1)
 	sniper_blocked_after_missed_shot = BooleanField('Blokada i odsłonięcie roli po zabiciu niewinnego.')
 	spy_specific_roles = BooleanField('Szpieg otrzymuje informację o dokładniej roli zamiast ogólnej informacji rolny/bezrolny.')
-	spy_allow_change_owner = BooleanField('Właściciel roli szpiega może być zmieniony do końca pierwszego dnia.')
+	spy_allow_change_owner = BooleanField('Właściciel roli szpiega może być zmieniony do końca pierwszego dnia.',default=True)
 
 	def set_form_parameters(self, entries, choices):
 		# overriding forms to workaround dymanic form configuration

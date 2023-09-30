@@ -830,17 +830,17 @@ def change_mafia_role(game_id, role):
     # privileges
     you = db_api.get_player_object_for_user_id(current_user.id)
     your_privileges = judge_privileges(you, game)
-
-    if role == 'spy' and your_privileges['spy_allow_change_owner'].granted:
-        mafiosos = db_api.get_players_with_role('mafioso')
-        mafia_form = CreateEventForm()
-        mafia_form.target.choices = ['-'] + [m.name for m in mafiosos]
-        new_owner_id = db_api.get_player_id_for_name(new_owner_name)
-        fractions = db_api.get_players_fraction()
-        if fractions[new_owner_id] == 'mafioso':
-            db_api.set_role_owner(role, new_owner_id)
-            flash('Pomyślnie zmieniono właściciela roli.', 'alert-success')
-    else:
-        flash('Próbujesz coś tu mieszać w linkach?', 'alert-danger')
+    if new_owner_name != '-':
+        if role == 'spy' and your_privileges['spy_allow_change_owner'].granted:
+            mafiosos = db_api.get_players_with_role('mafioso')
+            mafia_form = CreateEventForm()
+            mafia_form.target.choices = ['-'] + [m.name for m in mafiosos]
+            new_owner_id = db_api.get_player_id_for_name(new_owner_name)
+            fractions = db_api.get_players_fraction()
+            if fractions[new_owner_id] == 'mafioso':
+                db_api.set_role_owner(role, new_owner_id)
+                flash('Pomyślnie zmieniono właściciela roli.', 'alert-success')
+        else:
+            flash('Próbujesz coś tu mieszać w linkach?', 'alert-danger')
 
     return redirect(url_for('SetupGameModule.lobby', game_id=game_id))

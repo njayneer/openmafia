@@ -366,7 +366,11 @@
         Tajne miejsce obrad. Lista mafiozów:<br />
         <ul>
         {% for mafioso in data['mafiosos'] %}
-        <li>{{ mafioso.name }}</li>
+        <li>{{ mafioso.name }} -
+        {% for role in mafioso.roles %}
+          {{ role.role.visible_name }}
+        {% endfor %}
+        </li>
         {% endfor %}
         </ul>
       </div>
