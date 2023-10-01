@@ -59,11 +59,10 @@ def do(game_id, source_id):
                                            target_id=winner)
                 game_api.kill_player(winner)
 
+        game_api.process_to_next_phase()
+        
         # Winning conditions
         finished = game_api.check_winning_condition()
-        if not finished:
-            game_api.process_to_next_phase()
-
 
 
 if __name__ == "__main__":
