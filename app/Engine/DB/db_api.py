@@ -723,6 +723,10 @@ class GameEventApi:
         event = Event.query.filter_by(id=event_id).delete()
         db.session.commit()
 
+    def remove_event_for_type_and_day(self, event_type, day):
+        event = Event.query.filter_by(event_type=event_type, day_no=day).delete()
+        db.session.commit()
+
 
 class JobApi:
 
