@@ -1,0 +1,25 @@
+<h4>Upijanie przez barmana</h4>
+{% if data['your_privileges']['barman_getting_drunk'].granted %}
+    <form action="./create_event/barman_getting_drunk" method="post" class="form form-horizontal" name="citizen_form">
+        {{ wtf.form_errors(form,"only") }}
+        {{ form.hidden_tag() }}
+        Upijam {{ form.target }}<br />
+        <div class="form-actions">
+            <button name="action_citizen" type="submit" class="btn btn-primary">Wyślij głos</button>
+        </div>
+    </form>
+
+    {% if data['your_events']['barman_getting_drunk'] %}
+        Aktualnie wybrany cel: {{ data['your_events']['barman_getting_drunk'].target_player.name }}
+    {% else %}
+        Brak ustawionego celu do upicia!
+    {% endif %}
+{% endif %}<br />
+Wszystkie upijania:<br />
+{% if data['roles_data'] %}
+    {% for notification in data['roles_data'] %}
+        {{ notification }}<br />
+    {% endfor %}
+{% else %}
+Brak upijań
+{% endif %}

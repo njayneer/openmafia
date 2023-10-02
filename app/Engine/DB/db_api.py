@@ -213,7 +213,7 @@ class GameApi:
         '''
         Development: Add a new role fraction here!
         '''
-        if role.role.name in ['detective', 'suspect', 'priest', 'sniper']:
+        if role.role.name in ['detective', 'suspect', 'priest', 'sniper', 'barman']:
             self.add_new_game_role('citizen', role.player_id)
         if role.role.name in ['spy']:
             self.add_new_game_role('mafioso', role.player_id)

@@ -21,7 +21,9 @@ with app.app_context():
                    db_models.EventType(name="admin_revive",
                                        description="Administrator ożywił gracza!"),
                    db_models.EventType(name="spy_check",
-                                       description="Szpieg wybiera cel śledzenia!")
+                                       description="Szpieg wybiera cel śledzenia!"),
+                   db_models.EventType(name="barman_getting_drunk",
+                                       description="Barman wybiera cel upicia.")
                    ]
     for event_type in event_types:
         db.session.add(event_type)
@@ -71,7 +73,10 @@ with app.app_context():
 # generate roles
     roles = [db_models.Role(name="spy",
                             visible_name='Szpieg',
-                            description='Szpieg wybiera gracza i sprawdza, czy ma rolę. W zależności od konfiguracji otrzymuje informację o dokładnej roli lub ogólnie - ma/nie ma.')
+                            description='Szpieg wybiera gracza i sprawdza, czy ma rolę. W zależności od konfiguracji otrzymuje informację o dokładnej roli lub ogólnie - ma/nie ma.'),
+             db_models.Role(name="barman",
+                            visible_name='Barman',
+                            description='Barman codziennie upija jedną osobę, której cele nocne są ustalane całkowicie losowo.')
              ]
     for role in roles:
         db.session.add(role)
@@ -79,7 +84,9 @@ with app.app_context():
 
 # generate notification types
     notifications = [db_models.NotificationTemplate(name="spy_check",
-                                                    content="Twoje śledztwo szpiega doprowadziło Cię do wniosku, że  <b>%s</b>  posiada rolę  <b>%s</b>.")
+                                                    content="Twoje śledztwo szpiega doprowadziło Cię do wniosku, że  <b>%s</b>  posiada rolę  <b>%s</b>."),
+                     db_models.NotificationTemplate(name="barman_get_drunk",
+                                                    content="Tej nocy zostałeś upity przez barmana.")
                      ]
     for notif in notifications:
         db.session.add(notif)

@@ -23,6 +23,7 @@ class Config(object):
 	JOB_PRIORITIES = {
 		'start_game': 10,
 		'lynch': 100,
+		'barman_getting_drunk': 160,  # before every other night functionality (possibly after role blocking)
 		'gun_shot': 190,
 		'mafia_kill': 200,
 		'detective_check': 210,

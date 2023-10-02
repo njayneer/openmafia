@@ -49,7 +49,8 @@ def _get_all_privileges(player, game):
         'see_list_of_special_people': SeeListOfSpecialPeople(player, game),
         'show_lobby': ShowLobby(player, game),
         'spy_check': SpyCheck(player, game),
-        'spy_allow_change_owner': SpyAllowChangeOwner(player, game)
+        'spy_allow_change_owner': SpyAllowChangeOwner(player, game),
+        'barman_getting_drunk': BarmanGettingDrunk(player, game)
     }
 
 
@@ -110,6 +111,7 @@ class Privilege:
         self.cfg_creations_on = self.game_api.get_configuration('creations_on') == '1'
         self.role_detective = 'detective' in _player_roles(self.player)
         self.role_spy = 'spy' in _player_roles(self.player)
+        self.role_barman = 'barman' in _player_roles(self.player)
         self.role_priest = 'priest' in _player_roles(self.player)
         self.item_gun = len(self.game_api.select_game_items('gun', self.player.id, not_consumed_only=True)) > 0
         self.admin = 'administrator' in self.user_attributes
@@ -117,6 +119,7 @@ class Privilege:
         self.mvp2_not_asigned = 'mvp2' not in [a.achievement.name for a in self._get_achievements()]
         self.mvp3_not_asigned = 'mvp3' not in [a.achievement.name for a in self._get_achievements()]
         self.cfg_spy_allow_change_owner = self.game_api.get_configuration('spy_allow_change_owner') == 'True'
+        self.spy_in_game = len(self.game_api.get_players_with_role('spy')) > 0
 
     def _get_achievements(self):
         return self.user_api.get_game_achievements([gp.id for gp in self.game.game_players])
@@ -558,9 +561,20 @@ class SpyAllowChangeOwner(Privilege):
     description = 'You can see lobby of a game'
 
     def judge_if_deserved(self):
-        if self.cfg_spy_allow_change_owner and self.player_is_mafioso and self.current_phase_is_day and self.game.day_no == 1:
+        if self.cfg_spy_allow_change_owner and self.player_is_mafioso and self.current_phase_is_day and self.game.day_no == 1 and self.spy_in_game:
             self.granted = True
         else:
             self.granted = False
         return self.granted
 
+
+class BarmanGettingDrunk(Privilege):
+    description = 'You can use barman ability.'
+
+    def judge_if_deserved(self):
+        # only with configuration or if you are to be GM.
+        if self.role_barman and self.alive_player and not self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
