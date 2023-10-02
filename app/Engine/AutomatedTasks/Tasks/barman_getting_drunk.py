@@ -32,12 +32,12 @@ def do(game_id, source_id):
                     if game_api.get_configuration('barman_town_roles_drunk') == 'True':
                         get_role_drunk('detective_check', event_api, game_api, target, target_events)
                         get_role_drunk('priest_prayer', event_api, game_api, target, target_events)
-                        get_role_drunk('gun_shot', event_api, game_api, target, target_events)
+                        get_role_drunk('gun_shot', event_api, game_api, target, target_events, not_me=True)
                         get_role_drunk('spy_check', event_api, game_api, target, target_events)
                         get_role_drunk('barman_getting_drunk', event_api, game_api, target, target_events)
 
 
-def get_role_drunk(event_type_name, event_api, game_api, target, target_events):
+def get_role_drunk(event_type_name, event_api, game_api, target, target_events, not_me=False):
     import random
     # Check if role event exists and if so, create new one with random target
     if event_type_name in target_events.keys():
@@ -47,6 +47,11 @@ def get_role_drunk(event_type_name, event_api, game_api, target, target_events):
                 possible_targets.remove(target_events[event_type_name].target_player.id)
             except:
                 pass
+            if not_me:  # not-me means role cannot choose themself as a new target
+                try:
+                    possible_targets.remove(target_events[event_type_name].source_player.id)
+                except:
+                    pass
             new_random_target = random.choice(possible_targets)
             event_api.create_new_event(game=game_api.game,
                                        event_name=event_type_name,
