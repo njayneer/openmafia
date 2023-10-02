@@ -18,16 +18,40 @@ def do(game_id, source_id):
                 role_player_ids = [p.id for p in game_api.get_players_with_role('barman')]
                 if source.status == 'alive' and game_api.game.status.name == 'in_progress' and source.id in role_player_ids:
                     target_roles = [r.name for r in game_api.get_all_players_roles(target)]
+                    target_events = event_api.get_last_your_events_for_actual_day(game_api.game, target, game_api.game.day_no)
 
                     if 'mafioso' in target_roles:
-                        possible_targets = [p.id for p in game_api.get_players_with_role('citizen')]
-                        new_random_target = random.choice(possible_targets)
-                        event_api.create_new_event(game=game_api.game,
-                                                   event_name='mafia_kill_vote',
-                                                   player_id=target,
-                                                   target_id=new_random_target)
-                        notif_api = NotificationApi()
-                        notif_api.add_new_notification(target, 'barman_get_drunk')
+                        mafia_events = event_api.get_last_events_for_actual_day(game_api.game, 'mafia_kill_vote', game_api.game.day_no)
+                        if 'mafia_kill_vote' in mafia_events.keys():
+                            possible_targets = [p.id for p in game_api.get_players_with_role('citizen')]
+                            new_random_target = random.choice(possible_targets)
+                            event_api.create_new_event(game=game_api.game,
+                                                       event_name='mafia_kill_vote',
+                                                       player_id=target,
+                                                       target_id=new_random_target)
+                    if game_api.get_configuration('barman_town_roles_drunk') == 'True':
+                        get_role_drunk('detective_check', event_api, game_api, target, target_events)
+                        get_role_drunk('priest_prayer', event_api, game_api, target, target_events)
+                        get_role_drunk('gun_shot', event_api, game_api, target, target_events)
+                        get_role_drunk('spy_check', event_api, game_api, target, target_events)
+                        get_role_drunk('barman_getting_drunk', event_api, game_api, target, target_events)
+
+
+def get_role_drunk(event_type_name, event_api, game_api, target, target_events):
+    import random
+    # Check if role event exists and if so, create new one with random target
+    if event_type_name in target_events.keys():
+        if target_events[event_type_name].target != None:
+            possible_targets = [p.id for p in game_api.get_game_players_for_game()]
+            try:  # remove previous target from possible options
+                possible_targets.remove(target_events[event_type_name].target_player.id)
+            except:
+                pass
+            new_random_target = random.choice(possible_targets)
+            event_api.create_new_event(game=game_api.game,
+                                       event_name=event_type_name,
+                                       player_id=target,
+                                       target_id=new_random_target)
 
 
 def check_target_from_events(game_api, event_api, source_id):

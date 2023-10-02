@@ -15,11 +15,3 @@
         Brak ustawionego celu do upicia!
     {% endif %}
 {% endif %}<br />
-Wszystkie upijania:<br />
-{% if data['roles_data'] %}
-    {% for notification in data['roles_data'] %}
-        {{ notification }}<br />
-    {% endfor %}
-{% else %}
-Brak upijań
-{% endif %}

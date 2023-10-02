@@ -64,6 +64,9 @@ with app.app_context():
                                      default_value='False'),
              db_models.Configuration(name="spy_allow_change_owner",
                                      description='Właściciel roli szpiega może być zmieniony do końca pierwszego dnia."',
+                                     default_value='False'),
+             db_models.Configuration(name="barman_town_roles_drunk",
+                                     description='Barman oprócz mordu mafii, upija również role miejskie i mafijne."',
                                      default_value='False')
              ]
     for role in roles:
@@ -76,7 +79,7 @@ with app.app_context():
                             description='Szpieg wybiera gracza i sprawdza, czy ma rolę. W zależności od konfiguracji otrzymuje informację o dokładnej roli lub ogólnie - ma/nie ma.'),
              db_models.Role(name="barman",
                             visible_name='Barman',
-                            description='Barman codziennie upija jedną osobę, której cele nocne są ustalane całkowicie losowo.')
+                            description='Barman codziennie upija jedną osobę. Jeśli upije mafiozę, mord mafii najbliżej nocy jest w losowego niewinnego mieszkańca.')
              ]
     for role in roles:
         db.session.add(role)
@@ -84,9 +87,7 @@ with app.app_context():
 
 # generate notification types
     notifications = [db_models.NotificationTemplate(name="spy_check",
-                                                    content="Twoje śledztwo szpiega doprowadziło Cię do wniosku, że  <b>%s</b>  posiada rolę  <b>%s</b>."),
-                     db_models.NotificationTemplate(name="barman_get_drunk",
-                                                    content="Tej nocy zostałeś upity przez barmana.")
+                                                    content="Twoje śledztwo szpiega doprowadziło Cię do wniosku, że  <b>%s</b>  posiada rolę  <b>%s</b>.")
                      ]
     for notif in notifications:
         db.session.add(notif)

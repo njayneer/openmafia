@@ -30,7 +30,7 @@ Rozgrywka bez mistrza gry
     {% endfor %}<br />
     <h3>Konfiguracje ról</h3>
     {% for r in form.role_visibility_after_death %}
-    <h4>{{ form.roles[0].form.role.choices[loop.index0] }}</h4>
+    <h4>{{ form.roles[0].form.role.choices[loop.index0] }}</h4> {{ form.roles[0].form.desc.choices[loop.index0] }}<br />
     {{ r.form.role_visible_after_death.label }}
     {{ r.form.role_visible_after_death }}<br />
     {% if roles[loop.index0] == 'sniper' %}
@@ -44,6 +44,10 @@ Rozgrywka bez mistrza gry
         {{ form.spy_specific_roles }}<br />
         {{ form.spy_allow_change_owner.label }}
         {{ form.spy_allow_change_owner }}
+    {% endif %}
+    {% if roles[loop.index0] == 'barman' %}
+        {{ form.barman_town_roles_drunk.label }}
+        {{ form.barman_town_roles_drunk }}
     {% endif %}
     {% endfor %}
     <div class="form-actions">

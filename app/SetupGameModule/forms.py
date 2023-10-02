@@ -10,6 +10,7 @@ class SetupGameForm(FlaskForm):
 
 class RoleForm(FlaskForm):
 	role = SelectField('Rola', choices=['a','b','c'], validators=[DataRequired()])
+	desc = HiddenField()
 
 
 class RoleVisibleAfterDeathForm(FlaskForm):
@@ -25,12 +26,13 @@ class ChooseRolesForm(FlaskForm):
 	sniper_blocked_after_missed_shot = BooleanField('Blokada i odsłonięcie roli po zabiciu niewinnego.')
 	spy_specific_roles = BooleanField('Szpieg otrzymuje informację o dokładniej roli zamiast ogólnej informacji rolny/bezrolny.')
 	spy_allow_change_owner = BooleanField('Właściciel roli szpiega może być zmieniony do końca pierwszego dnia.',default=True)
-
-	def set_form_parameters(self, entries, choices):
+	barman_town_roles_drunk = BooleanField('Barman oprócz mordu mafii, upija również role miejskie i mafijne.', default=False)
+	def set_form_parameters(self, entries, choices, descriptions=None):
 		# overriding forms to workaround dymanic form configuration
 		class LocalRoleForm(RoleForm):
 			pass
 		LocalRoleForm.role = SelectField('Rola', choices=choices, validators=[DataRequired()])
+		LocalRoleForm.desc = SelectField('desc', choices=descriptions)
 
 		class LocalRoleVisibleAfterDeathForm(RoleVisibleAfterDeathForm):
 			pass

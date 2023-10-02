@@ -223,7 +223,8 @@ def game_configuration_choose_roles(game_id):
     game_admin_activated = db_api.get_configuration_value_boolean('game_admin')
     if game_admin_activated:
         players_count -= 1
-    form = form.set_form_parameters(entries=players_count, choices=[role.visible_name for role in roles_api.roles])
+    form = form.set_form_parameters(entries=players_count, choices=[role.visible_name for role in roles_api.roles],
+                                    descriptions=[role.description for role in roles_api.roles])
     if v.user_is_game_admin() and v.enrollment_is_closed():
         if not form.is_submitted():
             return render_template('SetupGameModule_choose_roles.html',
@@ -257,6 +258,8 @@ def game_configuration_choose_roles(game_id):
             if [r.id for r in roles_api.roles if r.name == 'spy'][0] in role_ids:  # role:spy if spy is chosen
                 db_api.update_game_configuration({'spy_specific_roles': str(form.spy_specific_roles.data),
                                                   'spy_allow_change_owner': str(form.spy_allow_change_owner.data)})
+            if [r.id for r in roles_api.roles if r.name == 'barman'][0] in role_ids:  # role:spy if spy is chosen
+                db_api.update_game_configuration({'barman_town_roles_drunk': str(form.barman_town_roles_drunk.data)})
 
             if game_admin_activated:
                 admin_player_id = db_api.get_player_id_for_user_id(current_user.id)

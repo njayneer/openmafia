@@ -587,6 +587,12 @@ class GameApi:
         game_players = [gp for gp in game_players if gp.game.status.name == 'finished' and gp.game.game_type.name == 'classic']
         return game_players
 
+    def get_game_players_for_game(self):
+        ''' It returns query of GamePlayer objects for finished games '''
+        game_players = GamePlayer.query.all()
+        game_players = [gp for gp in self.game.game_players]
+        return game_players
+
 
 class RolesApi:
     def __init__(self):
