@@ -24,6 +24,11 @@ def do(game_id, source_id):
                         mafia_events = event_api.get_last_events_for_actual_day(game_api.game, 'mafia_kill_vote', game_api.game.day_no)
                         if 'mafia_kill_vote' in mafia_events.keys():
                             possible_targets = [p.id for p in game_api.get_players_with_role('citizen')]
+                            try:  # remove previous target from possible options
+                                possible_targets.remove(mafia_events['mafia_kill_vote'].target_player.id)
+                            except:
+                                pass
+
                             new_random_target = random.choice(possible_targets)
                             event_api.create_new_event(game=game_api.game,
                                                        event_name='mafia_kill_vote',
