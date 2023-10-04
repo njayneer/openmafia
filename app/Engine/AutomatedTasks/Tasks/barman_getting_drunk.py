@@ -47,7 +47,7 @@ def get_role_drunk(event_type_name, event_api, game_api, target, target_events, 
     # Check if role event exists and if so, create new one with random target
     if event_type_name in target_events.keys():
         if target_events[event_type_name].target != None:
-            possible_targets = [p.id for p in game_api.get_game_players_for_game()]
+            possible_targets = [p.id for p in game_api.get_game_players_for_game() if p.status == 'alive']
             try:  # remove previous target from possible options
                 possible_targets.remove(target_events[event_type_name].target_player.id)
             except:
