@@ -32,7 +32,7 @@ def do(game_id, source_id):
 def check_target_from_events(game_api, event_api, source_id):
     # day_no - 1 due to be fired after mafia kill
     events = event_api.get_last_events_for_actual_day(game_api.game, 'detective_check', day_no=game_api.game.day_no-1)
-    if events is None:
+    if events is None or events == {}:
         target = None
     elif source_id not in events['detective_check']:
         target = None

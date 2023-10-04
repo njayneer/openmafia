@@ -61,7 +61,7 @@ def get_role_drunk(event_type_name, event_api, game_api, target, target_events, 
 
 def check_target_from_events(game_api, event_api, source_id):
     events = event_api.get_last_events_for_actual_day(game_api.game, 'barman_getting_drunk', day_no=game_api.game.day_no)
-    if events is None:
+    if events is None or events == {}:
         target = None
     elif source_id not in events['barman_getting_drunk']:
         target = None
