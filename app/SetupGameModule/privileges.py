@@ -1,5 +1,5 @@
 from app.Engine.DB.models import GamePlayer, Game
-from app.Engine.DB.db_api import GameApi, UserApi
+from app.Engine.DB.db_api import GameApi, UserApi, GameEventApi
 from flask_login import current_user
 def _player_roles(player):
     return [role.role.name for role in player.roles]
@@ -50,7 +50,8 @@ def _get_all_privileges(player, game):
         'show_lobby': ShowLobby(player, game),
         'spy_check': SpyCheck(player, game),
         'spy_allow_change_owner': SpyAllowChangeOwner(player, game),
-        'barman_getting_drunk': BarmanGettingDrunk(player, game)
+        'barman_getting_drunk': BarmanGettingDrunk(player, game),
+        'lynch_draw_mafia_choice_vote': LynchDrawMafiaChoiceVote(player, game)
     }
 
 
@@ -69,6 +70,7 @@ class Privilege:
         self.game_api.set_game(game)
         self.user_api = UserApi()
         self.user_api.user = current_user
+        self.game_event_api = GameEventApi()
         self.user_attributes = [ua.attribute.name for ua in self.user_api.get_user_attributes()]
         self.granted = False
         if player:
@@ -120,6 +122,9 @@ class Privilege:
         self.mvp3_not_asigned = 'mvp3' not in [a.achievement.name for a in self._get_achievements()]
         self.cfg_spy_allow_change_owner = self.game_api.get_configuration('spy_allow_change_owner') == 'True'
         self.spy_in_game = len(self.game_api.get_players_with_role('spy')) > 0
+        self.lynch_draw_today = self.game_event_api.get_last_events_for_actual_day(self.game, event_name='lynch_draw_mafia_choice') != {}
+        self.lynch_draw_today_elapsed = self.game_event_api.get_last_events_for_actual_day(self.game,
+                                                                                   event_name='lynch_draw_mafia_chose') != {}
 
     def _get_achievements(self):
         return self.user_api.get_game_achievements([gp.id for gp in self.game.game_players])
@@ -574,6 +579,16 @@ class BarmanGettingDrunk(Privilege):
     def judge_if_deserved(self):
         # only with configuration or if you are to be GM.
         if self.role_barman and self.alive_player and not self.game_finished:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
+
+class LynchDrawMafiaChoiceVote(Privilege):
+    description = 'You as mafia can choose target of lynch because of the draw in vote.'
+
+    def judge_if_deserved(self):
+        if self.player_in_game and self.player_is_mafioso and self.alive_player and not self.game_finished and self.lynch_draw_today and not self.lynch_draw_today_elapsed:
             self.granted = True
         else:
             self.granted = False

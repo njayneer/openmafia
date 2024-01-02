@@ -35,6 +35,19 @@ class GameScheduler:
                                                                         minutes=cfg_time_offset[1],
                                                                         hours=cfg_time_offset[0]))
 
+    def create_lynch_mafia_choice_for_actual_day(self, game):
+        day_duration = game.phases[0].phase_duration
+        night_duration = game.phases[1].phase_duration
+        overtime_duration = min(0.5*game.phases[1].phase_duration, 1800)
+        # overtime is a half of night but not more than 30min
+
+        seconds = int(game.day_no) * (day_duration + night_duration) - night_duration + overtime_duration
+        self.game_api.game = game
+        cfg_time_offset = [int(c) for c in self.game_api.get_configuration('time_offset').split(";")]
+        self.job_api.add_job('lynch_draw_mafia_choice', game, game.start_time + timedelta(seconds=seconds,
+                                                                        minutes=cfg_time_offset[1],
+                                                                        hours=cfg_time_offset[0]))
+
     def create_mafia_kill_for_actual_day(self, game):
         day_duration = game.phases[0].phase_duration
         night_duration = game.phases[1].phase_duration

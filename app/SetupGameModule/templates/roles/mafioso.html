@@ -27,6 +27,23 @@
     Brak wysłanego głosu!
 {% endif %}
 
+{% if data['your_privileges']['lynch_draw_mafia_choice_vote'].granted %}
+    <h4>Remis w głosowaniu do linczu! Wybór mafii!</h4>
+    Wybór mafii do połowy czasu trwania nocy lub 30 minut, jeśli noc trwa dłużej niż godzinę.
+    <form action="./create_event/lynch_draw_mafia_choice_vote" method="post" class="form form-horizontal" name="lynch_draw_mafia_choice_vote">
+        {{ wtf.form_errors(lynch_draw_form,"only") }}
+        {{ lynch_draw_form.hidden_tag() }}
+        Wybieram {{ lynch_draw_form.target }}<br />
+        <div class="form-actions">
+            <button name="action_lynch_draw" type="submit" class="btn btn-primary">Wyślij głos</button>
+        </div>
+    </form>
+    {% if data['lynch_draw_mafia_choice_actual_target'] is not none %}
+        Aktualnie wybrany cel: {{ data['lynch_draw_mafia_choice_actual_target'].name }}
+    {% else %}
+        Brak aktualnie wybranego celu!
+    {% endif %}
+{% endif %}
 <h4>Wybieranie celu nocnego morderstwa</h4>
 {% if data['your_privileges']['mafia_kill_vote'].granted %}
 <form action="./create_event/mafia_kill_vote" method="post" class="form form-horizontal" name="mafia_kill_form">

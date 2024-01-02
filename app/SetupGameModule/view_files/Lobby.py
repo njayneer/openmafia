@@ -7,6 +7,7 @@ import datetime
 from app.Engine.AutomatedTasks.scheduler import GameScheduler
 from datetime import timedelta
 from app.Engine.AutomatedTasks.Tasks.mafia_kill import check_target_from_events
+from app.Engine.AutomatedTasks.Tasks.lynch_draw_mafia_choice import check_target_from_events as ld_mafia_target_from_events
 from ..privileges import judge_privileges
 import json
 import os
@@ -67,6 +68,14 @@ class Lobby():
             else:
                 mafia_actual_target = None
 
+            # mafia vote for lynch result if it is a draw
+            if your_privileges['lynch_draw_mafia_choice_vote'].granted:
+                lynch_draw_mafia_choice_actual_target = ld_mafia_target_from_events(db_api, event_api=event_api)
+                if lynch_draw_mafia_choice_actual_target is not None:
+                    lynch_draw_mafia_choice_actual_target = [player for player in game.game_players if player.id == lynch_draw_mafia_choice_actual_target][0]
+            else:
+                lynch_draw_mafia_choice_actual_target = None
+
             if your_privileges['spy_allow_change_owner'].granted:  #role:spy
                 mafia_form = CreateEventForm()
                 mafia_form.target.choices = ['-'] + [m.name for m in mafiosos]
@@ -110,6 +119,20 @@ class Lobby():
                         target_value.sort()
                         vote_results[target_name] = target_value
 
+            max_votes = 0
+            lynch_winners = []
+            for vote_res in vote_results:
+                if len(vote_results[vote_res]) > max_votes:
+                    max_votes = len(vote_results[vote_res])
+                    lynch_winners = [vote_res.name]
+                elif len(vote_results[vote_res]) == max_votes:
+                    lynch_winners = lynch_winners + [vote_res.name]
+            if your_privileges['lynch_draw_mafia_choice_vote'].granted:
+                lynch_draw_form = CreateEventForm()
+                lynch_draw_form.target.choices = ['-'] + lynch_winners
+            else:
+                lynch_draw_form = form
+
             # get all events for history
             history_events = list(event_api.get_all_events_for_whole_game(game, 'lynch'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'mafia_kill'))
@@ -125,6 +148,7 @@ class Lobby():
             history_events += list(event_api.get_all_events_for_whole_game(game, 'mvp3_chosen'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'lynch_draw_noone'))
             history_events += list(event_api.get_all_events_for_whole_game(game, 'lynch_draw_mafia_choice'))
+            history_events += list(event_api.get_all_events_for_whole_game(game, 'lynch_draw_mafia_chose'))
             history_events.sort(key=lambda x: (x.day_no, x.phase_no))
             # for ev in history_events:
             #      ev.timestamp = utc_to_local(ev.timestamp)
@@ -192,14 +216,17 @@ class Lobby():
                 'roles_data': roles_data,
                 'current_judgements': current_judgements,
                 'roles_not_visible_after_death': roles_not_visible_after_death,
-                'mafia_form': mafia_form
+                'mafia_form': mafia_form,
+                'lynch_draw_mafia_choice_actual_target': lynch_draw_mafia_choice_actual_target,
+                'lynch_winners': lynch_winners
             }
             return render_template('SetupGameModule_lobby.html',
                                    game=game,
                                    data=data,
                                    form=form,
                                    forum_form=forum_form,
-                                   time_form=time_form)
+                                   time_form=time_form,
+                                   lynch_draw_form=lynch_draw_form)
         else:
             return redirect(url_for('SetupGameModule.game_list'))
 

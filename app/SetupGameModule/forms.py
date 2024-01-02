@@ -78,4 +78,4 @@ class ConfigurationForm(FlaskForm):
 	initial_forum_turned_on = BooleanField()
 	creations_on = BooleanField()
 	lynch_draw = RadioField('Zachowanie w przypadku remisu w głosowaniu linczowym.',
-							choices=[('random', 'Gnie losowa osoba'), ('noone', 'Nikt nie ginie')])
+							choices=[('random', 'Gnie losowa osoba'), ('noone', 'Nikt nie ginie'), ('mafia_choice', 'Mafia wybiera')])

@@ -46,11 +46,13 @@ def do(game_id, source_id):
                                                player_id=None,
                                                target_id=None)
                 elif lynch_draw_config == 'mafia_choice':
+                    from app.Engine.AutomatedTasks.scheduler import GameScheduler
                     event_api.create_new_event(game=game_api.game,
                                                event_name='lynch_draw_mafia_choice',
                                                player_id=None,
                                                target_id=None)
-                    #TODO new voting system for mafia, not available yet. Use "noone" and manual kill
+                    game_scheduler = GameScheduler()
+                    game_scheduler.create_lynch_mafia_choice_for_actual_day(game_api.game)
             else:
                 winner = winners[0]
                 event_api.create_new_event(game=game_api.game,

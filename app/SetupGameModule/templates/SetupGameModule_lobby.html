@@ -252,6 +252,21 @@
           <li>Dnia {{ history_event.day_no }} przez remis w głosowaniu nikt nie został zlinczowany.</b></li>
           {% elif history_event.event_type_tbl.name == 'lynch_draw_mafia_choice' %}
           <li>Dnia {{ history_event.day_no }} przez remis w głosowaniu mafia zadecyduje, kto zostanie zlinczowany.</b></li>
+          {% elif history_event.event_type_tbl.name == 'lynch_draw_mafia_chose' %}
+            {% if history_event.target_player.name %}
+            <li>Dnia {{ history_event.day_no }} zlinczowany został <b>{{ history_event.target_player.name }}</b>
+              {% if data['your_privileges']['see_roles_of_dead_players'].granted %}
+                -
+                {% for role in history_event.target_player.roles %}
+                  {% if role.role.id not in data['roles_not_visible_after_death'] or game.status_id != 5 %}
+                    {{ role.role.visible_name }}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </li>
+            {% else %}
+              <li>Dnia {{ history_event.day_no }} noc była spokojna i cicha. Podczas niej nikt nie zginął.</b></li>
+            {% endif %}
           {% endif %}
         {% endfor %}
         </ul>
