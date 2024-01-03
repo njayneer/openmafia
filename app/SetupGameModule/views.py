@@ -319,6 +319,8 @@ def game_configuration_configuration(game_id):
             citizen_forum_turned_on = _boolean_to_string(form.citizen_forum_turned_on.data)
             initial_forum_turned_on = _boolean_to_string(form.initial_forum_turned_on.data)
             creations_on = _boolean_to_string(form.creations_on.data)
+            lynch_blocked_days = ','.join(form.lynch_blocked.data)
+            mafia_kill_blocked_days = ','.join(form.mafia_kill_blocked.data)
             configuration = {
                 'game_admin': game_admin,
                 'detailed_lynch_results': detailed_lynch_results,
@@ -327,7 +329,9 @@ def game_configuration_configuration(game_id):
                 'citizen_forum_turned_on': citizen_forum_turned_on,
                 'initial_forum_turned_on': initial_forum_turned_on,
                 'creations_on': creations_on,
-                'lynch_draw': form.lynch_draw.data
+                'lynch_draw': form.lynch_draw.data,
+                'lynch_blocked_days': lynch_blocked_days,
+                'mafia_kill_blocked_days': mafia_kill_blocked_days
             }
             db_api.update_game_configuration(configuration)
             flash('Konfiguracja zapisana!', 'alert-success')
@@ -340,6 +344,8 @@ def game_configuration_configuration(game_id):
             form.initial_forum_turned_on.data = db_api.get_configuration_value_boolean('initial_forum_turned_on')
             form.creations_on.data = db_api.get_configuration_value_boolean('creations_on')
             form.lynch_draw.data = db_api.get_configuration('lynch_draw')
+            form.lynch_blocked.data = db_api.get_configuration('lynch_blocked_days').split(",")
+            form.mafia_kill_blocked.data = db_api.get_configuration('mafia_kill_blocked_days').split(",")
         return render_template('SetupGameModule_config.html',
                                game=game,
                                form=form

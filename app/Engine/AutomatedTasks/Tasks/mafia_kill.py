@@ -36,6 +36,7 @@ def do(game_id, source_id):
             finished = game_api.check_winning_condition()
             if not finished:
                 game_api.process_to_next_phase()
+                game_api.automated_block_from_configuration()  # if lynch or kill has been configured to be blocked in new day
                 game_scheduler = GameScheduler()
                 game_scheduler.create_lynch_for_actual_day(game_api.game)
                 game_scheduler.create_mafia_kill_for_actual_day(game_api.game)

@@ -18,3 +18,15 @@ with app.app_context():
     for event_type in event_types:
         db.session.add(event_type)
     db.session.commit()
+
+# generate configurations
+    configurations = [db_models.Configuration(name="lynch_blocked_days",
+                                              description='Dni, w których lincz będzie zablokowany.',
+                                              default_value=''),
+                      db_models.Configuration(name="mafia_kill_blocked_days",
+                                              description='Dni, w których mord będzie zablokowany.',
+                                              default_value='')
+             ]
+    for config in configurations:
+        db.session.add(config)
+    db.session.commit()

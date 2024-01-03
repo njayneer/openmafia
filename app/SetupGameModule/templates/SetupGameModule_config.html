@@ -3,7 +3,7 @@
 {% block styles %}
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/datatables.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('SetupGameModule.static', filename='css/styles.css') }}">
+
 {% endblock %}
 
 {% block scripts %}
@@ -31,7 +31,11 @@
     {% for subfield in form.lynch_draw %}
     {{ subfield }}
     {{ subfield.label }}<br />
-    {% endfor %}
+    {% endfor %}<br />
+    {{ form.lynch_blocked.label }}<br />
+    {{ form.lynch_blocked(class='items') }}<br />
+    {{ form.mafia_kill_blocked.label }}<br />
+    {{ form.mafia_kill_blocked(class='items') }}<br />
     <div class="form-actions">
         <button name="action_game_config" type="submit" class="btn btn-primary">Zatwierdź</button>
     </div>

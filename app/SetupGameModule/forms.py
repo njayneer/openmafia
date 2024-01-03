@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FieldList, SelectField, FormField, HiddenField, IntegerField, BooleanField, RadioField
+from wtforms import StringField, FieldList, SelectField, FormField, HiddenField, IntegerField, BooleanField, RadioField, SelectMultipleField, widgets
 from wtforms.validators import DataRequired
 from wtforms.fields import DateField, TimeField
 from wtforms.widgets import TextArea
@@ -79,3 +79,12 @@ class ConfigurationForm(FlaskForm):
 	creations_on = BooleanField()
 	lynch_draw = RadioField('Zachowanie w przypadku remisu w głosowaniu linczowym.',
 							choices=[('random', 'Gnie losowa osoba'), ('noone', 'Nikt nie ginie'), ('mafia_choice', 'Mafia wybiera')])
+	lynch_blocked = SelectMultipleField('Dni, w których lincz będzie zablokowany',
+										choices=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6')],
+										widget=widgets.ListWidget(prefix_label=False),
+										option_widget=widgets.CheckboxInput())
+	mafia_kill_blocked = SelectMultipleField('Dni, w których mord będzie zablokowany',
+											 choices=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'),
+												 ('6', '6')],
+											 widget=widgets.ListWidget(prefix_label=False),
+											 option_widget=widgets.CheckboxInput())

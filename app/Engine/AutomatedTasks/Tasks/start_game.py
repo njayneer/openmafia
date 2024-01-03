@@ -33,5 +33,6 @@ def do(game_id, source_id):
             notif_api.add_new_notification(player.id, 'game_started', roles_string)
 
         game_scheduler = GameScheduler()
+        game_api.automated_block_from_configuration()
         game_scheduler.create_lynch_for_actual_day(game_api.game)
         game_scheduler.create_mafia_kill_for_actual_day(game_api.game)

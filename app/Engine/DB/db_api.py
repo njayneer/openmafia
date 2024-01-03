@@ -393,6 +393,24 @@ class GameApi:
             self.game.phase += 1
         db.session.commit()
 
+    def automated_block_from_configuration(self):
+        lynch_blocked_days = self.get_configuration('lynch_blocked_days').split(",")
+        if str(self.game.day_no) in lynch_blocked_days:
+            event_api = GameEventApi()
+            event_api.create_new_event(game=self.game,
+                                       event_name='admin_block_lynch',
+                                       player_id=None,
+                                       target_id=None)
+
+        mafia_kill_blocked_days = self.get_configuration('mafia_kill_blocked_days').split(",")
+        if str(self.game.day_no) in mafia_kill_blocked_days:
+            event_api = GameEventApi()
+            event_api.create_new_event(game=self.game,
+                                       event_name='admin_block_mafia_kill',
+                                       player_id=None,
+                                       target_id=None)
+
+
     def set_player_name(self, user_id, player_name):
         player = [player for player in self.game.game_players if player.user_id == user_id][0]
         player.name = player_name
