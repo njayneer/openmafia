@@ -44,6 +44,8 @@
                 Start gry: {{ game.start_time }}
                 Długość dnia: {{ '%0.2f'| format(game.phases[0].phase_duration/3600|float) }}h
                 Długość nocy: {{ '%0.2f'| format(game.phases[1].phase_duration/3600|float) }}h
+                Typ gry: {{ data.game_type }}<br />
+                <small>(gra klasyczna wymaga 10 graczy i czasu trwania doby min. 24h, gra rapid 5 graczy i doby min. 30min)</small><br />
                 {% endif %}
                 {% if data['you'].name %}
                     Grasz jako {{ data['you'].name }}

@@ -84,10 +84,24 @@ def game_configuration(game_id):
         initial_chat_page = int(page)
         initial_chat_page_content = forum_api.get_thread_page(forums['initial_thread'].id, initial_chat_page)
 
+        # game type
+        if game.phases:
+            day_length = game.phases[0].phase_duration + game.phases[1].phase_duration
+        else:
+            day_length = 0
+        player_counter = len(game.game_players) - 1
+        if day_length >= 86400 and player_counter >= 10:
+            game_type = 'classic'
+        elif player_counter >= 5 and day_length >= 1800:
+            game_type = 'rapid'
+        else:
+            game_type = 'bullet'
+
         data = {
             'initial_thread': initial_chat_page_content,
             'your_privileges': your_privileges,
-            'you': you
+            'you': you,
+            'game_type': game_type
         }
 
         return render_template('SetupGameModule_game_configuration.html',

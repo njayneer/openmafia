@@ -189,6 +189,19 @@ class Lobby():
             # time offset (game speed up)
             cfg_time_offset = [int(c) for c in db_api.get_configuration('time_offset').split(";")]
 
+            # game type
+            if game.phases:
+                day_length = game.phases[0].phase_duration + game.phases[1].phase_duration
+            else:
+                day_length = 0
+            player_counter = len(game.game_players) - 1
+            if day_length >= 86400 and player_counter >= 10:
+                game_type = 'classic'
+            elif player_counter >= 5 and day_length >= 1800:
+                game_type = 'rapid'
+            else:
+                game_type = 'bullet'
+
             data = {
                 'day_end': game.start_time + timedelta(
                     seconds=game.day_no * (day_duration + night_duration) - night_duration,
@@ -218,7 +231,8 @@ class Lobby():
                 'roles_not_visible_after_death': roles_not_visible_after_death,
                 'mafia_form': mafia_form,
                 'lynch_draw_mafia_choice_actual_target': lynch_draw_mafia_choice_actual_target,
-                'lynch_winners': lynch_winners
+                'lynch_winners': lynch_winners,
+                'game_type': game_type
             }
             return render_template('SetupGameModule_lobby.html',
                                    game=game,

@@ -42,11 +42,15 @@ class GameApi:
         elif game_type == 'my_games':
             if user is None:
                 user = current_user
-            games = Game.query.all()
+            status_id = self._get_status_id('cancelled')
+            games = Game.query.filter(Game.status_id != status_id).all()
             return [game for game in games if user.id in [player.user_id for player in game.game_players]]
-        # elif game_type == 'my_last_game':
-        #     games = Game.query.order_by(desc(Game.id))
-        #     return [game for game in games if current_user.id in [player.user_id for player in game.game_players]][0]
+        elif game_type == 'my_in_progress':
+            if user is None:
+                user = current_user
+            status_id = self._get_status_id('in_progress')
+            games = Game.query.filter(Game.status_id == status_id).all()
+            return [game for game in games if user.id in [player.user_id for player in game.game_players]]
         else:
             return None
 
@@ -161,12 +165,12 @@ class GameApi:
     def set_game_type(self):
         day_length = sum([phase.phase_duration for phase in self.game.phases])
         player_counter = len(self.game.game_players)
-        if day_length >= 86400 and player_counter >= 10:
+        if day_length >= 86400 and player_counter >= 10:  # classic/short/blitz type
             self.game.game_type = self.get_game_type_id('classic')
-        elif player_counter >= 7:
-            self.game.game_type = self.get_game_type_id('blitz')
+        elif player_counter >= 5 and day_length >= 1800:
+            self.game.game_type = self.get_game_type_id('rapid')
         else:
-            self.game.game_type = self.get_game_type_id('short')
+            self.game.game_type = self.get_game_type_id('bullet')
         db.session.commit()
         return self.game
 

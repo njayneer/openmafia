@@ -11,6 +11,7 @@ import smtplib
 from email.mime.text import MIMEText
 from zoneinfo import ZoneInfo
 import os
+from app.Engine.DB.db_api import GameApi
 
 def now():
     now_dt = datetime.now(tz=ZoneInfo(os.environ["TZ"])).replace(tzinfo=None).replace(microsecond=0)
@@ -20,7 +21,14 @@ def now():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    db_api = GameApi()
+    games = db_api.list_games('my_in_progress')
+    return render_template('index.html', games=games)
+
+
+@app.route('/help/')
+def help_page():
+    return render_template('help_page.html')
 
 # === User login methods ===
 

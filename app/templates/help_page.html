@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{%block title%}OpenMafia - strona główna{%endblock%}
+
+{%block main_content%}
+
+<div class="main_page">
+	<h1>Dział pomocy</h1>
+	<p>Na tej stronie znajdziesz wszystkie możliwe opcje konfiguracyjne oraz role.</p>
+
+	<h2>Rodzaje gier</h2>
+	<div class="container-mainpage">
+		Gry dzielą się na trzy grupy: classic, rapid i bullet. Żeby gra była zaklasyfikowana do kategorii classic,
+		musi w niej uczestniczyć minimum 10 graczy, a czas trwania doby mafijnej musi wynosić minimum 24 godziny.
+		Żeby gra widniała jako rapid, nie może spełniać powyższych warunków, ale musi w niej uczestniczyć minimum
+		5 graczy, a czas trwania doby mafijnej musi wynosić minimum 30 minut. Jeżeli gra nie spełnia również tych
+		warunków, zostanie sklasyfikowana jako bullet.<br />
+		Aktualnie nie ma rozróżnienia pomiędzy grami rapid i bullet. Ich wyniki nie zapisują się nigdzie. Gry typu
+		classic pojawiają się w profilach graczy, a także są wliczane do rankingu.<br />
+	</div>
+	<h2>Konfiguracje gier</h2>
+	<div class="container-mainpage">
+		Będąc stwórcą gry, przed jej startem można kliknąć "skonfiguruj grę", aby przejść do ustawień.<br />
+		"Twórca zostaje mistrzem gry" - gdy opcja jest wybrana, gracz ma bardzo duże możliwości ingerencji w grę, m. in.
+		zna wszystkie dostępne role, może usuwać wszystkie akcje, automatyczne i ręczne, może zabijać i ożywiać graczy,
+		itd. Gdy opcja jest odznaczona, po starcie gry stwórca gry staje się zwyczajnym graczem i nie ma już żadnych
+		dodatkowych opcji, może w pełni uczestniczyć w grze jako gracz.<br />
+		"Wyniki po linczu szczegółowe (kto na kogo)" - po zakończeniu głosowania na lincz wyniki odsłonią się, by
+		pokazać, kto na kogo oddał głos. Gdy opcja jest odznaczona, wyniki pozostaną tajne na zawsze.<br />
+		"Głosowanie do linczu jawne na żywo" - już w trakcie głosowania pojawia się specjalna tabela ukazująca, kto
+		oddał głos na kogo i o której godzinie.<br />
+		"Przed startem gry wyświetlaj wszystkim pełną listę zapisanych (zamiast ogólnej liczby)" - gdy opcja jest
+		zaznaczona, wszyscy widzą kto dokładnie jest zapisany. Gdy opcja jest odznaczona, jedynie mistrz gry ma taką
+		wiedzę (chyba, że opcja "Twórca zostaje mistrzem gry" jest odznaczona, wtedy nikt nie ma takiej wiedzy.
+		Pozostali gracze znają tylko ogólną liczbę zapisanych do gry.<br />
+		"Włącz forum przed startem gry" - pojawi się specjalne forum widoczne tylko przed startem gry, do dyskusji
+		dostępne tylko dla zapisanych graczy.<br />
+		"Włącz forum miasta" - po rozpoczęciu gry pojawi się forum do dyskusji dla wszystkich uczestników gry. <br/>
+		"Włącz możliwość ustawiania kreacji (indywidualnych nazw graczy dla gry)" - gdy opcja jest zaznaczona, gracze
+		po zapisaniu otrzymają dostęp do specjalnego formularza, w którym mogą wpisać dowolną nazwę (kreację). Pod
+		tą kreacją będą wyświetlać się przez całą grę wszystkim jej uczestnikom. Jedynie mistrz gry będzie miał wiedzę,
+		kto kryje się pod jaką kreacją. Po zakończeniu gry wiedza ta zostanie ujawniona również wszystkim. <br />
+		"Zachowanie w przypadku remisu w głosowaniu linczowym" - gdyby zdarzyło się, że w głosowaniu miasta do linczu
+		wystąpi remis, możliwe są trzy scenariusze:<br />
+		- "Ginie losowa osoba" - natychmiastowo zginie jeden ze "zwycięzców" głosowania,<br />
+		- "Nikt nie ginie" - lincz się nie odbywa, pojawia się odpowiedni komunikat o braku linczu <br />
+		- "Mafia wybiera" - pojawia się komunikat o remisie i mafiozi otrzymują dodatkowy formularz w zakładce swojej
+		roli, działający analogicznie do mordu - wspólnie wybierają i zmieniają cel linczu, wybierać mogą tylko spośród
+		"zwycięzców" głosowania. Koniec ich wyboru i lincz odbywa się równo w połowie nocy, ale nie później niż 30 minut
+		po końcu fazy dnia (np. jeśli noc trwa 20 minut, głosowanie trwa 10 minut, jeśli noc trwa 3 godziny, głosowanie
+		trwa 30 minut).<br />
+		"Dni w których lincz będzie zablokowany" - do wyboru są pola wielokrotnego wyboru, dni od 1 do 6. Jeśli dany
+		dzień zostanie wybrany, na jego początku pojawi się automatyczne zablokowanie linczu, tak jakby to administrator
+		ręcznie zablokował lincz.<br />
+		"Dni w których mord będzie zablokowany" - analogicznie do linczu, ale dotyczy mordu.<br />
+	</div>
+</div>
+
+{%endblock%}

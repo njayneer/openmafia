@@ -31,6 +31,20 @@
 	  <!-- Collect the nav links, forms, and other content for toggling -->
 	  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 		<ul class="nav navbar-nav">
+			{% if request.endpoint == 'index' %}
+				{% if games|length == 1 %}
+					<li><a href="{{ url_for('SetupGameModule.lobby', game_id = games[0].id)}}">Wznów grę</a></li>
+				{% elif games|length > 1 %}
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Wznów grę <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							{% for game in games %}
+								<li><a href="{{ url_for('SetupGameModule.lobby', game_id = game.id)}}">{{ game.name }}</a></li>
+							{% endfor %}
+						</ul>
+					</li>
+				{% endif %}
+			{% endif %}
 			<li {{ 'class=active' if request.endpoint == 'SetupGameModule.setup_game' }} ><a href="{{ url_for('SetupGameModule.setup_game')}}">Załóż grę</a></li>
 			<li><a href="{{ url_for('SetupGameModule.game_list')}}/my_games">Moje gry</a></li>
 			<li><a href="{{ url_for('SetupGameModule.game_list')}}/open_games">Otwarte gry</a></li>

@@ -71,30 +71,31 @@ def add_calculated_users_data(users):
 def extract_users_data_from_db_game_players(game_players):
     users = {}
     for gp in game_players:
-        if gp.user_id not in users:
-            users[gp.user_id] = {}
+        if gp.status != 'special':
+            if gp.user_id not in users:
+                users[gp.user_id] = {}
 
-        if 'games_played' not in users[gp.user_id]:
-            users[gp.user_id]['games_played'] = 1
-        else:
-            users[gp.user_id]['games_played'] += 1
+            if 'games_played' not in users[gp.user_id]:
+                users[gp.user_id]['games_played'] = 1
+            else:
+                users[gp.user_id]['games_played'] += 1
 
-        won = int(gp.winner)
-        if 'games_won' not in users[gp.user_id]:
-            users[gp.user_id]['games_won'] = won
-        else:
-            users[gp.user_id]['games_won'] += won
+            won = int(gp.winner)
+            if 'games_won' not in users[gp.user_id]:
+                users[gp.user_id]['games_won'] = won
+            else:
+                users[gp.user_id]['games_won'] += won
 
-        mvp = 'mvp' in [a.achievement.name for a in gp.achievements]
-        if mvp:
-            mvp = 1
-        else:
-            mvp = 0
-        if 'games_mvp' not in users[gp.user_id]:
-            users[gp.user_id]['games_mvp'] = mvp
-        else:
-            users[gp.user_id]['games_mvp'] += mvp
+            mvp = 'mvp' in [a.achievement.name for a in gp.achievements]
+            if mvp:
+                mvp = 1
+            else:
+                mvp = 0
+            if 'games_mvp' not in users[gp.user_id]:
+                users[gp.user_id]['games_mvp'] = mvp
+            else:
+                users[gp.user_id]['games_mvp'] += mvp
 
-        users[gp.user_id]['user_name'] = gp.user.name
+            users[gp.user_id]['user_name'] = gp.user.name
 
     return users
