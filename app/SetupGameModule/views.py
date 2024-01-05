@@ -499,7 +499,14 @@ def validate_event(event_name, form_target, game, you, game_event_api):
     """
     event_validated = True
     if event_name == 'priest_prayer':  # role:priest check if the last time target wasnt the same
-        last_event = game_event_api.get_last_events_for_actual_day(game, 'priest_prayer', game.day_no - 1)
+        # get last unblocked murder day
+        last_murder_day = 0
+        for d in range(game.day_no - 1, 0, -1):
+            murder_event = game_event_api.get_last_events_for_actual_day(game, 'admin_block_mafia_kill', d)
+            if murder_event == {}:
+                last_murder_day = d
+                break
+        last_event = game_event_api.get_last_events_for_actual_day(game, 'priest_prayer', last_murder_day)
         if last_event:
             if last_event['priest_prayer'][you.id].target_player.name == form_target:
                 event_validated = False

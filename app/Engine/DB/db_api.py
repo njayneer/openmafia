@@ -50,7 +50,11 @@ class GameApi:
                 user = current_user
             status_id = self._get_status_id('in_progress')
             games = Game.query.filter(Game.status_id == status_id).all()
-            return [game for game in games if user.id in [player.user_id for player in game.game_players]]
+            try:
+                result = [game for game in games if user.id in [player.user_id for player in game.game_players]]
+            except AttributeError:
+                result = None
+            return result
         else:
             return None
 

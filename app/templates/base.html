@@ -31,7 +31,7 @@
 	  <!-- Collect the nav links, forms, and other content for toggling -->
 	  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 		<ul class="nav navbar-nav">
-			{% if request.endpoint == 'index' %}
+			{% if request.endpoint == 'index' and games %}
 				{% if games|length == 1 %}
 					<li><a href="{{ url_for('SetupGameModule.lobby', game_id = games[0].id)}}">Wznów grę</a></li>
 				{% elif games|length > 1 %}
@@ -56,6 +56,7 @@
 					<li><a href="{{ url_for('User.user_toplist')}}">Ranking</a></li>
 				</ul>
 			</li>
+			<li><a href="{{ url_for('help_page')}}">Pomoc</a></li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
 		  <li><a href="#"></a></li>

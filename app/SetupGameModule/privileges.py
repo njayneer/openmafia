@@ -125,6 +125,7 @@ class Privilege:
         self.lynch_draw_today = self.game_event_api.get_last_events_for_actual_day(self.game, event_name='lynch_draw_mafia_choice') != {}
         self.lynch_draw_today_elapsed = self.game_event_api.get_last_events_for_actual_day(self.game,
                                                                                    event_name='lynch_draw_mafia_chose') != {}
+        self.mafia_kill_blocked = self.game_event_api.get_last_events_for_actual_day(self.game, event_name='admin_block_mafia_kill') != {}
 
     def _get_achievements(self):
         return self.user_api.get_game_achievements([gp.id for gp in self.game.game_players])
@@ -449,7 +450,7 @@ class PriestPrayer(Privilege):
 
     def judge_if_deserved(self):
         # only with configuration or if you are to be GM.
-        if self.role_priest and self.alive_player and not self.game_finished:
+        if self.role_priest and self.alive_player and not self.game_finished and not self.mafia_kill_blocked:
             self.granted = True
         else:
             self.granted = False
