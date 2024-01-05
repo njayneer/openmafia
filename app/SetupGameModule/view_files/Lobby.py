@@ -76,7 +76,7 @@ class Lobby():
             else:
                 lynch_draw_mafia_choice_actual_target = None
 
-            if your_privileges['spy_allow_change_owner'].granted:  #role:spy
+            if your_privileges['spy_allow_change_owner'].granted or your_privileges['godfather_allow_change_owner'].granted:  #role:spy
                 mafia_form = CreateEventForm()
                 mafia_form.target.choices = ['-'] + [m.name for m in mafiosos]
             else:

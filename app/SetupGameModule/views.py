@@ -274,7 +274,8 @@ def game_configuration_choose_roles(game_id):
                                                   'spy_allow_change_owner': str(form.spy_allow_change_owner.data)})
             if [r.id for r in roles_api.roles if r.name == 'barman'][0] in role_ids:  # role:spy if spy is chosen
                 db_api.update_game_configuration({'barman_town_roles_drunk': str(form.barman_town_roles_drunk.data)})
-
+            if [r.id for r in roles_api.roles if r.name == 'godfather'][0] in role_ids:  # role:godfather if it is chosen
+                db_api.update_game_configuration({'godfather_allow_change_owner': str(form.godfather_allow_change_owner.data)})
             if game_admin_activated:
                 admin_player_id = db_api.get_player_id_for_user_id(current_user.id)
                 db_api.assign_game_admin(admin_player_id)
@@ -862,7 +863,8 @@ def change_mafia_role(game_id, role):
     you = db_api.get_player_object_for_user_id(current_user.id)
     your_privileges = judge_privileges(you, game)
     if new_owner_name != '-':
-        if role == 'spy' and your_privileges['spy_allow_change_owner'].granted:
+        if (role == 'spy' and your_privileges['spy_allow_change_owner'].granted)\
+                or (role == 'godfather' and your_privileges['godfather_allow_change_owner'].granted):
             mafiosos = db_api.get_players_with_role('mafioso')
             mafia_form = CreateEventForm()
             mafia_form.target.choices = ['-'] + [m.name for m in mafiosos]

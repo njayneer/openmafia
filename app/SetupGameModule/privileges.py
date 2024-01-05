@@ -50,6 +50,7 @@ def _get_all_privileges(player, game):
         'show_lobby': ShowLobby(player, game),
         'spy_check': SpyCheck(player, game),
         'spy_allow_change_owner': SpyAllowChangeOwner(player, game),
+        'godfather_allow_change_owner': GodfatherAllowChangeOwner(player, game),
         'barman_getting_drunk': BarmanGettingDrunk(player, game),
         'lynch_draw_mafia_choice_vote': LynchDrawMafiaChoiceVote(player, game)
     }
@@ -121,7 +122,9 @@ class Privilege:
         self.mvp2_not_asigned = 'mvp2' not in [a.achievement.name for a in self._get_achievements()]
         self.mvp3_not_asigned = 'mvp3' not in [a.achievement.name for a in self._get_achievements()]
         self.cfg_spy_allow_change_owner = self.game_api.get_configuration('spy_allow_change_owner') == 'True'
+        self.cfg_godfather_allow_change_owner = self.game_api.get_configuration('godfather_allow_change_owner') == 'True'
         self.spy_in_game = len(self.game_api.get_players_with_role('spy')) > 0
+        self.godfather_in_game = len(self.game_api.get_players_with_role('godfather')) > 0
         self.lynch_draw_today = self.game_event_api.get_last_events_for_actual_day(self.game, event_name='lynch_draw_mafia_choice') != {}
         self.lynch_draw_today_elapsed = self.game_event_api.get_last_events_for_actual_day(self.game,
                                                                                    event_name='lynch_draw_mafia_chose') != {}
@@ -573,6 +576,15 @@ class SpyAllowChangeOwner(Privilege):
             self.granted = False
         return self.granted
 
+class GodfatherAllowChangeOwner(Privilege):
+    description = 'You can change godfather owner'
+
+    def judge_if_deserved(self):
+        if self.cfg_godfather_allow_change_owner and self.player_is_mafioso and self.current_phase_is_day and self.game.day_no == 1 and self.godfather_in_game:
+            self.granted = True
+        else:
+            self.granted = False
+        return self.granted
 
 class BarmanGettingDrunk(Privilege):
     description = 'You can use barman ability.'

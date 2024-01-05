@@ -49,6 +49,10 @@ Rozgrywka bez mistrza gry
         {{ form.barman_town_roles_drunk.label }}
         {{ form.barman_town_roles_drunk }}
     {% endif %}
+    {% if roles[loop.index0] == 'godfather' %}
+        {{ form.godfather_allow_change_owner.label }}
+        {{ form.godfather_allow_change_owner }}
+    {% endif %}
     {% endfor %}
     <div class="form-actions">
         <button name="action_choose_roles" type="submit" class="btn btn-primary">Zatwierdź role</button>

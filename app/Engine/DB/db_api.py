@@ -223,7 +223,7 @@ class GameApi:
         '''
         if role.role.name in ['detective', 'suspect', 'priest', 'sniper', 'barman']:
             self.add_new_game_role('citizen', role.player_id)
-        if role.role.name in ['spy']:
+        if role.role.name in ['spy', 'godfather']:
             self.add_new_game_role('mafioso', role.player_id)
 
     def shuffle_order_of_players(self):

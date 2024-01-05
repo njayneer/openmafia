@@ -20,7 +20,7 @@ def do(game_id, source_id):
                     target_roles = [r.name for r in game_api.get_all_players_roles(target)]
                     target_events = event_api.get_last_your_events_for_actual_day(game_api.game, target, game_api.game.day_no)
 
-                    if 'mafioso' in target_roles:
+                    if 'mafioso' in target_roles and 'godfather' not in target_roles: # role:godfather is immune
                         mafia_events = event_api.get_last_events_for_actual_day(game_api.game, 'mafia_kill_vote', game_api.game.day_no)
                         if 'mafia_kill_vote' in mafia_events.keys():
                             if target_events['mafia_kill_vote'].target != None:

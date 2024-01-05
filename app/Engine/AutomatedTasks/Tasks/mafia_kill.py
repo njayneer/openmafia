@@ -16,7 +16,16 @@ def do(game_id, source_id):
             target = check_target_from_events(game_api, event_api)
 
             # role:priest - check if there is no prayer events for current day
-            target = check_priest_prayer(event_api, game_api, target)
+            target, prayer_source, prayer_target = check_priest_prayer(event_api, game_api, target)
+
+            # role:godfather is acknowledged about priest prayer on being targeted.
+            if prayer_target:
+                target_roles = [r.name for r in game_api.get_all_players_roles(prayer_target)]
+                if 'godfather' in target_roles:
+                    notif_api = NotificationApi()
+                    notif_api.add_new_notification(prayer_target,
+                                                   'prayer_for_godfather',
+                                                   game_api.get_player_name_for_id(prayer_source))
 
             # Kill the target
             if target is not None:
@@ -44,17 +53,20 @@ def do(game_id, source_id):
 
 def check_priest_prayer(event_api, game_api, target):
     priest_prayer = event_api.get_last_events_for_actual_day(game_api.game, 'priest_prayer')
+    source = None
+    p_target = None
     if len(priest_prayer) > 0:
         priest_prayer = priest_prayer['priest_prayer']
         priest_result = False
         for p_source in priest_prayer:
             p = priest_prayer[p_source]
             p_target = p.target
+            source = p.player_id
             if p_target == target:  # prayer target equals mafia target
                 priest_result = True
         if priest_result:
             target = None
-    return target
+    return target, source, p_target
 
 
 def check_target_from_events(game_api, event_api):

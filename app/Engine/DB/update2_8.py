@@ -25,8 +25,28 @@ with app.app_context():
                                               default_value=''),
                       db_models.Configuration(name="mafia_kill_blocked_days",
                                               description='Dni, w których mord będzie zablokowany.',
-                                              default_value='')
+                                              default_value=''),
+                      db_models.Configuration(name="godfather_allow_change_owner",
+                                              description='Właściciel roli Ojca Chrzestnego może być zmieniony do końca pierwszego dnia."',
+                                              default_value='False'),
              ]
     for config in configurations:
         db.session.add(config)
+    db.session.commit()
+
+# generate roles
+    roles = [db_models.Role(name="godfather",
+                            visible_name='Ojciec Chrzestny',
+                            description='Ojciec Chrzestny to pasywna rola. Jeśli detektyw sprawdzi OC, wynik będzie niewinny, jeśli barman upije OC, upicie będzie nieskuteczne. Jeśli ksiądz będzie się modlił za OC, OC dostanie informację z nickiem księdza.')
+             ]
+    for role in roles:
+        db.session.add(role)
+    db.session.commit()
+
+# generate notification types
+    notifications = [db_models.NotificationTemplate(name="prayer_for_godfather",
+                                                    content="Ksiądz <b>%s</b> wybrał ciebie jako cel modlitwy!")
+                     ]
+    for notif in notifications:
+        db.session.add(notif)
     db.session.commit()
