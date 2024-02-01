@@ -22,7 +22,7 @@ def admin_index():
 @login_required
 @administrator_privileges_required
 def update_db():
-    import app.Engine.DB.update2_7
+    import app.Engine.DB.update2_8
     flash('Wykonano', 'alert-success')
     return redirect(url_for('AdminModule.admin_index'))
 
